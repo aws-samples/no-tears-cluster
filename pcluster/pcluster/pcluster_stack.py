@@ -28,3 +28,4 @@ class PclusterStack(core.Stack):
 
         # Create a Cloud9 instance
         cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9Env', vpc=vpc)
+        core.CfnOutput(self, 'URL',  value=cloud9_instance.ide_url )
