@@ -1,6 +1,3 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Yum Update
-sudo yum update -y
-
-# Insert custom commands below:
+pip-3.6 install aws-parallelcluster -U --user

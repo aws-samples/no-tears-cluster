@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Cloud9 + QuickStart VPC (qs-1pb4pod81) (Please do not remove) May,29,2019
+Description: Cloud9 + PCluster Rapid Cluster
 Metadata:
   LICENSE: Apache License, Version 2.0
   AWS::CloudFormation::Interface:
@@ -15,13 +15,9 @@ Metadata:
           - PublicSubnet1CIDR
           - PublicSubnet2CIDR
       - Label:
-          default: Bastion configuration
-        Parameters:
-          - EnableBastionStack
-          - RemoteAccessCIDR
-      - Label:
           default: Cloud9 configuration
         Parameters:
+          - BootstrapScriptS3Uri
           - C9InstanceType
           - C9StopTime
           - EBSVolumeSize
@@ -56,8 +52,6 @@ Metadata:
         default: Public subnet 1 CIDR
       PublicSubnet2CIDR:
         default: Public subnet 2 CIDR
-      EnableBastionStack:
-        default: Bastion entry point
       RemoteAccessCIDR:
         default: Allowed external access CIDR (bastion access)
 Parameters:
@@ -66,7 +60,7 @@ Parameters:
     Description: 'Region of Staging bucket (BucketName)'
     Type: String
   BootstrapScriptS3Uri:
-    Default: 'us-east-1'
+    Default: 's3://seaam/bootstrap.sh'
     Description: 'S3 URI for bootstrap script'
     Type: String
   QSS3BucketName:
@@ -194,11 +188,6 @@ Parameters:
     Description: The desired size (in GB) of the Amazon EBS volume for your Cloud9 IDE.
     Type: Number
     Default: 100
-  EnableBastionStack:
-    AllowedValues: ['true', 'false']
-    Default: 'false'
-    Description: (Optional) Choose true to create a Linux bastion.
-    Type: String
   NumberOfAZs:
     Description: Number of Availability Zones to use in the VPC. This must match your selections in the list of Availability Zones parameter.
     Type: String
@@ -209,9 +198,6 @@ Parameters:
       - 4
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quckstart']
-  EnableBastion: !Equals
-    - !Ref EnableBastionStack
-    - 'true'
   AutoCIDR: !Equals
     - !Ref RemoteAccessCIDR
     - 'Auto'
@@ -462,20 +448,3 @@ Resources:
         C9Subnet: !GetAtt 'VPCStack.Outputs.PublicSubnet1ID'
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
-  BastionStack:
-    Condition: EnableBastion
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL:
-        !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template'
-          - S3Region: !If [UsingDefaultBucket, !Sub '${AWS::Region}', !Ref QSS3BucketRegion]
-            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        BastionAMIOS: 'Amazon-Linux-HVM'
-        BastionInstanceType: 't2.micro'
-        KeyPairName: !Ref CreateKeypair
-        PublicSubnet1ID: !GetAtt 'VPCStack.Outputs.PublicSubnet1ID'
-        PublicSubnet2ID: !GetAtt 'VPCStack.Outputs.PublicSubnet2ID'
-        RemoteAccessCIDR: !If [AutoCIDR, !Ref GetIp, !Ref RemoteAccessCIDR]
-        VPCID: !GetAtt 'VPCStack.Outputs.VPCID'
