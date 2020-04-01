@@ -27,5 +27,7 @@ class PclusterStack(core.Stack):
         cloudtrail.Trail(self, 'CloudTrail', bucket=bucket)
 
         # Create a Cloud9 instance
+        # Cloud9 doesn't have the ability to provide userdata
+        # Because of this we need to use SSM run command
         cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9Env', vpc=vpc)
         core.CfnOutput(self, 'URL',  value=cloud9_instance.ide_url )

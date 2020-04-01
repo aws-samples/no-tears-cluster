@@ -1,9 +1,6 @@
 
 # Setup Cloud9, IAM, pcluster environment
 
-This app sets up a 
-
-
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 This project is set up like a standard Python project.  The initialization
