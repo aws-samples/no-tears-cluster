@@ -94,6 +94,10 @@ Parameters:
       IP range. Alternatively, keep the default "Auto" setting to provide access to only the IP address launching the stack.
     Type: String
     Default: Auto
+  VPCStack:
+    Description: Name of an existing VPC Stack, if not provided will be created.
+    Type: String
+    Default: ''
   AvailabilityZones:
     Description: >-
       List of Availability Zones to use for the subnets in the VPC. Only two
@@ -197,6 +201,7 @@ Parameters:
       - 3
       - 4
 Conditions:
+  CreateVPCStack: !Equals [!Ref VPCStack, '']
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quckstart']
   AutoCIDR: !Equals
     - !Ref RemoteAccessCIDR
@@ -414,6 +419,8 @@ Resources:
     Properties:
       SecretString: !GetAtt 'CreateKeypair.PrivateKey'
   VPCStack:
+    Condition:
+      Condition: CreateVPCStack
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL:
@@ -445,6 +452,7 @@ Resources:
         C9InstanceType: !Ref C9InstanceType
         BootstrapScriptS3Uri: !Ref BootstrapScriptS3Uri
         C9StopTime: !Ref 'C9StopTime'
-        C9Subnet: !GetAtt 'VPCStack.Outputs.PublicSubnet1ID'
+        C9Subnet: !ImportValue
+                  - !Sub '${VPCStack}-PublicSubnet1ID'
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
