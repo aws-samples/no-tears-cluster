@@ -5,18 +5,7 @@ This repo rapidly deploys a cloudformation stack that creates a Cloud9 instance,
 To get started, run:
 
 ```bash
-cd pcluster/
-cdk deploy
-```
-
-Then visit the EC2 Console to connect to the machine.
-
-Once connected, run:
-
-```bash
-git clone https://github.com/sean-smith/covid19hpc
-cd covid19hpc/
-./bootstrap.sh
+cd quickstart/
 ```
 
 That's it!

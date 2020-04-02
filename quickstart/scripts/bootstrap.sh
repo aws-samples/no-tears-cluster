@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 
-pip-3.6 --disable-pip-version-check install aws-parallelcluster -U --user
+pip-3.6 --disable-pip-version-check install aws-parallelcluster -U
 
 
 AWS_REGION=us-east-1
-KEY_NAME=test
+KEY_NAME=amzn
+VPC_STACK=VPCStack
 
 cat >> ~/.parallelcluster/config <<EOF
 [global]
@@ -29,7 +30,7 @@ vpc_settings = public-private
 fsx_settings = fsx
 disable_hyperthreading = true
 dcv_settings = dcv
-post_install_script =
+post_install = https://covid19hpc-quickstart-161153343288.s3.amazonaws.com/user_data.sh
 
 [fsx fsx]
 shared_dir = /fsx
@@ -41,8 +42,8 @@ port = 8443
 access_from = 0.0.0.0/0
 
 [vpc public-private]
-vpc_id = $(aws --region ${AWS_REGION} cloudformation  describe-stacks --stack-name VPCStack --query "Stacks[0].Outputs[?OutputKey=='VPCID'].OutputValue" --output=text)
-master_subnet_id = $(aws --region ${AWS_REGION} cloudformation  describe-stacks --stack-name VPCStack --query "Stacks[0].Outputs[?OutputKey=='PublicSubnet1ID'].OutputValue" --output=text)
-compute_subnet_id = $(aws --region ${AWS_REGION} cloudformation  describe-stacks --stack-name VPCStack --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet1ID'].OutputValue" --output=text)
+vpc_id = $(aws --region ${AWS_REGION} cloudformation  describe-stacks --stack-name ${VPC_STACK} --query "Stacks[0].Outputs[?OutputKey=='VPCID'].OutputValue" --output=text)
+master_subnet_id = $(aws --region ${AWS_REGION} cloudformation  describe-stacks --stack-name ${VPC_STACK} --query "Stacks[0].Outputs[?OutputKey=='PublicSubnet1ID'].OutputValue" --output=text)
+compute_subnet_id = $(aws --region ${AWS_REGION} cloudformation  describe-stacks --stack-name ${VPC_STACK} --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet1AID'].OutputValue" --output=text)
 
 EOF
