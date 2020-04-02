@@ -4,7 +4,7 @@ azs="$(region)a\,$(region)b"
 stack_name=pcluster
 bootstrapS3Uri=s3://${s3_bucket}/bootstrap.sh
 
-all: create
+all: try_create
 
 upload:
 	aws s3 cp templates/cloud9-ide-master.template.yaml s3://${s3_bucket}/cloud9-ide-master.template.yaml
@@ -23,8 +23,16 @@ network:
  	 --parameters ParameterKey=AvailabilityZones,ParameterValue=${azs}
 
 try_network:
-	$(MAKE) exists_network || $(MAKE) network
-	$(MAKE) wait_network 
+	$(MAKE) wait_network || $(MAKE) network
+
+wait_create: 
+	aws cloudformation wait stack-create-complete --stack-name ${stack_name}
+
+exists_create:  
+	aws cloudformation wait stack-exists --stack-name ${stack_name}
+
+try_create:
+	$(MAKE) wait_create || $(MAKE) create
 
 create: upload try_network 
 	aws cloudformation create-stack --region ${region} --stack-name ${stack_name} \
