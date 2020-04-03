@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Cloud9 + PCluster Rapid Cluster
+Description: Cloud9 + QuickStart VPC (qs-1pb4pod81) (Please do not remove) May,29,2019
 Metadata:
   LICENSE: Apache License, Version 2.0
   AWS::CloudFormation::Interface:
@@ -15,9 +15,13 @@ Metadata:
           - PublicSubnet1CIDR
           - PublicSubnet2CIDR
       - Label:
+          default: Bastion configuration
+        Parameters:
+          - EnableBastionStack
+          - RemoteAccessCIDR
+      - Label:
           default: Cloud9 configuration
         Parameters:
-          - BootstrapScriptS3Uri
           - C9InstanceType
           - C9StopTime
           - EBSVolumeSize
@@ -52,16 +56,18 @@ Metadata:
         default: Public subnet 1 CIDR
       PublicSubnet2CIDR:
         default: Public subnet 2 CIDR
+      EnableBastionStack:
+        default: Bastion entry point
       RemoteAccessCIDR:
         default: Allowed external access CIDR (bastion access)
 Parameters:
+  BootstrapScriptS3Uri:
+    Default: 's3://seaam/bootstrap.sh'
+    Description: 'S3 URI of bootstrap script.'
+    Type: String
   QSS3BucketRegion:
     Default: 'us-east-1'
     Description: 'Region of Staging bucket (BucketName)'
-    Type: String
-  BootstrapScriptS3Uri:
-    Default: 's3://seaam/bootstrap.sh'
-    Description: 'S3 URI for bootstrap script'
     Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -192,6 +198,11 @@ Parameters:
     Description: The desired size (in GB) of the Amazon EBS volume for your Cloud9 IDE.
     Type: Number
     Default: 100
+  EnableBastionStack:
+    AllowedValues: ['true', 'false']
+    Default: 'false'
+    Description: (Optional) Choose true to create a Linux bastion.
+    Type: String
   NumberOfAZs:
     Description: Number of Availability Zones to use in the VPC. This must match your selections in the list of Availability Zones parameter.
     Type: String
@@ -202,7 +213,10 @@ Parameters:
       - 4
 Conditions:
   CreateVPCStack: !Equals [!Ref VPCStackName, '']
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quckstart']
+  EnableBastion: !Equals
+    - !Ref EnableBastionStack
+    - 'true'
   AutoCIDR: !Equals
     - !Ref RemoteAccessCIDR
     - 'Auto'
@@ -447,10 +461,12 @@ Resources:
           - S3Region: !If [UsingDefaultBucket, !Sub '${AWS::Region}', !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
+        BootstrapScriptS3Uri: !Ref BootstrapScriptS3Uri
+        BootstrapArguments: !Join [' ', [!Ref CreateKeypair, !Ref VPCStackName]]
         EBSVolumeSize: !Ref EBSVolumeSize
         C9InstanceType: !Ref C9InstanceType
-        BootstrapScriptS3Uri: !Ref BootstrapScriptS3Uri
         C9StopTime: !Ref 'C9StopTime'
-        C9Subnet: !ImportValue 'VPCStack-PublicSubnet1ID'
+        C9Subnet: Fn::ImportValue:
+          - !Sub '${VPCStackName}-PublicSubnet1ID'
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix

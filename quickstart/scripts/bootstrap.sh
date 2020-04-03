@@ -4,11 +4,12 @@
 pip-3.6 --disable-pip-version-check install aws-parallelcluster -U
 
 
-AWS_REGION=us-east-1
-KEY_NAME=amzn
+AWS_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/.$//')
+KEY_NAME=$1
 VPC_STACK=VPCStack
 
-cat >> ~/.parallelcluster/config <<EOF
+mkdir -p $HOME/.parallelcluster
+cat >> $HOME/.parallelcluster/config <<EOF
 [global]
 cluster_template = covid
 update_check = true
