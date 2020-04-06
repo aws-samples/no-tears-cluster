@@ -1,5 +1,6 @@
 from aws_cdk import (
     aws_s3 as s3,
+    aws_s3_assets as assets,
     aws_cloud9 as cloud9,
     aws_ec2 as ec2,
     aws_cloudtrail as cloudtrail,
@@ -24,21 +25,33 @@ class PclusterStack(cdk.Stack):
 
         bootstrap_script_args = cdk.CfnParameter(self, 'BootstrapScriptArgs',
             type='String',
-            default='test',
+            default='',
             description='Space seperated arguments passed to the bootstrap script.'
         )
 
         # create a VPC
-        vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/16')
+        vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/16', max_azs=99)
 
         # create a private and public subnet per vpc
         selection = vpc.select_subnets(
             subnet_type=ec2.SubnetType.PRIVATE
         )
 
+        # Output created subnets
+        for i, public_subnet in enumerate(vpc.public_subnets):
+            cdk.CfnOutput(self, 'PublicSubnet%i' % i,  value=public_subnet.subnet_id)
+
+        for i, private_subnet in enumerate(vpc.private_subnets):
+            cdk.CfnOutput(self, 'PrivateSubnet%i' % i,  value=private_subnet.subnet_id)
+
         # Create a Bucket
         bucket = s3.Bucket(self, "DataRepository")
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
+
+        # Upload Bootstrap Script to that bucket
+        # bootstrap_script = assets.Asset(self, 'BootstrapScript', 
+        #     path='scripts/bootstrap.sh'
+        # )
 
         # Setup CloudTrail
         cloudtrail.Trail(self, 'CloudTrail', bucket=bucket)
@@ -142,10 +155,16 @@ class PclusterStack(cdk.Stack):
 
         c9_bootstrap_provider = cr.Provider(self, "C9BootstrapProvider", on_event_handler=c9_bootstrap_lambda)
 
-        cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider, 
+        c9_boostrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider, 
             properties={
-                'Cloud9Environment': cloud9_instance.environment_id, # cdk.Fn.get_att(logical_name_of_resource=instance_id.node.id, attribute_name='PhysicalResourceId'),
-                'BootstrapPath': bootstrap_script,
-                'BootstrapArguments': bootstrap_script_args
+                'Cloud9Environment': cloud9_instance.environment_id,
+                'BootstrapPath': bootstrap_script, # 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
+                'BootstrapArguments': bootstrap_script_args,
+                'VPCID': vpc.vpc_id,
+                'MasterSubnetID': vpc.public_subnets[0].subnet_id,
+                'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
             }
         )
+        c9_boostrap_cr.node.add_dependency(instance_id)
+
+        

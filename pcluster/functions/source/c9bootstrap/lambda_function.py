@@ -40,9 +40,9 @@ def create(event, context):
     instance_id = response['Reservations'][0]['Instances'][0]['InstanceId']
     bootstrap_path = event['ResourceProperties']['BootstrapPath']
     arguments = event['ResourceProperties']['BootstrapArguments']
-    # vpc_id = event['ResourceProperties']['VPCID']
-    # master_subnet_id = event['ResourceProperties']['MasterSubnetID']
-    # compute_subnet_id = event['ResourceProperties']['ComputeSubnetID']
+    vpc_id = event['ResourceProperties']['VPCID']
+    master_subnet_id = event['ResourceProperties']['MasterSubnetID']
+    compute_subnet_id = event['ResourceProperties']['ComputeSubnetID']
 
     while True:
         commands = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
