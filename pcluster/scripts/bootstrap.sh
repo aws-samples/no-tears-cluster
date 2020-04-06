@@ -40,6 +40,7 @@ fsx_settings = fsx
 disable_hyperthreading = true
 dcv_settings = dcv
 post_install = https://covid19hpc-quickstart-161153343288.s3.amazonaws.com/user_data.sh
+cw_log_settings = cw-logs
 
 [fsx fsx]
 shared_dir = /fsx
@@ -49,6 +50,9 @@ storage_capacity = 1200
 enable = master
 port = 8443
 access_from = 0.0.0.0/0
+
+[cw_log cw-logs]
+enable = false
 
 [vpc public-private]
 vpc_id = ${vpc_id}
