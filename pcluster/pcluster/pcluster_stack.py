@@ -101,9 +101,8 @@ class PclusterStack(cdk.Stack):
             }
         )
         #c9_createkeypair_cr.node.add_dependency(instance_id)
-        secret_string=c9_createkeypair_cr.get_att_string('PrivateKey')
         c9_ssh_private_key_secret = secretsmanager.CfnSecret(self, 'SshPrivateKeySecret',
-             secret_string=secret_string
+             secret_string=c9_createkeypair_cr.get_att_string('PrivateKey')
         )
 
 
@@ -226,7 +225,7 @@ class PclusterStack(cdk.Stack):
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
                 'PostInstallScriptS3Url': pcluster_post_install_script.s3_url,
                 'KeyPairId':  c9_createkeypair_cr.ref,
-                'KeyPairSecretArn': secret_string
+                'KeyPairSecretArn': c9_ssh_private_key_secret.ref
             }
         )
         #TODO: depend on secret
