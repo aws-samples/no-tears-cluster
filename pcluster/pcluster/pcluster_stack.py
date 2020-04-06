@@ -15,6 +15,19 @@ class PclusterStack(cdk.Stack):
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        ### Parameters
+        bootstrap_script = cdk.CfnParameter(self, 'BootstrapScriptS3Uri',
+            type='String',
+            default='s3://seaam/bootstrap.sh',
+            description='S3 Location of the Bootstrap script.'
+        )
+
+        bootstrap_script_args = cdk.CfnParameter(self, 'BootstrapScriptArgs',
+            type='String',
+            default='test',
+            description='Space seperated arguments passed to the bootstrap script.'
+        )
+
         # create a VPC
         vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/16')
 
@@ -82,6 +95,18 @@ class PclusterStack(cdk.Stack):
             resources=['*'],
         ))
 
+        cloud9_setup_role.add_to_policy(iam.PolicyStatement(
+            actions=['iam:PassRole'],
+            resources=[cloud9_role.role_arn]
+        ))
+        cloud9_setup_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                'lambda:AddPermission', 
+                'lambda:RemovePermission'
+            ],
+            resources=['*']
+        ))
+
         # Cloud9 Instance Profile
         c9_instance_profile = iam.CfnInstanceProfile(self, "Cloud9InstanceProfile", roles=[cloud9_role.role_name])
 
@@ -98,12 +123,13 @@ class PclusterStack(cdk.Stack):
             on_event_handler=c9_instance_profile_lambda,
         )
 
-        c9_instance_profile_arn = cfn.CustomResource(self, "C9InstanceProfile", provider=c9_instance_profile_provider,
+        instance_id = cfn.CustomResource(self, "C9InstanceProfile", provider=c9_instance_profile_provider,
             properties={
                 'InstanceProfile': c9_instance_profile.ref,
                 'Cloud9Environment': cloud9_instance.environment_id,
             }
         )
+        instance_id.node.add_dependency(cloud9_instance)
 
         # Lambda for Cloud9 Bootstrap
         c9_bootstrap_lambda = _lambda.Function(self, 'C9BootstrapLambda',
@@ -118,9 +144,8 @@ class PclusterStack(cdk.Stack):
 
         cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider, 
             properties={
-                'InstanceId': c9_instance_profile_arn.ref,
-                'BootstrapPath': 's3://seaam/bootstrap.sh',
-                'BootstrapArguments': 'test'
+                'InstanceId': cloud9_instance.environment_id, # cdk.Fn.get_att(logical_name_of_resource=instance_id.node.id, attribute_name='PhysicalResourceId'),
+                'BootstrapPath': bootstrap_script,
+                'BootstrapArguments': bootstrap_script_args
             }
         )
-
