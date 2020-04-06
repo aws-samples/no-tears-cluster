@@ -68,7 +68,7 @@ class PclusterStack(cdk.Stack):
         # Create a Cloud9 instance
         # Cloud9 doesn't have the ability to provide userdata
         # Because of this we need to use SSM run command
-        cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9Env', vpc=vpc)
+        cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9Env', vpc=vpc, instance_type=ec2.InstanceType(instance_type_identifier='c5.large'))
         cdk.CfnOutput(self, 'URL',  value=cloud9_instance.ide_url)
 
 
@@ -139,7 +139,7 @@ class PclusterStack(cdk.Stack):
         pcluster_post_install_script.grant_read(cloud9_role)
 
         # Cloud9 User
-        user = iam.User(self, 'Cloud9User', password=cdk.SecretValue.plain_text('supersecretpassword'), password_reset_required=True)
+        # user = iam.User(self, 'Cloud9User', password=cdk.SecretValue.plain_text('supersecretpassword'), password_reset_required=True)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
