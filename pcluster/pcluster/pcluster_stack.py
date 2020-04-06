@@ -52,8 +52,13 @@ class PclusterStack(cdk.Stack):
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
 
         # Upload Bootstrap Script to that bucket
-        bootstrap_script = assets.Asset(self, 'BootstrapScript', 
+        bootstrap_script = assets.Asset(self, 'BootstrapScript',
             path='scripts/bootstrap.sh'
+        )
+
+        # Upload parallel cluster post_install_script to that bucket
+        pcluster_post_install_script = assets.Asset(self, 'PclusterPostInstallScript',
+            path='scripts/post_install_script.sh'
         )
 
         # Setup CloudTrail
@@ -110,7 +115,7 @@ class PclusterStack(cdk.Stack):
                 'ssm:SendCommand',
                 'ssm:GetCommandInvocation',
                 's3:GetObject',
-                'lambda:AddPermission', 
+                'lambda:AddPermission',
                 'lambda:RemovePermission',
                 'events:PutRule',
                 'events:DeleteRule',
@@ -126,7 +131,7 @@ class PclusterStack(cdk.Stack):
         ))
         cloud9_setup_role.add_to_policy(iam.PolicyStatement(
             actions=[
-                'lambda:AddPermission', 
+                'lambda:AddPermission',
                 'lambda:RemovePermission'
             ],
             resources=['*']
@@ -167,7 +172,7 @@ class PclusterStack(cdk.Stack):
 
         c9_bootstrap_provider = cr.Provider(self, "C9BootstrapProvider", on_event_handler=c9_bootstrap_lambda)
 
-        c9_boostrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider, 
+        c9_boostrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider,
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
                 'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
@@ -179,4 +184,4 @@ class PclusterStack(cdk.Stack):
         )
         c9_boostrap_cr.node.add_dependency(instance_id)
 
-        
+
