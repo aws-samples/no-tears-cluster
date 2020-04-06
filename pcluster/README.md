@@ -1,49 +1,40 @@
-
 # Setup Cloud9, IAM, pcluster environment
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the .env
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
-
-To manually create a virtualenv on MacOS and Linux:
+The first step is installing node.js, this can be done easily with Homebrew. After that completes, install aws-cdk:
 
 ```
-$ python3 -m venv .env
+brew install node
+npm install -g aws-cdk
 ```
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+Now you can activate the python virtualenv and install the python dependencies:
 
 ```
 $ source .env/bin/activate
-```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .env\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
 $ pip install -r requirements.txt
 ```
 
-At this point you can now synthesize the CloudFormation template for this code.
+At this point, it's time to setup CDK, the following needs to be done once in each account:
 
 ```
-$ cdk synth
+$ cdk bootstrap
 ```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+And finally, deploy the app:
+
+```
+cdk deploy
+```
+
+I've surely missed a bunch of python dependencies, the format for installing those is:
+
+```
+pip install aws-cdk.custom-resources
+```
+
+Once it finishes deploy, you'll get an ouput with a link to the Cloud9 URL. Click on that to quickly see the Cloud9 result:
+
+![image](https://user-images.githubusercontent.com/5545980/78568726-61c20280-77d7-11ea-84a5-bdf0d7a0cb95.png)
 
 ## Useful commands
 

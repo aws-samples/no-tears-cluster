@@ -41,3 +41,8 @@ create: upload try_network
  	 			  ParameterKey=VPCStackName,ParameterValue=VPCStack \
 				  ParameterKey=BootstrapScriptS3Uri,ParameterValue=${bootstrapS3Uri} \
  	 --disable-rollback
+
+update: upload
+	aws cloudformation update-stack --region ${region} --stack-name ${stack_name} \
+ 	 --template-url https://s3.${region}.amazonaws.com${s3_suffix}/${s3_bucket}/cloud9-ide-master.template.yaml --capabilities CAPABILITY_IAM \
+ 	 --parameters ParameterKey=AvailabilityZones,ParameterValue=${azs}

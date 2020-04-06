@@ -1,0 +1,456 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cloud9 + PCluster Rapid Cluster
+Metadata:
+  LICENSE: Apache License, Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: VPC network configuration
+        Parameters:
+          - AvailabilityZones
+          - NumberOfAZs
+          - PrivateSubnet1CIDR
+          - PrivateSubnet2CIDR
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+      - Label:
+          default: Cloud9 configuration
+        Parameters:
+          - BootstrapScriptS3Uri
+          - C9InstanceType
+          - C9StopTime
+          - EBSVolumeSize
+      - Label:
+          default: AWS Quick Start configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+          - QSS3BucketRegion
+    ParameterLabels:
+      QSS3BucketRegion:
+        default: Bucket Region
+      QSS3BucketName:
+        default: Quick Start S3 bucket name
+      QSS3KeyPrefix:
+        default: Quick Start S3 key prefix
+      AvailabilityZones:
+        default: Availability Zones
+      EBSVolumeSize:
+        default: EBS volume size
+      C9InstanceType:
+        default: Cloud9 instance type
+      C9StopTime:
+        default: Stop time
+      NumberOfAZs:
+        default: Number of Availability Zones
+      PrivateSubnet1CIDR:
+        default: Private subnet 1 CIDR
+      PrivateSubnet2CIDR:
+        default: Private subnet 2 CIDR
+      PublicSubnet1CIDR:
+        default: Public subnet 1 CIDR
+      PublicSubnet2CIDR:
+        default: Public subnet 2 CIDR
+      RemoteAccessCIDR:
+        default: Allowed external access CIDR (bastion access)
+Parameters:
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: 'Region of Staging bucket (BucketName)'
+    Type: String
+  BootstrapScriptS3Uri:
+    Default: 's3://seaam/bootstrap.sh'
+    Description: 'S3 URI for bootstrap script'
+    Type: String
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription:
+      Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description:
+      S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/.]*$
+    ConstraintDescription:
+      Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), dots(.) and forward slash (/).
+    Default: quickstart-cloud9-ide/
+    Description:
+      S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), dots(.) and
+      forward slash (/).
+    Type: String
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(3[0-2]|[1-2][0-9]|[0-9]))$|(^Auto$)
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description:
+      The CIDR IP range that is permitted to access the AWS Cloud9 desktop and the bastion host. We recommend that you set this value to a trusted
+      IP range. Alternatively, keep the default "Auto" setting to provide access to only the IP address launching the stack.
+    Type: String
+    Default: Auto
+  VPCStackName:
+    Description: Name of an existing VPC Stack, if not provided will be created.
+    Type: String
+    Default: ''
+  AvailabilityZones:
+    Description: >-
+      List of Availability Zones to use for the subnets in the VPC. Only two
+      Availability Zones are used for this deployment, and the logical order of
+      your selections is preserved.
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+  PrivateSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/19
+    Description: CIDR block for private subnet 1 located in Availability Zone 1.
+    Type: String
+  PrivateSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.32.0/19
+    Description: CIDR block for private subnet 2 located in Availability Zone 2.
+    Type: String
+  PublicSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.128.0/20
+    Description:
+      CIDR block for the public (DMZ) subnet 1 located in Availability
+      Zone 1.
+    Type: String
+  PublicSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.144.0/20
+    Description:
+      CIDR block for the public (DMZ) subnet 2 located in Availability
+      Zone 2.
+    Type: String
+  C9InstanceType:
+    Description:
+      The instance type of the new Amazon EC2 instance that AWS Cloud9
+      will launch for the development environment.
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.nano
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - t3.nano
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - m5.metal
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - c5.24xlarge
+      - c5.metal
+  C9StopTime:
+    Description:
+      The number of minutes until the running instance is shut down after
+      the environment has last been used.
+    Type: Number
+    Default: 30
+  EBSVolumeSize:
+    Description: The desired size (in GB) of the Amazon EBS volume for your Cloud9 IDE.
+    Type: Number
+    Default: 100
+  NumberOfAZs:
+    Description: Number of Availability Zones to use in the VPC. This must match your selections in the list of Availability Zones parameter.
+    Type: String
+    Default: 2
+    AllowedValues:
+      - 2
+      - 3
+      - 4
+Conditions:
+  CreateVPCStack: !Equals [!Ref VPCStackName, '']
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  AutoCIDR: !Equals
+    - !Ref RemoteAccessCIDR
+    - 'Auto'
+Resources:
+  GetAzs:
+    Type: Custom::GetAzs
+    Properties:
+      ServiceToken: !GetAtt 'GetAzsLambda.Arn'
+  GetAzsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies:
+        - PolicyName: lambda-getazs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeAvailabilityZones
+                Resource:
+                  - '*'
+  GetAzsLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Gets 3 availability zone names from the region the lambda is launched in.
+      Handler: index.handler
+      Runtime: python3.6
+      Role: !GetAtt 'GetAzsRole.Arn'
+      Timeout: 300
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+          import traceback
+          import random
+          def handler(event, context):
+              status = cfnresponse.SUCCESS
+              data = {}
+              try:
+                  if event['RequestType'] == 'Create':
+                      filters = [{'Name': "state", "Values": ["available"]}]
+                      resp = boto3.client('ec2').describe_availability_zones(Filters=filters)['AvailabilityZones']
+                      data["Azs"] = random.sample([x["ZoneName"] for x in resp], 3)
+              except Exception:
+                  traceback.print_exc()
+                  status = cfnresponse.FAILED
+              cfnresponse.send(event, context, status, data, None)
+  CreateKeypair:
+    Type: Custom::CreateKeypair
+    Properties:
+      ServiceToken: !GetAtt 'CreateKeypairLambda.Arn'
+  CreateKeypairRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies:
+        - PolicyName: lambda-createkeypair1
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:CreateKeyPair
+                  - ec2:DeleteKeyPair
+                Resource:
+                  - '*'
+  CreateKeypairLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Creates a keypair and stores private key in SSM parameter store.
+      Handler: index.handler
+      Runtime: python3.6
+      Role: !GetAtt 'CreateKeypairRole.Arn'
+      Timeout: 300
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+          import traceback
+          import random
+          import string
+          import time
+
+          ec2_client = boto3.client('ec2')
+          ssm_client = boto3.client('ssm')
+
+
+          def handler(event, context):
+              status = cfnresponse.SUCCESS
+              data = {}
+              if 'PhysicalResourceId' in event.keys():
+                  key_name = event['PhysicalResourceId']
+              try:
+                  if event['RequestType'] == 'Create':
+                      key_name = event['StackId'].split('/')[1][0:255-9] + '-' + ''.join(random.choice(
+                         string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(8)
+                      )
+                      data['PrivateKey'] = ec2_client.create_key_pair(KeyName=key_name)['KeyMaterial']
+                  elif event['RequestType'] == 'Delete':
+                      ec2_client.delete_key_pair(KeyName=key_name)
+              except Exception:
+                  traceback.print_exc()
+                  status = cfnresponse.FAILED
+              if event['RequestType'] == 'Delete':
+                  time.sleep(60) # give the logs some time to sync to cwl
+              cfnresponse.send(event, context, status, data, key_name, noEcho=True)
+  GetIp:
+    Condition: AutoCIDR
+    Type: Custom::GetIp
+    Properties:
+      ServiceToken: !GetAtt 'GetIpLambda.Arn'
+  GetIpRole:
+    Condition: AutoCIDR
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies:
+        - PolicyName: lambda-GetIp
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: cloudformation:DescribeStacks
+                Resource: !Ref 'AWS::StackId'
+              - Effect: Allow
+                Action: cloudtrail:LookupEvents
+                Resource: '*'
+  GetIpLambda:
+    Condition: AutoCIDR
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Creates a keypair and stores private key in SSM parameter store.
+      Handler: index.handler
+      Runtime: python3.6
+      Role: !GetAtt 'GetIpRole.Arn'
+      Timeout: 900
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+          import traceback
+          from datetime import timedelta
+          import json
+          from time import sleep
+
+          cloudformation_client = boto3.client('cloudformation')
+          cloudtrail_client = boto3.client('cloudtrail')
+
+
+          def handler(event, context):
+              print(json.dumps(event))
+              status = cfnresponse.SUCCESS
+              data = {}
+              if 'PhysicalResourceId' in event.keys():
+                  physical_id = event['PhysicalResourceId']
+              try:
+                  if event['RequestType'] == 'Create':
+                      create_time = cloudformation_client.describe_stacks(StackName=event['StackId'])['Stacks'][0]['CreationTime']
+                      retries = 0
+                      max_retries = 50
+                      while retries < max_retries:
+                          retries += 1
+                          try:
+                              response = cloudtrail_client.lookup_events(
+                                  LookupAttributes=[
+                                         { 'AttributeKey': 'ResourceName', 'AttributeValue': event['StackId'] },
+                                         { 'AttributeKey': 'EventName', 'AttributeValue': 'CreateStack' }
+                                     ],
+                                     StartTime=create_time - timedelta(minutes=15),
+                                     EndTime=create_time + timedelta(minutes=15)
+                                 )
+                          except Exception:
+                              traceback.print_exc()
+                          if len(response['Events']) > 0:
+                              break
+                          else:
+                              print('Event not in cloudtrail yet, %s retries left' % str(max_retries - retries))
+                              sleep(15)
+                      physical_id = json.loads(response['Events'][0]['CloudTrailEvent'])['sourceIPAddress'] + '/32'
+              except Exception:
+                  traceback.print_exc()
+                  status = cfnresponse.FAILED
+              cfnresponse.send(event, context, status, data, physical_id)
+  SshPrivateKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      SecretString: !GetAtt 'CreateKeypair.PrivateKey'
+  VPCStack:
+    Condition: CreateVPCStack
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template'
+          - S3Region: !If [UsingDefaultBucket, !Sub '${AWS::Region}', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        AvailabilityZones: !Join
+          - ','
+          - !Ref AvailabilityZones
+        CreatePrivateSubnets: 'true'
+        KeyPairName: !Ref CreateKeypair
+        PrivateSubnet1ACIDR: !Ref PrivateSubnet1CIDR
+        PrivateSubnet2ACIDR: !Ref PrivateSubnet2CIDR
+        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
+        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        NumberOfAZs: !Ref NumberOfAZs
+  IDEStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/cloud9-ide-instance.yaml'
+          - S3Region: !If [UsingDefaultBucket, !Sub '${AWS::Region}', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        EBSVolumeSize: !Ref EBSVolumeSize
+        C9InstanceType: !Ref C9InstanceType
+        BootstrapScriptS3Uri: !Ref BootstrapScriptS3Uri
+        C9StopTime: !Ref 'C9StopTime'
+        C9Subnet: !ImportValue 'VPCStack-PublicSubnet1ID'
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
