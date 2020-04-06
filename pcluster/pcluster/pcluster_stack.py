@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_lambda as _lambda,
     aws_iam as iam,
     aws_cloudformation as cfn,
+    aws_secretsmanager as secretsmanager,
     custom_resources as cr,
     core as cdk
 )
@@ -162,6 +163,43 @@ class PclusterStack(cdk.Stack):
         )
         instance_id.node.add_dependency(cloud9_instance)
 
+        # Create a keypair in lambda and store the private key in SecretsManager
+        c9_createkeypair_role = iam.Role(self, 'Cloud9CreateKeypairRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
+        c9_createkeypair_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole'))
+        # Add IAM permissions to the lambda role
+        c9_createkeypair_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                'ec2:CreateKeyPair',
+                'ec2:DeleteKeyPair'
+            ],
+            resources=['*'],
+        ))
+
+        # Lambda for Cloud9 keypair
+        c9_createkeypair_lambda = _lambda.Function(self, 'C9CreateKeyPairLambda',
+            runtime=_lambda.Runtime.PYTHON_3_6,
+            handler='lambda_function.handler',
+            timeout=cdk.Duration.seconds(300),
+            role=c9_createkeypair_role,
+            code=_lambda.Code.asset('functions/source/c9keypair'),
+        )
+
+        c9_createkeypair_provider = cr.Provider(self, "C9CreateKeyPairProvider", on_event_handler=c9_createkeypair_lambda)
+
+        c9_createkeypair_cr = cfn.CustomResource(self, "C9CreateKeyPair", provider=c9_createkeypair_provider,
+            properties={
+                'ServiceToken': c9_createkeypair_lambda.function_arn
+            }
+        )
+        c9_createkeypair_cr.node.add_dependency(instance_id)
+        secret_string=c9_createkeypair_cr.get_att_string('PrivateKey')
+        c9_ssh_private_key_secret = secretsmanager.CfnSecret(self, 'SshPrivateKeySecret',
+             secret_string=secret_string
+        )
+        #c9_ssh_private_key_secret.grant_read(cloud9_role)
+        #    SecretString: !GetAtt 'CreateKeypair.PrivateKey'
+
+
         # Lambda for Cloud9 Bootstrap
         c9_bootstrap_lambda = _lambda.Function(self, 'C9BootstrapLambda',
             runtime=_lambda.Runtime.PYTHON_3_6,
@@ -181,9 +219,12 @@ class PclusterStack(cdk.Stack):
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
-                'PostInstallScriptS3Url': pcluster_post_install_script.s3_url
+                'PostInstallScriptS3Url': pcluster_post_install_script.s3_url,
+                'KeyPairId':  c9_createkeypair_cr.ref,
+                'KeyPairSecretArn': secret_string
             }
         )
+        #TODO: depend on secret
         c9_boostrap_cr.node.add_dependency(instance_id)
 
 

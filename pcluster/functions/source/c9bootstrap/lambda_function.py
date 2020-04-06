@@ -44,16 +44,20 @@ def create(event, context):
     master_subnet_id = event['ResourceProperties']['MasterSubnetID']
     compute_subnet_id = event['ResourceProperties']['ComputeSubnetID']
     post_install_script_url = event['ResourceProperties']['PostInstallScriptS3Url']
+    keypair_id = event['ResourceProperties']['KeyPairId']
+    keypair_secret_arn = event['ResourceProperties']['KeyPairSecretArn']
 
     while True:
         commands = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
                     'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
-                    'sudo chmod +x bootstrap.sh',
+                    'chmod 755 bootstrap.sh',
                     'sudo -u ec2-user '
                     + ' vpc_id=' + vpc_id
                     + ' master_subnet_id=' + master_subnet_id
                     + ' compute_subnet_id=' + compute_subnet_id
                     + ' post_install_script_url=' + post_install_script_url
+                    + ' private_key_arn=' + keypair_secret_arn
+                    + ' ssh_key_id=' + keypair_id
                     + ' bash bootstrap.sh ' + arguments]
         send_response = send_command(instance_id, commands)
         if send_response:
