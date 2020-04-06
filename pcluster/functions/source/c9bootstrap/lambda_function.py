@@ -65,7 +65,10 @@ def create(event, context):
 @helper.poll_create
 def poll_create(event, context):
     logger.info("Got create poll")
-    instance_id = event["ResourceProperties"]["InstanceId"]
+    response = ec2_client.describe_instances(Filters=[{
+        'Name': 'tag:aws:cloud9:environment', 'Values': [event['ResourceProperties']['Cloud9Environment']]
+    }])
+    instance_id = response['Reservations'][0]['Instances'][0]['InstanceId']
     while True:
         try:
             cmd_output_response = get_command_output(instance_id, helper.Data["CommandId"])

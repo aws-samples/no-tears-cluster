@@ -32,7 +32,9 @@ I've surely missed a bunch of python dependencies, the format for installing tho
 pip install aws-cdk.custom-resources
 ```
 
-Once it finishes deploy, you'll get an ouput with a link to the Cloud9 URL. Click on that to quickly see the Cloud9 result.
+Once it finishes deploy, you'll get an ouput with a link to the Cloud9 URL. Click on that to quickly see the Cloud9 result:
+
+![image](https://user-images.githubusercontent.com/5545980/78568726-61c20280-77d7-11ea-84a5-bdf0d7a0cb95.png)
 
 ## Useful commands
 

@@ -73,6 +73,7 @@ class PclusterStack(cdk.Stack):
                 'ec2:ModifyVolume'
             ]
         ))
+        bootstrap_script.grant_read(cloud9_role)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
