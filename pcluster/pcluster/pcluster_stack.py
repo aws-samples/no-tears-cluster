@@ -87,6 +87,7 @@ class PclusterStack(cdk.Stack):
             data = json.load(json_file)
             parallelcluster_user_policy = iam.PolicyDocument.from_json(data)
         bootstrap_script.grant_read(cloud9_role)
+        pcluster_post_install_script.grant_read(cloud9_role)
 
         # Cloud9 User
         user = iam.User(self, 'Cloud9User', password=cdk.SecretValue.plain_text('supersecretpassword'), password_reset_required=True)
@@ -180,6 +181,7 @@ class PclusterStack(cdk.Stack):
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
+                'PostInstallScriptS3Url': pcluster_post_install_script.s3_url
             }
         )
         c9_boostrap_cr.node.add_dependency(instance_id)

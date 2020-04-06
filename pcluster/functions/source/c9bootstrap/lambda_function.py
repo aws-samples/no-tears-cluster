@@ -43,6 +43,7 @@ def create(event, context):
     vpc_id = event['ResourceProperties']['VPCID']
     master_subnet_id = event['ResourceProperties']['MasterSubnetID']
     compute_subnet_id = event['ResourceProperties']['ComputeSubnetID']
+    post_install_script_url = event['ResourceProperties']['PostInstallScriptS3Url']
 
     while True:
         commands = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
@@ -52,6 +53,7 @@ def create(event, context):
                     + ' vpc_id=' + vpc_id
                     + ' master_subnet_id=' + master_subnet_id
                     + ' compute_subnet_id=' + compute_subnet_id
+                    + ' post_install_script_url=' + post_install_script_url
                     + ' bash bootstrap.sh ' + arguments]
         send_response = send_command(instance_id, commands)
         if send_response:
