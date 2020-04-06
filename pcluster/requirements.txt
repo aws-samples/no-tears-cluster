@@ -1,3 +1,7 @@
 aws-cdk.aws-cloud9==1.31.0
 aws-cdk.aws-cloudtrail==1.31.0
 aws-cdk.aws-s3==1.31.0
+aws-cdk.aws-s3-assets==1.31.0
+aws-cdk.aws-lambda==1.31.0
+aws-cdk.aws-cloudformation==1.31.0
+aws-cdk.custom-resources==1.31.0
