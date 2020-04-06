@@ -215,7 +215,7 @@ class PclusterStack(cdk.Stack):
 
         c9_bootstrap_provider = cr.Provider(self, "C9BootstrapProvider", on_event_handler=c9_bootstrap_lambda)
 
-        c9_boostrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider,
+        c9_bootstrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider,
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
                 'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
@@ -228,7 +228,10 @@ class PclusterStack(cdk.Stack):
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref
             }
         )
-        #TODO: depend on secret
-        c9_boostrap_cr.node.add_dependency(instance_id)
+
+        c9_bootstrap_cr.node.add_dependency(instance_id)
+        c9_bootstrap_cr.node.add_dependency(c9_createkeypair_cr)
+        c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
+
 
 
