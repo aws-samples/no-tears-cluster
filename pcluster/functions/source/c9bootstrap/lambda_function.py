@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 helper = CfnResource(json_logging=True, log_level='DEBUG', boto_level='CRITICAL')
 
 try:
+    ec2_client = boto3.client('ec2')
     ssm_client = boto3.client('ssm')
 except Exception as e:
     helper.init_failure(e)
@@ -33,13 +34,25 @@ def send_command(instance_id, commands):
 @helper.create
 def create(event, context):
     logger.debug("Got Create")
-    instance_id = event["ResourceProperties"]["InstanceId"]
+    response = ec2_client.describe_instances(Filters=[{
+        'Name': 'tag:aws:cloud9:environment', 'Values': [event['ResourceProperties']['Cloud9Environment']]
+    }])
+    instance_id = response['Reservations'][0]['Instances'][0]['InstanceId']
     bootstrap_path = event['ResourceProperties']['BootstrapPath']
     arguments = event['ResourceProperties']['BootstrapArguments']
+    # vpc_id = event['ResourceProperties']['VPCID']
+    # master_subnet_id = event['ResourceProperties']['MasterSubnetID']
+    # compute_subnet_id = event['ResourceProperties']['ComputeSubnetID']
+
     while True:
         commands = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
-                    'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
-                    'sudo chmod +x bootstrap.sh', './bootstrap.sh ' + arguments]
+                    'aws --no-sign-request s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
+                    'sudo chmod +x bootstrap.sh',
+                    'sudo -u ec2-user '
+                    + ' vpc_id=' + vpc_id
+                    + ' master_subnet_id=' + master_subnet_id
+                    + ' compute_subnet_id=' + compute_subnet_id
+                    + ' bash bootstrap.sh ' + arguments]
         send_response = send_command(instance_id, commands)
         if send_response:
             helper.Data["CommandId"] = send_response['Command']['CommandId']

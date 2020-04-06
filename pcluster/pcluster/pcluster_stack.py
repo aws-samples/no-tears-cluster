@@ -116,7 +116,7 @@ class PclusterStack(cdk.Stack):
             handler='lambda_function.handler',
             timeout=cdk.Duration.seconds(900),
             role=cloud9_setup_role,
-            code=_lambda.Code.from_bucket(quickstart_bucket, "quickstart-cloud9-ide/functions/packages/c9InstanceProfile/lambda.zip"),
+            code=_lambda.Code.asset('functions/source/c9InstanceProfile'),
         )
 
         c9_instance_profile_provider = cr.Provider(self, "C9InstanceProfileProvider",
@@ -137,14 +137,14 @@ class PclusterStack(cdk.Stack):
             handler='lambda_function.handler',
             timeout=cdk.Duration.seconds(900),
             role=cloud9_setup_role,
-            code=_lambda.Code.from_bucket(quickstart_bucket, "quickstart-cloud9-ide/functions/packages/c9bootstrap/lambda.zip"),
+            code=_lambda.Code.asset('functions/source/c9bootstrap'),
         )
 
         c9_bootstrap_provider = cr.Provider(self, "C9BootstrapProvider", on_event_handler=c9_bootstrap_lambda)
 
         cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider, 
             properties={
-                'InstanceId': cloud9_instance.environment_id, # cdk.Fn.get_att(logical_name_of_resource=instance_id.node.id, attribute_name='PhysicalResourceId'),
+                'Cloud9Environment': cloud9_instance.environment_id, # cdk.Fn.get_att(logical_name_of_resource=instance_id.node.id, attribute_name='PhysicalResourceId'),
                 'BootstrapPath': bootstrap_script,
                 'BootstrapArguments': bootstrap_script_args
             }
