@@ -23,7 +23,7 @@ echo 'eval $(ssh-agent)' >> ~/.bashrc
 echo "ssh-add ~/.ssh/${ssh_key_id}" >> ~/.bashrc
 
 mkdir -p ~/.parallelcluster
-cat >> ~/.parallelcluster/config <<EOF
+cat > ~/.parallelcluster/config <<EOF
 [global]
 cluster_template = covid
 update_check = true
