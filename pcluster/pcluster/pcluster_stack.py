@@ -10,6 +10,7 @@ from aws_cdk import (
     custom_resources as cr,
     core as cdk
 )
+import json
 
 class PclusterStack(cdk.Stack):
 
@@ -44,6 +45,8 @@ class PclusterStack(cdk.Stack):
         for i, private_subnet in enumerate(vpc.private_subnets):
             cdk.CfnOutput(self, 'PrivateSubnet%i' % i,  value=private_subnet.subnet_id)
 
+        cdk.CfnOutput(self, 'VPCId',  value=vpc.vpc_id)
+
         # Create a Bucket
         bucket = s3.Bucket(self, "DataRepository")
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
@@ -65,6 +68,7 @@ class PclusterStack(cdk.Stack):
         # Cloud9 IAM Role
         cloud9_role = iam.Role(self, 'Cloud9Role', assumed_by=iam.ServicePrincipal('ec2.amazonaws.com'))
         cloud9_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AmazonSSMManagedInstanceCore'))
+        cloud9_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9User'))
         cloud9_role.add_to_policy(iam.PolicyStatement(
             resources=['*'],
             actions=[
@@ -73,7 +77,14 @@ class PclusterStack(cdk.Stack):
                 'ec2:ModifyVolume'
             ]
         ))
+
+        with open('iam/ParallelClusterUserPolicy.json') as json_file:
+            data = json.load(json_file)
+            parallelcluster_user_policy = iam.PolicyDocument.from_json(data)
         bootstrap_script.grant_read(cloud9_role)
+
+        # Cloud9 User
+        user = iam.User(self, 'Cloud9User', password=cdk.SecretValue.plain_text('supersecretpassword'), password_reset_required=True)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
