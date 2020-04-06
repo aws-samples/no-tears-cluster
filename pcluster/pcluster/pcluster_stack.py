@@ -17,11 +17,11 @@ class PclusterStack(cdk.Stack):
         super().__init__(scope, id, **kwargs)
 
         ### Parameters
-        bootstrap_script = cdk.CfnParameter(self, 'BootstrapScriptS3Uri',
-            type='String',
-            default='s3://seaam/bootstrap.sh',
-            description='S3 Location of the Bootstrap script.'
-        )
+        # bootstrap_script = cdk.CfnParameter(self, 'BootstrapScriptS3Uri',
+        #     type='String',
+        #     default='s3://seaam/bootstrap.sh',
+        #     description='S3 Location of the Bootstrap script.'
+        # )
 
         bootstrap_script_args = cdk.CfnParameter(self, 'BootstrapScriptArgs',
             type='String',
@@ -49,9 +49,9 @@ class PclusterStack(cdk.Stack):
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
 
         # Upload Bootstrap Script to that bucket
-        # bootstrap_script = assets.Asset(self, 'BootstrapScript', 
-        #     path='scripts/bootstrap.sh'
-        # )
+        bootstrap_script = assets.Asset(self, 'BootstrapScript', 
+            path='scripts/bootstrap.sh'
+        )
 
         # Setup CloudTrail
         cloudtrail.Trail(self, 'CloudTrail', bucket=bucket)
@@ -158,7 +158,7 @@ class PclusterStack(cdk.Stack):
         c9_boostrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider, 
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
-                'BootstrapPath': bootstrap_script, # 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
+                'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
                 'BootstrapArguments': bootstrap_script_args,
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
