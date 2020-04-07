@@ -8,6 +8,11 @@ shopt -q login_shell && echo 'Login shell' || echo 'Not login shell'
 # Force login shell
 . /etc/profile
 
+if [ -f /tmp/BOOTSTRAP.WHOAMI ]; then
+    echo "bootstrap is already running"
+    exit 0
+fi
+
 whoami > /tmp/BOOTSTRAP.WHOAMI
 env >> /tmp/BOOTSTRAP.WHOAMI
 

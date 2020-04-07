@@ -91,6 +91,7 @@ class PclusterStack(cdk.Stack):
             timeout=cdk.Duration.seconds(300),
             role=c9_createkeypair_role,
             code=_lambda.Code.asset('functions/source/c9keypair'),
+        #    code=_lambda.Code.from_bucket(
         )
 
         c9_createkeypair_provider = cr.Provider(self, "C9CreateKeyPairProvider", on_event_handler=c9_createkeypair_lambda)
@@ -137,6 +138,7 @@ class PclusterStack(cdk.Stack):
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
         cloud9_setup_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole'))
+        # Allow pcluster to be run in bootstrap
         cloud9_setup_role.add_managed_policy(parallelcluster_user_policy)
         # Add IAM permissions to the lambda role
         cloud9_setup_role.add_to_policy(iam.PolicyStatement(
