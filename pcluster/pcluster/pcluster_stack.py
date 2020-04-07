@@ -19,12 +19,6 @@ class PclusterStack(cdk.Stack):
         super().__init__(scope, id, **kwargs)
 
         ### Parameters
-        # bootstrap_script = cdk.CfnParameter(self, 'BootstrapScriptS3Uri',
-        #     type='String',
-        #     default='s3://seaam/bootstrap.sh',
-        #     description='S3 Location of the Bootstrap script.'
-        # )
-
         bootstrap_script_args = cdk.CfnParameter(self, 'BootstrapScriptArgs',
             type='String',
             default='',
