@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_lambda as _lambda,
     aws_iam as iam,
     aws_cloudformation as cfn,
+    aws_secretsmanager as secretsmanager,
     custom_resources as cr,
     core as cdk
 )
@@ -52,8 +53,13 @@ class PclusterStack(cdk.Stack):
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
 
         # Upload Bootstrap Script to that bucket
-        bootstrap_script = assets.Asset(self, 'BootstrapScript', 
+        bootstrap_script = assets.Asset(self, 'BootstrapScript',
             path='scripts/bootstrap.sh'
+        )
+
+        # Upload parallel cluster post_install_script to that bucket
+        pcluster_post_install_script = assets.Asset(self, 'PclusterPostInstallScript',
+            path='scripts/post_install_script.sh'
         )
 
         # Setup CloudTrail
@@ -65,10 +71,50 @@ class PclusterStack(cdk.Stack):
         cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9Env', vpc=vpc)
         cdk.CfnOutput(self, 'URL',  value=cloud9_instance.ide_url)
 
+
+        # Create a keypair in lambda and store the private key in SecretsManager
+        c9_createkeypair_role = iam.Role(self, 'Cloud9CreateKeypairRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
+        c9_createkeypair_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole'))
+        # Add IAM permissions to the lambda role
+        c9_createkeypair_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                'ec2:CreateKeyPair',
+                'ec2:DeleteKeyPair'
+            ],
+            resources=['*'],
+        ))
+
+        # Lambda for Cloud9 keypair
+        c9_createkeypair_lambda = _lambda.Function(self, 'C9CreateKeyPairLambda',
+            runtime=_lambda.Runtime.PYTHON_3_6,
+            handler='lambda_function.handler',
+            timeout=cdk.Duration.seconds(300),
+            role=c9_createkeypair_role,
+            code=_lambda.Code.asset('functions/source/c9keypair'),
+        #    code=_lambda.Code.from_bucket(
+        )
+
+        c9_createkeypair_provider = cr.Provider(self, "C9CreateKeyPairProvider", on_event_handler=c9_createkeypair_lambda)
+
+        c9_createkeypair_cr = cfn.CustomResource(self, "C9CreateKeyPair", provider=c9_createkeypair_provider,
+            properties={
+                'ServiceToken': c9_createkeypair_lambda.function_arn
+            }
+        )
+        #c9_createkeypair_cr.node.add_dependency(instance_id)
+        c9_ssh_private_key_secret = secretsmanager.CfnSecret(self, 'SshPrivateKeySecret',
+             secret_string=c9_createkeypair_cr.get_att_string('PrivateKey')
+        )
+
+        with open('iam/ParallelClusterUserPolicy.json') as json_file:
+            data = json.load(json_file)
+            parallelcluster_user_policy = iam.CfnManagedPolicy(self, 'ParallelClusterUserPolicy', policy_document=iam.PolicyDocument.from_json(data))
+
         # Cloud9 IAM Role
         cloud9_role = iam.Role(self, 'Cloud9Role', assumed_by=iam.ServicePrincipal('ec2.amazonaws.com'))
         cloud9_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AmazonSSMManagedInstanceCore'))
         cloud9_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9User'))
+        cloud9_role.add_managed_policy(iam.ManagedPolicy.from_managed_policy_arn(self, 'AttachParallelClusterUserPolicy', parallelcluster_user_policy.ref))
         cloud9_role.add_to_policy(iam.PolicyStatement(
             resources=['*'],
             actions=[
@@ -77,11 +123,20 @@ class PclusterStack(cdk.Stack):
                 'ec2:ModifyVolume'
             ]
         ))
+        cloud9_role.add_to_policy(iam.PolicyStatement(
+            resources=[c9_ssh_private_key_secret.ref],
+            actions=[
+                'secretsmanager:GetSecretValue'
+            ]
+        ))
 
+        # Add pcluster user policy
         with open('iam/ParallelClusterUserPolicy.json') as json_file:
             data = json.load(json_file)
-            parallelcluster_user_policy = iam.PolicyDocument.from_json(data)
+            parallelcluster_user_policy = iam.CfnManagedPolicy(self, 'ParallelClusterUserPolicy', policy_document=iam.PolicyDocument.from_json(data))
+
         bootstrap_script.grant_read(cloud9_role)
+        pcluster_post_install_script.grant_read(cloud9_role)
 
         # Cloud9 User
         user = iam.User(self, 'Cloud9User', password=cdk.SecretValue.plain_text('supersecretpassword'), password_reset_required=True)
@@ -89,6 +144,9 @@ class PclusterStack(cdk.Stack):
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
         cloud9_setup_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole'))
+        # Allow pcluster to be run in bootstrap
+        cloud9_setup_role.add_managed_policy(iam.ManagedPolicy.from_managed_policy_arn(self, 'AttachParallelClusterUserPolicy', parallelcluster_user_policy.ref))
+
         # Add IAM permissions to the lambda role
         cloud9_setup_role.add_to_policy(iam.PolicyStatement(
             actions=[
@@ -110,7 +168,7 @@ class PclusterStack(cdk.Stack):
                 'ssm:SendCommand',
                 'ssm:GetCommandInvocation',
                 's3:GetObject',
-                'lambda:AddPermission', 
+                'lambda:AddPermission',
                 'lambda:RemovePermission',
                 'events:PutRule',
                 'events:DeleteRule',
@@ -124,9 +182,10 @@ class PclusterStack(cdk.Stack):
             actions=['iam:PassRole'],
             resources=[cloud9_role.role_arn]
         ))
+
         cloud9_setup_role.add_to_policy(iam.PolicyStatement(
             actions=[
-                'lambda:AddPermission', 
+                'lambda:AddPermission',
                 'lambda:RemovePermission'
             ],
             resources=['*']
@@ -167,7 +226,7 @@ class PclusterStack(cdk.Stack):
 
         c9_bootstrap_provider = cr.Provider(self, "C9BootstrapProvider", on_event_handler=c9_bootstrap_lambda)
 
-        c9_boostrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider, 
+        c9_bootstrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider,
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
                 'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
@@ -175,8 +234,11 @@ class PclusterStack(cdk.Stack):
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
+                'PostInstallScriptS3Url':  "".join( ['s3://', pcluster_post_install_script.s3_bucket_name,  "/", pcluster_post_install_script.s3_object_key ] ),
+                'KeyPairId':  c9_createkeypair_cr.ref,
+                'KeyPairSecretArn': c9_ssh_private_key_secret.ref
             }
         )
-        c9_boostrap_cr.node.add_dependency(instance_id)
-
-        
+        c9_bootstrap_cr.node.add_dependency(instance_id)
+        c9_bootstrap_cr.node.add_dependency(c9_createkeypair_cr)
+        c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)

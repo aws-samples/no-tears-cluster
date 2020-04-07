@@ -1,11 +1,20 @@
 s3_bucket=seaam
 region=us-east-1
-azs="us-east-1a\,us-east-1b"
-stack_name=pcluster2
+azs="$(region)a\,$(region)b"
+stack_name=pcluster
+bootstrapS3Uri=s3://${s3_bucket}/bootstrap.sh
+
+all: try_create
 
 upload:
 	aws s3 cp templates/cloud9-ide-master.template.yaml s3://${s3_bucket}/cloud9-ide-master.template.yaml
-	aws s3 cp --acl public-read scripts/bootstrap.sh s3://${s3_bucket}/bootstrap.sh
+	aws s3 cp --acl public-read ./scripts/bootstrap.sh ${bootstrapS3Uri}
+
+wait_network: 
+	aws cloudformation wait stack-create-complete --stack-name VPCStack 
+
+exists_network:  
+	aws cloudformation wait stack-exists --stack-name VPCStack 
 
 network:
 	aws s3 cp templates/aws-vpc.template.yaml s3://${s3_bucket}/aws-vpc.template.yaml
@@ -13,11 +22,24 @@ network:
 	 --template-url https://s3.${region}.amazonaws.com${s3_suffix}/${s3_bucket}/aws-vpc.template.yaml --capabilities CAPABILITY_IAM \
  	 --parameters ParameterKey=AvailabilityZones,ParameterValue=${azs}
 
-create: upload
+try_network:
+	$(MAKE) wait_network || $(MAKE) network
+
+wait_create: 
+	aws cloudformation wait stack-create-complete --stack-name ${stack_name}
+
+exists_create:  
+	aws cloudformation wait stack-exists --stack-name ${stack_name}
+
+try_create:
+	$(MAKE) wait_create || $(MAKE) create
+
+create: upload try_network 
 	aws cloudformation create-stack --region ${region} --stack-name ${stack_name} \
- 	 --template-url https://s3.${region}.amazonaws.com${s3_suffix}/${s3_bucket}/cloud9-ide-master.template.yaml --capabilities CAPABILITY_IAM \
+	 --template-url https://s3.${region}.amazonaws.com${s3_suffix}/${s3_bucket}/cloud9-ide-master.template.yaml --capabilities CAPABILITY_IAM \
  	 --parameters ParameterKey=AvailabilityZones,ParameterValue=${azs} \
  	 			  ParameterKey=VPCStackName,ParameterValue=VPCStack \
+				  ParameterKey=BootstrapScriptS3Uri,ParameterValue=${bootstrapS3Uri} \
  	 --disable-rollback
 
 update: upload
