@@ -1,4 +1,12 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -l
+
+# Note the -l above to get .bashrc and /etc/profile
+
+exec &> >(tee -a "/tmp/BOOTSTRAP.log")
+shopt -q login_shell && echo 'Login shell' || echo 'Not login shell'
+
+# Force login shell
+. /etc/profile
 
 whoami > /tmp/BOOTSTRAP.WHOAMI
 env >> /tmp/BOOTSTRAP.WHOAMI
@@ -10,7 +18,8 @@ env >> /tmp/BOOTSTRAP.WHOAMI
 #export PRIVATE_KEY_ARN=${2:-default}
 
 #TODO:
-sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster --upgrade
+#sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster --upgrade
+pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster --user
 
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | rev | cut -c 2- | rev)
 
@@ -39,10 +48,10 @@ ssh = ssh {CFN_USER}@{MASTER_IP} {ARGS}
 key_name = ${ssh_key_id}
 base_os = ubuntu1804
 scheduler = slurm
-master_instance_type = c5n.18xlarge
+master_instance_type = c5n.9xlarge
 compute_instance_type = c5n.18xlarge
 vpc_settings = public-private
-fsx_settings = fsx-scratch2
+#fsx_settings = fsx-scratch2
 disable_hyperthreading = true
 dcv_settings = dcv
 #post_install = https://covid19hpc-quickstart-161153343288.s3.amazonaws.com/dev_user_data.sh
@@ -90,7 +99,9 @@ compute_subnet_id = ${compute_subnet_id}
 
 EOF
 
+which pcluster >> /tmp/BOOTSTRAP.WHOAMI
 # Start the pcluster provisioning, but don't wait for it to complete.
-/usr/local/bin/pcluster create -t covid covid-cluster --nowait
+pcluster create -t covid covid-cluster --nowait
 
+echo "Finished" >> /tmp/BOOTSTRAP.WHOAMI
 echo "Finished"
