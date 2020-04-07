@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 helper = CfnResource(json_logging=True, log_level='DEBUG', boto_level='CRITICAL')
 
 try:
-    ec2_client = boto3.client('ec2')
     ssm_client = boto3.client('ssm')
 except Exception as e:
     helper.init_failure(e)
@@ -30,14 +29,25 @@ def send_command(instance_id, commands):
         logger.debug("Failed to execute SSM command", exc_info=True)
         return
 
+def wait_instance_ready(cloud9_environment, context):
+    while True:
+        instance_info = ssm_client.describe_instance_information(Filters=[{
+            'Key': 'Tag', 'Values': ['aws:cloud9:environment:%s' % cloud9_environment]
+        },
+        {
+            'Key': 'PingStatus', 'Values': ['Online']
+        }
+        ])
+        if instance_info.get('InstanceInformationList'):
+            return instance_info.get('InstanceInformationList')[0].get('InstanceId')
+        if context.get_remaining_time_in_millis() < 20000:
+            raise Exception("Timed out waiting for instance to be ready")
+        sleep(15)
 
 @helper.create
 def create(event, context):
     logger.debug("Got Create")
-    response = ec2_client.describe_instances(Filters=[{
-        'Name': 'tag:aws:cloud9:environment', 'Values': [event['ResourceProperties']['Cloud9Environment']]
-    }])
-    instance_id = response['Reservations'][0]['Instances'][0]['InstanceId']
+    instance_id = wait_instance_ready(event['ResourceProperties']['Cloud9Environment'], context)
     bootstrap_path = event['ResourceProperties']['BootstrapPath']
     arguments = event['ResourceProperties']['BootstrapArguments']
     vpc_id = event['ResourceProperties']['VPCID']
@@ -47,34 +57,26 @@ def create(event, context):
     keypair_id = event['ResourceProperties']['KeyPairId']
     keypair_secret_arn = event['ResourceProperties']['KeyPairSecretArn']
 
-    while True:
-        commands = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
-                    'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
-                    'chmod 755 bootstrap.sh',
-                    'sudo -u ec2-user '
-                    + ' vpc_id=' + vpc_id
-                    + ' master_subnet_id=' + master_subnet_id
-                    + ' compute_subnet_id=' + compute_subnet_id
-                    + ' post_install_script_url=' + post_install_script_url
-                    + ' private_key_arn=' + keypair_secret_arn
-                    + ' ssh_key_id=' + keypair_id
-                    + ' bash bootstrap.sh ' + arguments]
-        send_response = send_command(instance_id, commands)
-        if send_response:
-            helper.Data["CommandId"] = send_response['Command']['CommandId']
-            break
-        if context.get_remaining_time_in_millis() < 20000:
-            raise Exception("Timed out attempting to send command to SSM")
-        sleep(15)
+    command = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
+                'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
+                'chmod 755 bootstrap.sh',
+                'sudo -u ec2-user '
+                + ' vpc_id=' + vpc_id
+                + ' master_subnet_id=' + master_subnet_id
+                + ' compute_subnet_id=' + compute_subnet_id
+                + ' post_install_script_url=' + post_install_script_url
+                + ' private_key_arn=' + keypair_secret_arn
+                + ' ssh_key_id=' + keypair_id
+                + ' bash bootstrap.sh ' + arguments]
+    send_response = send_command(instance_id, command)
+    if send_response:
+        helper.Data["CommandId"] = send_response['Command']['CommandId']
 
 
 @helper.poll_create
 def poll_create(event, context):
     logger.info("Got create poll")
-    response = ec2_client.describe_instances(Filters=[{
-        'Name': 'tag:aws:cloud9:environment', 'Values': [event['ResourceProperties']['Cloud9Environment']]
-    }])
-    instance_id = response['Reservations'][0]['Instances'][0]['InstanceId']
+    instance_id = get_instance_id(event['ResourceProperties']['Cloud9Environment'])
     while True:
         try:
             cmd_output_response = get_command_output(instance_id, helper.Data["CommandId"])
