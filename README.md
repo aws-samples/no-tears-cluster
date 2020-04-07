@@ -9,3 +9,6 @@ cd quickstart/
 ```
 
 That's it!
+
+## Accout  independent Version
+To build an account independent version use ./upload.sh This will upload all assets to $s3_bucket and make sure all references in cfn.yaml point to the correct resources
