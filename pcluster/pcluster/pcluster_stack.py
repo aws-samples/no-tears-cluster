@@ -128,7 +128,7 @@ class PclusterStack(cdk.Stack):
 
         with open('iam/ParallelClusterUserPolicy.json') as json_file:
             data = json.load(json_file)
-            parallelcluster_user_policy = iam.PolicyDocument.from_json(data)
+            parallelcluster_user_policy = iam.CfnManagedPolicy(self, 'ParallelClusterUserPolicy', policy_document=iam.PolicyDocument.from_json(data))
         bootstrap_script.grant_read(cloud9_role)
         pcluster_post_install_script.grant_read(cloud9_role)
 
@@ -139,7 +139,7 @@ class PclusterStack(cdk.Stack):
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
         cloud9_setup_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole'))
         # Allow pcluster to be run in bootstrap
-        cloud9_setup_role.add_managed_policy(parallelcluster_user_policy)
+        cloud9_setup_role.add_managed_policy(iam.ManagedPolicy.from_managed_policy_arn(self, 'AttachParallelClusterUserPolicy', parallelcluster_user_policy.ref))
         # Add IAM permissions to the lambda role
         cloud9_setup_role.add_to_policy(iam.PolicyStatement(
             actions=[
