@@ -232,10 +232,6 @@ class PclusterStack(cdk.Stack):
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref
             }
         )
-
         c9_bootstrap_cr.node.add_dependency(instance_id)
         c9_bootstrap_cr.node.add_dependency(c9_createkeypair_cr)
         c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
-
-
-
