@@ -137,6 +137,7 @@ class PclusterStack(cdk.Stack):
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
         cloud9_setup_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole'))
+        cloud9_setup_role.add_managed_policy(parallelcluster_user_policy)
         # Add IAM permissions to the lambda role
         cloud9_setup_role.add_to_policy(iam.PolicyStatement(
             actions=[
@@ -172,6 +173,7 @@ class PclusterStack(cdk.Stack):
             actions=['iam:PassRole'],
             resources=[cloud9_role.role_arn]
         ))
+
         cloud9_setup_role.add_to_policy(iam.PolicyStatement(
             actions=[
                 'lambda:AddPermission',
