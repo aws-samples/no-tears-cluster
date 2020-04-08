@@ -108,7 +108,7 @@ MinJobAge=172800
 EOF
     grep -qxF 'include enable_sacct.conf' /opt/slurm/etc/slurm.conf || echo 'include enable_sacct.conf' >> /opt/slurm/etc/slurm.conf
 
-    chmod slurm:slurm ${accounting_log_path}/${accounting_log_file}
+    chown slurm:slurm ${accounting_log_path}/${accounting_log_file}
 
     systemctl restart slurmctld.service
 
