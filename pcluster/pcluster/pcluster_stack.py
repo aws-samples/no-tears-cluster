@@ -9,7 +9,8 @@ from aws_cdk import (
     aws_cloudformation as cfn,
     aws_secretsmanager as secretsmanager,
     custom_resources as cr,
-    core as cdk
+    core as cdk,
+    region_info
 )
 import json
 
@@ -102,6 +103,14 @@ class PclusterStack(cdk.Stack):
 
         with open('iam/ParallelClusterUserPolicy.json') as json_file:
             data = json.load(json_file)
+            for s in data['Statement']:
+                if s['Sid'] == 'S3ParallelClusterReadOnly':
+                    print(s['Resource'][0])
+                    s['Resource'] = []
+                    for r in region_info.RegionInfo.regions:
+                        s['Resource'].append('arn:aws:s3:::{0}-aws-parallelcluster*'.format(r.name))
+                    print(s['Resource'])
+
             parallelcluster_user_policy = iam.CfnManagedPolicy(self, 'ParallelClusterUserPolicy', policy_document=iam.PolicyDocument.from_json(data))
 
         # Cloud9 IAM Role
