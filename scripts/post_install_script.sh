@@ -8,9 +8,12 @@ do
     echo "arg: ${arg}"
 done
 
+# Enables qstat for slurm
+apt install -y libswitch-perl
+
 # Override with $2 if set, or use default paths
 spack_install_path=${2:-/shared/spack-0.13}
-accounting_log_path=${3:-/var/log/slurm}
+accounting_log_path=${3:-/opt/slurm/log}
 accounting_log_file=${4:-sacct.log}
 
 env > /opt/user_data_env.txt
@@ -81,6 +84,7 @@ EOF
 
     #. /etc/profile.d/spack.sh
 	su - ubuntu -c ". /etc/profile && spack bootstrap"
+	su - ubuntu -c ". /etc/profile && spack install miniconda3 && conda upgrade conda -y"
 
     mkdir -p ${accounting_log_path}
     chmod 755 ${accounting_log_path}
@@ -103,6 +107,9 @@ AccountingStorageLoc=${accounting_log_path}/${accounting_log_file}
 MinJobAge=172800
 EOF
     grep -qxF 'include enable_sacct.conf' /opt/slurm/etc/slurm.conf || echo 'include enable_sacct.conf' >> /opt/slurm/etc/slurm.conf
+
+    chmod slurm:slurm ${accounting_log_path}/${accounting_log_file}
+
     systemctl restart slurmctld.service
 
     ;;
