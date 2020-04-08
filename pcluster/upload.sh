@@ -6,7 +6,7 @@
 
 # Output cfn.yaml : Can be used on a new clean account by a different user.
 
-s3_bucket=8192-stesachs #covid19hpc-bucket-stesachs #covid19hpc-quickstart-161153343288
+s3_bucket=${1:-covid19hpc-quickstart-161153343288} #8192-stesachs #covid19hpc-bucket-stesachs #covid19hpc-quickstart-161153343288
 
 # Edit cfn.yaml to include correct bucket
 edit_cfn()

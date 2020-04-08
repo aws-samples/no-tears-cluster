@@ -9,7 +9,8 @@ from aws_cdk import (
     aws_cloudformation as cfn,
     aws_secretsmanager as secretsmanager,
     custom_resources as cr,
-    core as cdk
+    core as cdk,
+    region_info
 )
 import json
 
@@ -100,8 +101,17 @@ class PclusterStack(cdk.Stack):
              secret_string=c9_createkeypair_cr.get_att_string('PrivateKey')
         )
 
+        # The iam policy has a <REGION> parameter that needs to be replaced.
+        # We do it programmatically so future versions of the synth'd stack
+        # template include all regions.
         with open('iam/ParallelClusterUserPolicy.json') as json_file:
             data = json.load(json_file)
+            for s in data['Statement']:
+                if s['Sid'] == 'S3ParallelClusterReadOnly':
+                    s['Resource'] = []
+                    for r in region_info.RegionInfo.regions:
+                        s['Resource'].append('arn:aws:s3:::{0}-aws-parallelcluster*'.format(r.name))
+
             parallelcluster_user_policy = iam.CfnManagedPolicy(self, 'ParallelClusterUserPolicy', policy_document=iam.PolicyDocument.from_json(data))
 
         # Cloud9 IAM Role
