@@ -53,7 +53,7 @@ ssh = ssh {CFN_USER}@{MASTER_IP} {ARGS}
 key_name = ${ssh_key_id}
 base_os = ubuntu1804
 scheduler = slurm
-master_instance_type = c5n.9xlarge
+master_instance_type = c5n.2xlarge
 compute_instance_type = c5n.18xlarge
 vpc_settings = public-private
 #fsx_settings = fsx-scratch2
@@ -108,6 +108,10 @@ EOF
 . /etc/profile
 
 which pcluster >> /tmp/BOOTSTRAP.WHOAMI
+
+aws configure set default.region ${AWS_DEFAULT_REGION}
+aws configure set default.output json
+
 # Start the pcluster provisioning, but don't wait for it to complete.
 pcluster create -t covid covid-cluster --nowait
 
