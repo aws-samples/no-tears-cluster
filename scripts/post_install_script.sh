@@ -90,7 +90,7 @@ EOF
     chmod 755 ${accounting_log_path}
     touch ${accounting_log_path}/${accounting_log_file}
     chmod 644 ${accounting_log_path}/${accounting_log_file}
-    chmod slurm:slurm ${accounting_log_path}/${accounting_log_file}
+    chown slurm:slurm ${accounting_log_path}/${accounting_log_file}
     cat << EOF > /opt/slurm/etc/enable_sacct.conf
 
 JobAcctGatherType=jobacct_gather/linux
@@ -107,8 +107,6 @@ AccountingStorageLoc=${accounting_log_path}/${accounting_log_file}
 MinJobAge=172800
 EOF
     grep -qxF 'include enable_sacct.conf' /opt/slurm/etc/slurm.conf || echo 'include enable_sacct.conf' >> /opt/slurm/etc/slurm.conf
-
-    chown slurm:slurm ${accounting_log_path}/${accounting_log_file}
 
     systemctl restart slurmctld.service
 
