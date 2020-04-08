@@ -10,10 +10,12 @@ def main():
 
     asset_id = []
     asset_key = []
+    asset_bucket_param = []
     
     for asset in manifest['artifacts']['pcluster']['metadata']['/pcluster']:
         asset_id.append(asset['data']['id'])
         path = asset['data']['path']
+        asset_bucket_param.append(asset['data']['s3BucketParameter'])
         asset_key.append("placeholder")
 
         if asset['data']['packaging'] == "zip":
@@ -36,6 +38,7 @@ def main():
 
     print("declare -a asset_id; asset_id=({})".format(" ".join(asset_id)))
     print("declare -a asset_key; asset_key=({})".format(" ".join(asset_key)))
+    print("declare -a asset_bucket_param; asset_bucket_param=({})".format(" ".join(asset_bucket_param)))
 
 
 main()
