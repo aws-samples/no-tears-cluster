@@ -118,7 +118,7 @@ env >> /tmp/BOOTSTRAP.PCLUSTER
 pcluster list
 
 # Start the pcluster provisioning, but don't wait for it to complete.
-pcluster create -t covid covid-cluster -c ~/.parallelcluster/config --nowait
+pcluster create -t covid covid-cluster -c ~/.parallelcluster/config --nowait -nr
 
 echo "Finished" >> /tmp/BOOTSTRAP.WHOAMI
 echo "Finished"
