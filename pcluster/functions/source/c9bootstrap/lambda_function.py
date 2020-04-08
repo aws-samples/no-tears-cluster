@@ -76,7 +76,7 @@ def create(event, context):
 @helper.poll_create
 def poll_create(event, context):
     logger.info("Got create poll")
-    instance_id = get_instance_id(event['ResourceProperties']['Cloud9Environment'])
+    instance_id = wait_instance_ready(event['ResourceProperties']['Cloud9Environment'], context)
     while True:
         try:
             cmd_output_response = get_command_output(instance_id, helper.Data["CommandId"])
