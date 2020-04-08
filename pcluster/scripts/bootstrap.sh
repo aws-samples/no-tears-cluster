@@ -62,6 +62,7 @@ dcv_settings = dcv
 #post_install = https://covid19hpc-quickstart-161153343288.s3.amazonaws.com/dev_user_data.sh
 post_install = ${post_install_script_url}
 post_install_args = "/shared/spack-0.13 /opt/slurm/log sacct.log"
+s3_read_resource = arn:aws:s3:::${post_install_script_bucket}/*
 initial_queue_size = 0
 max_queue_size = 10
 placement_group = DYNAMIC
