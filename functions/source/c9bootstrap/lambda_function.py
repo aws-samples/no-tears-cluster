@@ -56,7 +56,6 @@ def create(event, context):
     post_install_script_url = event['ResourceProperties']['PostInstallScriptS3Url']
     keypair_id = event['ResourceProperties']['KeyPairId']
     keypair_secret_arn = event['ResourceProperties']['KeyPairSecretArn']
-    post_install_script_bucket = event['ResourceProperties']['PostInstallScriptBucket']
 
     command = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
                 'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
@@ -66,7 +65,6 @@ def create(event, context):
                 + ' master_subnet_id=' + master_subnet_id
                 + ' compute_subnet_id=' + compute_subnet_id
                 + ' post_install_script_url=' + post_install_script_url
-                + ' post_install_script_bucket=' + post_install_script_bucket
                 + ' private_key_arn=' + keypair_secret_arn
                 + ' ssh_key_id=' + keypair_id
                 + ' bash bootstrap.sh ' + arguments]

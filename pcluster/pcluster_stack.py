@@ -19,13 +19,6 @@ class PclusterStack(cdk.Stack):
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        ### Parameters
-        bootstrap_script_args = cdk.CfnParameter(self, 'BootstrapScriptArgs',
-            type='String',
-            default='',
-            description='Space seperated arguments passed to the bootstrap script.'
-        )
-
         # create a VPC
         vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/16', max_azs=99)
 
@@ -45,17 +38,7 @@ class PclusterStack(cdk.Stack):
 
         # Create a Bucket
         bucket = s3.Bucket(self, "DataRepository")
-        quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
-
-        # Upload Bootstrap Script to that bucket
-        bootstrap_script = assets.Asset(self, 'BootstrapScript',
-            path='scripts/bootstrap.sh'
-        )
-
-        # Upload parallel cluster post_install_script to that bucket
-        pcluster_post_install_script = assets.Asset(self, 'PclusterPostInstallScript',
-            path='scripts/post_install_script.sh'
-        )
+        quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', "".join(['covid19hpc-quickstart-', self.region]))
 
         # Setup CloudTrail
         cloudtrail.Trail(self, 'CloudTrail', bucket=bucket)
@@ -85,8 +68,8 @@ class PclusterStack(cdk.Stack):
             handler='lambda_function.handler',
             timeout=cdk.Duration.seconds(300),
             role=c9_createkeypair_role,
-            code=_lambda.Code.asset('functions/source/c9keypair'),
-        #    code=_lambda.Code.from_bucket(
+            # code=_lambda.Code.asset('functions/source/c9keypair'),
+            code=_lambda.Code.from_bucket(bucket=quickstart_bucket, key='functions/source/c9keypair'),
         )
 
         c9_createkeypair_provider = cr.Provider(self, "C9CreateKeyPairProvider", on_event_handler=c9_createkeypair_lambda)
@@ -133,9 +116,6 @@ class PclusterStack(cdk.Stack):
                 'secretsmanager:GetSecretValue'
             ]
         ))
-
-        bootstrap_script.grant_read(cloud9_role)
-        pcluster_post_install_script.grant_read(cloud9_role)
 
         # Cloud9 User
         # user = iam.User(self, 'Cloud9User', password=cdk.SecretValue.plain_text('supersecretpassword'), password_reset_required=True)
@@ -199,7 +179,8 @@ class PclusterStack(cdk.Stack):
             handler='lambda_function.handler',
             timeout=cdk.Duration.seconds(900),
             role=cloud9_setup_role,
-            code=_lambda.Code.asset('functions/source/c9InstanceProfile'),
+            # code=_lambda.Code.asset('functions/source/c9InstanceProfile'),
+            code=_lambda.Code.from_bucket(bucket=quickstart_bucket, key='functions/source/c9InstanceProfile'),
         )
 
         c9_instance_profile_provider = cr.Provider(self, "C9InstanceProfileProvider",
@@ -228,13 +209,11 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider,
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
-                'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
-                'BootstrapArguments': bootstrap_script_args,
+                'BootstrapPath': "".join( ['s3://', quickstart_bucket.bucket_name,  "/", 'scripts/bootstrap.sh'] ),
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
-                'PostInstallScriptS3Url':  "".join( ['s3://', pcluster_post_install_script.s3_bucket_name,  "/", pcluster_post_install_script.s3_object_key ] ),
-                'PostInstallScriptBucket': pcluster_post_install_script.s3_bucket_name,
+                'PostInstallScriptS3Url':  "".join( ['s3://', quickstart_bucket.bucket_name,  "/", 'scripts/post_install_script.sh' ] ),
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref
             }
