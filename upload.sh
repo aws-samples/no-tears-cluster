@@ -64,9 +64,9 @@ $(cat cfn.yaml)
 }
 
 
-#cdk synthesize > cfn.yaml
-#edit_cfn
-#upload
+cdk synthesize > cfn.yaml
+edit_cfn
+upload
 upload_lambda_worldwide
 
 echo "Use cfn.yaml for CloudFormation"
