@@ -413,11 +413,20 @@ Resources:
     Properties:
       Code:
         S3Bucket:
+          !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+        S3Key:
           Fn::Join:
             - ""
-            - - covid19hpc-quickstart-
-              - Ref: AWS::Region
-        S3Key: functions/source/c9keypair
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3VersionKey1DA83673
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3VersionKey1DA83673
       Handler: lambda_function.handler
       Role:
         Fn::GetAtt:
@@ -430,6 +439,8 @@ Resources:
       - Cloud9CreateKeypairRole4A1B132A
     Metadata:
       aws:cdk:path: pcluster/C9CreateKeyPairLambda/Resource
+      aws:asset:path: asset.26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d
+      aws:asset:property: Code
   C9CreateKeyPairProviderframeworkonEventServiceRoleE6670C17:
     Type: AWS::IAM::Role
     Properties:
@@ -797,6 +808,44 @@ Resources:
             Effect: Allow
             Resource:
               Ref: SshPrivateKeySecret
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+                    - /*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+                    - /*
         Version: "2012-10-17"
       PolicyName: Cloud9RoleDefaultPolicy7BF05308
       Roles:
@@ -883,11 +932,20 @@ Resources:
     Properties:
       Code:
         S3Bucket:
+          !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+        S3Key:
           Fn::Join:
             - ""
-            - - covid19hpc-quickstart-
-              - Ref: AWS::Region
-        S3Key: functions/source/c9InstanceProfile
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3VersionKeyDCCB2D9A
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3VersionKeyDCCB2D9A
       Handler: lambda_function.handler
       Role:
         Fn::GetAtt:
@@ -900,6 +958,8 @@ Resources:
       - Cloud9SetupRole5712B5A6
     Metadata:
       aws:cdk:path: pcluster/C9InstanceProfileLambda/Resource
+      aws:asset:path: asset.3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4
+      aws:asset:property: Code
   C9InstanceProfileProviderframeworkonEventServiceRole77941550:
     Type: AWS::IAM::Role
     Properties:
@@ -1004,12 +1064,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParametersd7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3aS3VersionKeyF867AD74
+                      - Ref: AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31S3VersionKeyAE453508
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParametersd7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3aS3VersionKeyF867AD74
+                      - Ref: AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31S3VersionKeyAE453508
       Handler: lambda_function.handler
       Role:
         Fn::GetAtt:
@@ -1022,7 +1082,7 @@ Resources:
       - Cloud9SetupRole5712B5A6
     Metadata:
       aws:cdk:path: pcluster/C9BootstrapLambda/Resource
-      aws:asset:path: asset.d7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3a
+      aws:asset:path: asset.55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31
       aws:asset:property: Code
   C9BootstrapProviderframeworkonEventServiceRole9DB6888B:
     Type: AWS::IAM::Role
@@ -1110,9 +1170,19 @@ Resources:
       BootstrapPath:
         Fn::Join:
           - ""
-          - - s3://covid19hpc-quickstart-
-            - Ref: AWS::Region
-            - /scripts/bootstrap.sh
+          - - s3://
+            - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+            - /
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "||"
+                    - Ref: AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adS3VersionKeyADBD77C7
+            - Fn::Select:
+                - 1
+                - Fn::Split:
+                    - "||"
+                    - Ref: AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adS3VersionKeyADBD77C7
       VPCID:
         Ref: VPCB9E5F0B4
       MasterSubnetID:
@@ -1122,9 +1192,21 @@ Resources:
       PostInstallScriptS3Url:
         Fn::Join:
           - ""
-          - - s3://covid19hpc-quickstart-
-            - Ref: AWS::Region
-            - /scripts/post_install_script.sh
+          - - s3://
+            - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+            - /
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "||"
+                    - Ref: AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3VersionKey3681CC3F
+            - Fn::Select:
+                - 1
+                - Fn::Split:
+                    - "||"
+                    - Ref: AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3VersionKey3681CC3F
+      PostInstallScriptBucket:
+        !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
       KeyPairId:
         Ref: C9CreateKeyPair
       KeyPairSecretArn:
@@ -1167,6 +1249,39 @@ Outputs:
           - .console.aws.amazon.com/cloud9/ide/
           - Ref: Cloud9EnvD28F4C4F
 Parameters:
+  AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adS3BucketDC973A7D:
+    Type: String
+    Description: S3 bucket for asset "4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533ad"
+    Default: "covid19hpc-quickstart"
+  AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adS3VersionKeyADBD77C7:
+    Type: String
+    Description: S3 key for asset version "4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533ad"
+    Default: "asset/4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533ad.sh||"
+  AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adArtifactHash64333CE3:
+    Type: String
+    Description: Artifact hash for asset "4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533ad"
+  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3Bucket8A68B524:
+    Type: String
+    Description: S3 bucket for asset "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
+    Default: "covid19hpc-quickstart"
+  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3VersionKey3681CC3F:
+    Type: String
+    Description: S3 key for asset version "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
+    Default: "asset/d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f.sh||"
+  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fArtifactHashD19E18AF:
+    Type: String
+    Description: Artifact hash for asset "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
+  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3BucketC5EE12DD:
+    Type: String
+    Description: S3 bucket for asset "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
+    Default: "covid19hpc-quickstart"
+  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3VersionKey1DA83673:
+    Type: String
+    Description: S3 key for asset version "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
+    Default: "asset/26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d.zip||"
+  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dArtifactHash3101849A:
+    Type: String
+    Description: Artifact hash for asset "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
   AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3BucketEC634C0C:
     Type: String
     Description: S3 bucket for asset "1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad"
@@ -1178,17 +1293,28 @@ Parameters:
   AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adArtifactHash13E158B7:
     Type: String
     Description: Artifact hash for asset "1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad"
-  AssetParametersd7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3aS3Bucket175DD51A:
+  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3BucketBC8346B6:
     Type: String
-    Description: S3 bucket for asset "d7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3a"
+    Description: S3 bucket for asset "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
     Default: "covid19hpc-quickstart"
-  AssetParametersd7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3aS3VersionKeyF867AD74:
+  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3VersionKeyDCCB2D9A:
     Type: String
-    Description: S3 key for asset version "d7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3a"
-    Default: "asset/d7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3a.zip||"
-  AssetParametersd7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3aArtifactHash7CCDB33D:
+    Description: S3 key for asset version "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
+    Default: "asset/3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4.zip||"
+  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4ArtifactHash2FB69DF7:
     Type: String
-    Description: Artifact hash for asset "d7971573e2973bd07f9df40d19dd7f8a133ed58edec23f6b7c9c0718f4779e3a"
+    Description: Artifact hash for asset "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
+  AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31S3Bucket4DD68C61:
+    Type: String
+    Description: S3 bucket for asset "55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31"
+    Default: "covid19hpc-quickstart"
+  AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31S3VersionKeyAE453508:
+    Type: String
+    Description: S3 key for asset version "55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31"
+    Default: "asset/55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31.zip||"
+  AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31ArtifactHash5EEEE582:
+    Type: String
+    Description: Artifact hash for asset "55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31"
 Conditions:
   CDKMetadataAvailable:
     Fn::Or:

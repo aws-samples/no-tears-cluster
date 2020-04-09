@@ -49,7 +49,6 @@ def create(event, context):
     logger.debug("Got Create")
     instance_id = wait_instance_ready(event['ResourceProperties']['Cloud9Environment'], context)
     bootstrap_path = event['ResourceProperties']['BootstrapPath']
-    arguments = event['ResourceProperties']['BootstrapArguments']
     vpc_id = event['ResourceProperties']['VPCID']
     master_subnet_id = event['ResourceProperties']['MasterSubnetID']
     compute_subnet_id = event['ResourceProperties']['ComputeSubnetID']
@@ -69,7 +68,7 @@ def create(event, context):
                 + ' post_install_script_bucket=' + post_install_script_bucket
                 + ' private_key_arn=' + keypair_secret_arn
                 + ' ssh_key_id=' + keypair_id
-                + ' bash bootstrap.sh ' + arguments]
+                + ' bash bootstrap.sh']
     send_response = send_command(instance_id, command)
     if send_response:
         helper.Data["CommandId"] = send_response['Command']['CommandId']

@@ -19,13 +19,6 @@ class PclusterStack(cdk.Stack):
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        ### Parameters
-        bootstrap_script_args = cdk.CfnParameter(self, 'BootstrapScriptArgs',
-            type='String',
-            default='',
-            description='Space seperated arguments passed to the bootstrap script.'
-        )
-
         # create a VPC
         vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/16', max_azs=99)
 
@@ -229,7 +222,6 @@ class PclusterStack(cdk.Stack):
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
                 'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
-                'BootstrapArguments': bootstrap_script_args,
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
