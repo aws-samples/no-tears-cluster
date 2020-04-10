@@ -61,7 +61,8 @@ disable_hyperthreading = true
 dcv_settings = dcv
 post_install = ${post_install_script_url}
 post_install_args = "/shared/spack-0.13 /opt/slurm/log sacct.log"
-s3_read_resource = arn:aws:s3:::${post_install_script_bucket}/*
+s3_read_resource = arn:aws:s3:::*
+s3_read_write_resource = ${s3_read_write_resource}/*
 initial_queue_size = 0
 max_queue_size = 10
 placement_group = DYNAMIC
@@ -82,6 +83,7 @@ enable = master
 shared_dir = /scratch
 storage_capacity = 1200
 deployment_type = SCRATCH_2
+import_path=${s3_read_write_url}
 
 [dcv dcv]
 enable = master

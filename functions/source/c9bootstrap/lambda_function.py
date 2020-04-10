@@ -60,6 +60,8 @@ def create(event, context):
     keypair_id = event['ResourceProperties']['KeyPairId']
     keypair_secret_arn = event['ResourceProperties']['KeyPairSecretArn']
     post_install_script_bucket = event['ResourceProperties']['PostInstallScriptBucket']
+    s3_read_write_resource = event['ResourceProperties']['S3ReadWriteResource']
+    s3_read_write_url = event['ResourceProperties']['S3ReadWriteUrl']
     user_arn = event['ResourceProperties']['UserArn']
 
     # grant s3 permissions
@@ -74,6 +76,8 @@ def create(event, context):
                 + ' compute_subnet_id=' + compute_subnet_id
                 + ' post_install_script_url=' + post_install_script_url
                 + ' post_install_script_bucket=' + post_install_script_bucket
+                + ' s3_read_write_resource=' + s3_read_write_resource
+                + ' s3_read_write_url=' + s3_read_write_url
                 + ' private_key_arn=' + keypair_secret_arn
                 + ' ssh_key_id=' + keypair_id
                 + ' bash bootstrap.sh']

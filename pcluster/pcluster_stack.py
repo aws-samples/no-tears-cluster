@@ -24,7 +24,7 @@ class PclusterStack(cdk.Stack):
         password = cdk.CfnParameter(self, 'UserPasswordParameter', description='Set a password for the hpc-quickstart user', no_echo=True)
 
         # create a VPC
-        vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/16', max_azs=99)
+        vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/20', max_azs=99)
 
         # create a private and public subnet per vpc
         selection = vpc.select_subnets(
@@ -41,7 +41,9 @@ class PclusterStack(cdk.Stack):
         cdk.CfnOutput(self, 'VPCId',  value=vpc.vpc_id)
 
         # Create a Bucket
-        bucket = s3.Bucket(self, "DataRepository")
+        data_bucket = s3.Bucket(self, "DataRepository")
+        cdk.CfnOutput(self, 'DataRespository',  value=data_bucket.bucket_name)
+        cloudtrail_bucket = s3.Bucket(self, "CloudTrailLogs")
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
 
         # Upload Bootstrap Script to that bucket
@@ -55,13 +57,13 @@ class PclusterStack(cdk.Stack):
         )
 
         # Setup CloudTrail
-        cloudtrail.Trail(self, 'CloudTrail', bucket=bucket)
+        cloudtrail.Trail(self, 'CloudTrail', bucket=cloudtrail_bucket)
 
         # Create a Cloud9 instance
         # Cloud9 doesn't have the ability to provide userdata
         # Because of this we need to use SSM run command
-        cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9Env', vpc=vpc, instance_type=ec2.InstanceType(instance_type_identifier='c5.large'))
-        cdk.CfnOutput(self, 'URL',  value=cloud9_instance.ide_url)
+        cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9Env', ec2_environment_name='ResearchWorkspace', vpc=vpc, instance_type=ec2.InstanceType(instance_type_identifier='c5.large'))
+        cdk.CfnOutput(self, 'Research Workspace URL',  value=cloud9_instance.ide_url)
 
 
         # Create a keypair in lambda and store the private key in SecretsManager
@@ -83,7 +85,6 @@ class PclusterStack(cdk.Stack):
             timeout=cdk.Duration.seconds(300),
             role=c9_createkeypair_role,
             code=_lambda.Code.asset('functions/source/c9keypair'),
-        #    code=_lambda.Code.from_bucket(
         )
 
         c9_createkeypair_provider = cr.Provider(self, "C9CreateKeyPairProvider", on_event_handler=c9_createkeypair_lambda)
@@ -130,6 +131,16 @@ class PclusterStack(cdk.Stack):
                 'secretsmanager:GetSecretValue'
             ]
         ))
+        cloud9_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+             "s3:Get*",
+             "s3:List*"
+            ],
+            resources=[
+                "arn:aws:s3:::%s/*" % (data_bucket.bucket_name),
+                "arn:aws:s3:::%s" % (data_bucket.bucket_name)
+            ]
+        ))
 
         bootstrap_script.grant_read(cloud9_role)
         pcluster_post_install_script.grant_read(cloud9_role)
@@ -139,12 +150,19 @@ class PclusterStack(cdk.Stack):
         admin_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AdministratorAccess'))
         admin_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9Administrator'))
 
+        # PowerUser Group
+        poweruser_group = iam.Group(self, 'PowerUserGroup')
+        poweruser_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('PowerUserAccess'))
+        poweruser_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9Administrator'))
+
         # HPC User
         user_name = 'hpc-quickstart'
-        user = iam.User(self, 'Cloud9User', user_name=user_name, password=cdk.SecretValue.cfn_parameter(password), password_reset_required=True)
+        user = iam.User(self, 'Researcher',
+                        user_name=user_name,
+                        password=cdk.SecretValue.cfn_parameter(password), password_reset_required=True)
         user.add_to_group(group=admin_group)
         cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]))
-        cdk.CfnOutput(self, 'UserName', value=user_name)
+        cdk.CfnOutput(self, 'UserName', value=user.user_name)
         # cdk.CfnOutput(self, 'UserPassword', value=password.value_as_string)
 
         # Cloud9 Setup IAM Role
@@ -242,6 +260,8 @@ class PclusterStack(cdk.Stack):
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
                 'PostInstallScriptS3Url':  "".join( ['s3://', pcluster_post_install_script.s3_bucket_name,  "/", pcluster_post_install_script.s3_object_key ] ),
                 'PostInstallScriptBucket': pcluster_post_install_script.s3_bucket_name,
+                'S3ReadWriteResource': data_bucket.bucket_arn,
+                'S3ReadWriteUrl': 's3://%s' % ( data_bucket.bucket_name ),
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
                 'UserArn': user.user_arn
@@ -250,16 +270,16 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(instance_id)
         c9_bootstrap_cr.node.add_dependency(c9_createkeypair_cr)
         c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
+        c9_bootstrap_cr.node.add_dependency(data_bucket)
 
         # Budgets
         budget_properties = {
             'budgetType': "COST",
             'timeUnit': "ANNUALLY",
             'budgetLimit': {
-                'amount': 5,
+                'amount': cdk.CfnParameter(self, 'BudgetLimit', description='The initial budget for this project in USD ($).', default=2000, type='Number').value_as_number,
                 'unit': "USD",
             },
-            'budgetName': "CovidHPCExpenses",
             'costFilters': None,
             'costTypes': {
                 'includeCredit': False,
@@ -282,11 +302,11 @@ class PclusterStack(cdk.Stack):
             'notification': {
                 'comparisonOperator': "GREATER_THAN",
                 'notificationType': "ACTUAL",
-                'threshold': 90,
+                'threshold': 80,
                 'thresholdType': "PERCENTAGE",
                 },
             'subscribers': [{
-                'address': 'stesachs@amazon.com',
+                'address': cdk.CfnParameter(self, 'NotificationEmail', description='This email address will receive billing alarm notifications when 80% of the budget limit is reached.', default='stesachs@amazon.com').value_as_string,
                 'subscriptionType': "EMAIL",
             }]
         }

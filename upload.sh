@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 # Run this file to copy all required assets into $s3_bucket as well as ${s3_bucket}-${region}
 # for all regions and make cfn.yaml reference those assets.
@@ -33,6 +34,15 @@ upload()
     done
 }
 
+upload_cfn()
+{
+	if ! $(aws s3 ls s3://${s3_bucket} &> /dev/null)
+	then
+	   aws s3 mb s3://${s3_bucket}
+	fi
+ 	aws s3 cp --acl public-read cfn.yaml s3://${s3_bucket}/cfn.yaml
+}
+
 # Upload lambdas in every part of the world and make cfn.yaml aware of their locations
 upload_lambda_worldwide()
 {
@@ -56,7 +66,7 @@ $(cat cfn.yaml)
 " > cfn.yaml
     done
 
-    echo "Mappings: 
+    echo "Mappings:
   RegionMap:
 $(cat cfn.yaml)
 "  > cfn.yaml
@@ -68,5 +78,5 @@ cdk synthesize > cfn.yaml
 edit_cfn
 upload
 upload_lambda_worldwide
-
+upload_cfn
 echo "Use cfn.yaml for CloudFormation"

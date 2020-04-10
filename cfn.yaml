@@ -1,4 +1,4 @@
-Mappings: 
+Mappings:
   RegionMap:
     us-west-2:
       RegionBucket: covid19hpc-quickstart-us-west-2
@@ -36,11 +36,90 @@ Mappings:
       RegionBucket: covid19hpc-quickstart-eu-north-1
 
 
+Parameters:
+  UserPasswordParameter:
+    Type: String
+    Description: Set a password for the hpc-quickstart user
+    NoEcho: true
+  AssetParameterse8dbc037f5f658580127e34b2809f9daad72ebbe2f67b040817f9012fcc66f38S3Bucket93190B6E:
+    Type: String
+    Description: S3 bucket for asset "e8dbc037f5f658580127e34b2809f9daad72ebbe2f67b040817f9012fcc66f38"
+    Default: "covid19hpc-quickstart"
+  AssetParameterse8dbc037f5f658580127e34b2809f9daad72ebbe2f67b040817f9012fcc66f38S3VersionKey6275B573:
+    Type: String
+    Description: S3 key for asset version "e8dbc037f5f658580127e34b2809f9daad72ebbe2f67b040817f9012fcc66f38"
+    Default: "asset/e8dbc037f5f658580127e34b2809f9daad72ebbe2f67b040817f9012fcc66f38.sh||"
+  AssetParameterse8dbc037f5f658580127e34b2809f9daad72ebbe2f67b040817f9012fcc66f38ArtifactHashB97D64B7:
+    Type: String
+    Description: Artifact hash for asset "e8dbc037f5f658580127e34b2809f9daad72ebbe2f67b040817f9012fcc66f38"
+  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3Bucket8A68B524:
+    Type: String
+    Description: S3 bucket for asset "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
+    Default: "covid19hpc-quickstart"
+  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3VersionKey3681CC3F:
+    Type: String
+    Description: S3 key for asset version "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
+    Default: "asset/d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f.sh||"
+  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fArtifactHashD19E18AF:
+    Type: String
+    Description: Artifact hash for asset "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
+  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3BucketC5EE12DD:
+    Type: String
+    Description: S3 bucket for asset "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
+    Default: "covid19hpc-quickstart"
+  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3VersionKey1DA83673:
+    Type: String
+    Description: S3 key for asset version "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
+    Default: "asset/26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d.zip||"
+  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dArtifactHash3101849A:
+    Type: String
+    Description: Artifact hash for asset "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
+  AssetParameters1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18S3Bucket8AB0F528:
+    Type: String
+    Description: S3 bucket for asset "1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18"
+    Default: "covid19hpc-quickstart"
+  AssetParameters1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18S3VersionKey2388355A:
+    Type: String
+    Description: S3 key for asset version "1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18"
+    Default: "asset/1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18.zip||"
+  AssetParameters1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18ArtifactHash355E003E:
+    Type: String
+    Description: Artifact hash for asset "1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18"
+  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3BucketBC8346B6:
+    Type: String
+    Description: S3 bucket for asset "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
+    Default: "covid19hpc-quickstart"
+  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3VersionKeyDCCB2D9A:
+    Type: String
+    Description: S3 key for asset version "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
+    Default: "asset/3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4.zip||"
+  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4ArtifactHash2FB69DF7:
+    Type: String
+    Description: Artifact hash for asset "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
+  AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43S3Bucket9CFBE28B:
+    Type: String
+    Description: S3 bucket for asset "e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43"
+    Default: "covid19hpc-quickstart"
+  AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43S3VersionKeyDA8E2ECF:
+    Type: String
+    Description: S3 key for asset version "e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43"
+    Default: "asset/e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43.zip||"
+  AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43ArtifactHash4E0D620D:
+    Type: String
+    Description: Artifact hash for asset "e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43"
+  BudgetLimit:
+    Type: Number
+    Default: 2000
+    Description: The initial budget for this project in USD ($).
+  NotificationEmail:
+    Type: String
+    Default: stesachs@amazon.com
+    Description: This email address will receive billing alarm notifications when 80% of the budget limit is reached.
 Resources:
   VPCB9E5F0B4:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.0.0.0/16
+      CidrBlock: 10.0.0.0/20
       EnableDnsHostnames: true
       EnableDnsSupport: true
       InstanceTenancy: default
@@ -52,7 +131,7 @@ Resources:
   VPCPublicSubnet1SubnetB4246D30:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.0.0.0/18
+      CidrBlock: 10.0.0.0/22
       VpcId:
         Ref: VPCB9E5F0B4
       AvailabilityZone:
@@ -126,7 +205,7 @@ Resources:
   VPCPublicSubnet2Subnet74179F39:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.0.64.0/18
+      CidrBlock: 10.0.4.0/22
       VpcId:
         Ref: VPCB9E5F0B4
       AvailabilityZone:
@@ -200,7 +279,7 @@ Resources:
   VPCPrivateSubnet1Subnet8BCA10E0:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.0.128.0/18
+      CidrBlock: 10.0.8.0/22
       VpcId:
         Ref: VPCB9E5F0B4
       AvailabilityZone:
@@ -249,7 +328,7 @@ Resources:
   VPCPrivateSubnet2SubnetCFCDAA7A:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.0.192.0/18
+      CidrBlock: 10.0.12.0/22
       VpcId:
         Ref: VPCB9E5F0B4
       AvailabilityZone:
@@ -318,11 +397,17 @@ Resources:
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: pcluster/DataRepository/Resource
-  DataRepositoryPolicy3B90F3B5:
+  CloudTrailLogsBBCFF69F:
+    Type: AWS::S3::Bucket
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: pcluster/CloudTrailLogs/Resource
+  CloudTrailLogsPolicy2265F07C:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket:
-        Ref: DataRepositoryB58C03BE
+        Ref: CloudTrailLogsBBCFF69F
       PolicyDocument:
         Statement:
           - Action: s3:GetBucketAcl
@@ -331,7 +416,7 @@ Resources:
               Service: cloudtrail.amazonaws.com
             Resource:
               Fn::GetAtt:
-                - DataRepositoryB58C03BE
+                - CloudTrailLogsBBCFF69F
                 - Arn
           - Action: s3:PutObject
             Condition:
@@ -344,32 +429,33 @@ Resources:
               Fn::Join:
                 - ""
                 - - Fn::GetAtt:
-                      - DataRepositoryB58C03BE
+                      - CloudTrailLogsBBCFF69F
                       - Arn
                   - /AWSLogs/
                   - Ref: AWS::AccountId
                   - /*
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: pcluster/DataRepository/Policy/Resource
+      aws:cdk:path: pcluster/CloudTrailLogs/Policy/Resource
   CloudTrailA62D711D:
     Type: AWS::CloudTrail::Trail
     Properties:
       IsLogging: true
       S3BucketName:
-        Ref: DataRepositoryB58C03BE
+        Ref: CloudTrailLogsBBCFF69F
       EnableLogFileValidation: true
       EventSelectors: []
       IncludeGlobalServiceEvents: true
       IsMultiRegionTrail: true
     DependsOn:
-      - DataRepositoryPolicy3B90F3B5
+      - CloudTrailLogsPolicy2265F07C
     Metadata:
       aws:cdk:path: pcluster/CloudTrail/Resource
   Cloud9EnvD28F4C4F:
     Type: AWS::Cloud9::EnvironmentEC2
     Properties:
       InstanceType: c5.large
+      Name: ResearchWorkspace
       SubnetId:
         Ref: VPCPublicSubnet1SubnetB4246D30
     Metadata:
@@ -489,12 +575,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18S3VersionKey2388355A
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18S3VersionKey2388355A
       Handler: framework.onEvent
       Role:
         Fn::GetAtt:
@@ -513,7 +599,7 @@ Resources:
       - C9CreateKeyPairProviderframeworkonEventServiceRoleE6670C17
     Metadata:
       aws:cdk:path: pcluster/C9CreateKeyPairProvider/framework-onEvent/Resource
-      aws:asset:path: asset.1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad
+      aws:asset:path: asset.1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18
       aws:asset:property: Code
   C9CreateKeyPair:
     Type: AWS::CloudFormation::CustomResource
@@ -809,6 +895,20 @@ Resources:
             Resource:
               Ref: SshPrivateKeySecret
           - Action:
+              - s3:Get*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:aws:s3:::"
+                    - Ref: DataRepositoryB58C03BE
+                    - /*
+              - Fn::Join:
+                  - ""
+                  - - "arn:aws:s3:::"
+                    - Ref: DataRepositoryB58C03BE
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -852,6 +952,50 @@ Resources:
         - Ref: Cloud9Role4646BA40
     Metadata:
       aws:cdk:path: pcluster/Cloud9Role/DefaultPolicy/Resource
+  AdminGroupCD52047A:
+    Type: AWS::IAM::Group
+    Properties:
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AdministratorAccess
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AWSCloud9Administrator
+    Metadata:
+      aws:cdk:path: pcluster/AdminGroup/Resource
+  PowerUserGroupCF23E412:
+    Type: AWS::IAM::Group
+    Properties:
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/PowerUserAccess
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AWSCloud9Administrator
+    Metadata:
+      aws:cdk:path: pcluster/PowerUserGroup/Resource
+  ResearcherB0ACBDEC:
+    Type: AWS::IAM::User
+    Properties:
+      Groups:
+        - Ref: AdminGroupCD52047A
+      LoginProfile:
+        Password:
+          Ref: UserPasswordParameter
+        PasswordResetRequired: true
+      UserName: hpc-quickstart
+    Metadata:
+      aws:cdk:path: pcluster/Researcher/Resource
   Cloud9SetupRole5712B5A6:
     Type: AWS::IAM::Role
     Properties:
@@ -901,6 +1045,7 @@ Resources:
               - events:DeleteRule
               - events:PutTargets
               - events:RemoveTargets
+              - cloud9:CreateEnvironmentMembership
             Effect: Allow
             Resource: "*"
           - Action: iam:PassRole
@@ -1008,12 +1153,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18S3VersionKey2388355A
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18S3VersionKey2388355A
       Handler: framework.onEvent
       Role:
         Fn::GetAtt:
@@ -1032,7 +1177,7 @@ Resources:
       - C9InstanceProfileProviderframeworkonEventServiceRole77941550
     Metadata:
       aws:cdk:path: pcluster/C9InstanceProfileProvider/framework-onEvent/Resource
-      aws:asset:path: asset.1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad
+      aws:asset:path: asset.1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18
       aws:asset:property: Code
   C9InstanceProfile:
     Type: AWS::CloudFormation::CustomResource
@@ -1064,12 +1209,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31S3VersionKeyAE453508
+                      - Ref: AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43S3VersionKeyDA8E2ECF
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31S3VersionKeyAE453508
+                      - Ref: AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43S3VersionKeyDA8E2ECF
       Handler: lambda_function.handler
       Role:
         Fn::GetAtt:
@@ -1082,7 +1227,7 @@ Resources:
       - Cloud9SetupRole5712B5A6
     Metadata:
       aws:cdk:path: pcluster/C9BootstrapLambda/Resource
-      aws:asset:path: asset.55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31
+      aws:asset:path: asset.e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43
       aws:asset:property: Code
   C9BootstrapProviderframeworkonEventServiceRole9DB6888B:
     Type: AWS::IAM::Role
@@ -1132,12 +1277,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18S3VersionKey2388355A
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18S3VersionKey2388355A
       Handler: framework.onEvent
       Role:
         Fn::GetAtt:
@@ -1156,7 +1301,7 @@ Resources:
       - C9BootstrapProviderframeworkonEventServiceRole9DB6888B
     Metadata:
       aws:cdk:path: pcluster/C9BootstrapProvider/framework-onEvent/Resource
-      aws:asset:path: asset.1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad
+      aws:asset:path: asset.1c37366d9f26b7660ba6d08e388145a5c5d5b164b4d8250bada133b141e3eb18
       aws:asset:property: Code
   C9Bootstrap:
     Type: AWS::CloudFormation::CustomResource
@@ -1177,12 +1322,12 @@ Resources:
                 - 0
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adS3VersionKeyADBD77C7
+                    - Ref: AssetParameterse8dbc037f5f658580127e34b2809f9daad72ebbe2f67b040817f9012fcc66f38S3VersionKey6275B573
             - Fn::Select:
                 - 1
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adS3VersionKeyADBD77C7
+                    - Ref: AssetParameterse8dbc037f5f658580127e34b2809f9daad72ebbe2f67b040817f9012fcc66f38S3VersionKey6275B573
       VPCID:
         Ref: VPCB9E5F0B4
       MasterSubnetID:
@@ -1207,22 +1352,70 @@ Resources:
                     - Ref: AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3VersionKey3681CC3F
       PostInstallScriptBucket:
         !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+      S3ReadWriteResource:
+        Fn::GetAtt:
+          - DataRepositoryB58C03BE
+          - Arn
+      S3ReadWriteUrl:
+        Fn::Join:
+          - ""
+          - - s3://
+            - Ref: DataRepositoryB58C03BE
       KeyPairId:
         Ref: C9CreateKeyPair
       KeyPairSecretArn:
         Ref: SshPrivateKeySecret
+      UserArn:
+        Fn::GetAtt:
+          - ResearcherB0ACBDEC
+          - Arn
     DependsOn:
       - C9CreateKeyPair
       - C9InstanceProfile
+      - DataRepositoryB58C03BE
       - SshPrivateKeySecret
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
     Metadata:
       aws:cdk:path: pcluster/C9Bootstrap/Default
+  CovidHPCBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetLimit:
+          Amount:
+            Ref: BudgetLimit
+          Unit: USD
+        BudgetType: COST
+        CostTypes:
+          IncludeCredit: false
+          IncludeDiscount: true
+          IncludeOtherSubscription: true
+          IncludeRecurring: true
+          IncludeRefund: true
+          IncludeSubscription: true
+          IncludeSupport: true
+          IncludeTax: true
+          IncludeUpfront: true
+          UseAmortized: false
+          UseBlended: false
+        TimeUnit: ANNUALLY
+      NotificationsWithSubscribers:
+        - Notification:
+            ComparisonOperator: GREATER_THAN
+            NotificationType: ACTUAL
+            Threshold: 80
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - Address:
+                Ref: NotificationEmail
+              SubscriptionType: EMAIL
+    Metadata:
+      aws:cdk:path: pcluster/CovidHPCBudget
   CDKMetadata:
     Type: AWS::CDK::Metadata
     Properties:
-      Modules: aws-cdk=1.31.0,@aws-cdk/assets=1.31.0,@aws-cdk/aws-apigateway=1.31.0,@aws-cdk/aws-applicationautoscaling=1.31.0,@aws-cdk/aws-autoscaling=1.31.0,@aws-cdk/aws-autoscaling-common=1.31.0,@aws-cdk/aws-autoscaling-hooktargets=1.31.0,@aws-cdk/aws-batch=1.31.0,@aws-cdk/aws-certificatemanager=1.31.0,@aws-cdk/aws-cloud9=1.31.0,@aws-cdk/aws-cloudformation=1.31.0,@aws-cdk/aws-cloudfront=1.31.0,@aws-cdk/aws-cloudtrail=1.31.0,@aws-cdk/aws-cloudwatch=1.31.0,@aws-cdk/aws-ec2=1.31.0,@aws-cdk/aws-ecr=1.31.0,@aws-cdk/aws-ecr-assets=1.31.0,@aws-cdk/aws-ecs=1.31.0,@aws-cdk/aws-elasticloadbalancing=1.31.0,@aws-cdk/aws-elasticloadbalancingv2=1.31.0,@aws-cdk/aws-events=1.31.0,@aws-cdk/aws-glue=1.31.0,@aws-cdk/aws-iam=1.31.0,@aws-cdk/aws-kms=1.31.0,@aws-cdk/aws-lambda=1.31.0,@aws-cdk/aws-logs=1.31.0,@aws-cdk/aws-route53=1.31.0,@aws-cdk/aws-route53-targets=1.31.0,@aws-cdk/aws-s3=1.31.0,@aws-cdk/aws-s3-assets=1.31.0,@aws-cdk/aws-sam=1.31.0,@aws-cdk/aws-secretsmanager=1.31.0,@aws-cdk/aws-servicediscovery=1.31.0,@aws-cdk/aws-sns=1.31.0,@aws-cdk/aws-sns-subscriptions=1.31.0,@aws-cdk/aws-sqs=1.31.0,@aws-cdk/aws-ssm=1.31.0,@aws-cdk/aws-stepfunctions=1.31.0,@aws-cdk/aws-stepfunctions-tasks=1.31.0,@aws-cdk/core=1.31.0,@aws-cdk/custom-resources=1.31.0,@aws-cdk/cx-api=1.31.0,@aws-cdk/region-info=1.31.0,jsii-runtime=Python/3.7.1
+      Modules: aws-cdk=1.32.2,@aws-cdk/assets=1.32.2,@aws-cdk/aws-apigateway=1.32.2,@aws-cdk/aws-applicationautoscaling=1.32.2,@aws-cdk/aws-autoscaling=1.32.2,@aws-cdk/aws-autoscaling-common=1.32.2,@aws-cdk/aws-autoscaling-hooktargets=1.32.2,@aws-cdk/aws-batch=1.32.2,@aws-cdk/aws-budgets=1.32.2,@aws-cdk/aws-certificatemanager=1.32.2,@aws-cdk/aws-cloud9=1.32.2,@aws-cdk/aws-cloudformation=1.32.2,@aws-cdk/aws-cloudfront=1.32.2,@aws-cdk/aws-cloudtrail=1.32.2,@aws-cdk/aws-cloudwatch=1.32.2,@aws-cdk/aws-ec2=1.32.2,@aws-cdk/aws-ecr=1.32.2,@aws-cdk/aws-ecr-assets=1.32.2,@aws-cdk/aws-ecs=1.32.2,@aws-cdk/aws-elasticloadbalancing=1.32.2,@aws-cdk/aws-elasticloadbalancingv2=1.32.2,@aws-cdk/aws-events=1.32.2,@aws-cdk/aws-glue=1.32.2,@aws-cdk/aws-iam=1.32.2,@aws-cdk/aws-kms=1.32.2,@aws-cdk/aws-lambda=1.32.2,@aws-cdk/aws-logs=1.32.2,@aws-cdk/aws-route53=1.32.2,@aws-cdk/aws-route53-targets=1.32.2,@aws-cdk/aws-s3=1.32.2,@aws-cdk/aws-s3-assets=1.32.2,@aws-cdk/aws-sam=1.32.2,@aws-cdk/aws-secretsmanager=1.32.2,@aws-cdk/aws-servicediscovery=1.32.2,@aws-cdk/aws-sns=1.32.2,@aws-cdk/aws-sns-subscriptions=1.32.2,@aws-cdk/aws-sqs=1.32.2,@aws-cdk/aws-ssm=1.32.2,@aws-cdk/aws-stepfunctions=1.32.2,@aws-cdk/aws-stepfunctions-tasks=1.32.2,@aws-cdk/core=1.32.2,@aws-cdk/custom-resources=1.32.2,@aws-cdk/cx-api=1.32.2,@aws-cdk/region-info=1.32.2,jsii-runtime=Python/3.8.2
     Condition: CDKMetadataAvailable
 Outputs:
   PublicSubnet0:
@@ -1240,7 +1433,10 @@ Outputs:
   VPCId:
     Value:
       Ref: VPCB9E5F0B4
-  URL:
+  DataRespository:
+    Value:
+      Ref: DataRepositoryB58C03BE
+  ResearchWorkspaceURL:
     Value:
       Fn::Join:
         - ""
@@ -1248,73 +1444,16 @@ Outputs:
           - Ref: AWS::Region
           - .console.aws.amazon.com/cloud9/ide/
           - Ref: Cloud9EnvD28F4C4F
-Parameters:
-  AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adS3BucketDC973A7D:
-    Type: String
-    Description: S3 bucket for asset "4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533ad"
-    Default: "covid19hpc-quickstart"
-  AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adS3VersionKeyADBD77C7:
-    Type: String
-    Description: S3 key for asset version "4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533ad"
-    Default: "asset/4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533ad.sh||"
-  AssetParameters4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533adArtifactHash64333CE3:
-    Type: String
-    Description: Artifact hash for asset "4a3fca632e67fa8e6cc90908ec2b2a40ea4fe83aadf494417a2e2575a9a533ad"
-  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3Bucket8A68B524:
-    Type: String
-    Description: S3 bucket for asset "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
-    Default: "covid19hpc-quickstart"
-  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3VersionKey3681CC3F:
-    Type: String
-    Description: S3 key for asset version "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
-    Default: "asset/d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f.sh||"
-  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fArtifactHashD19E18AF:
-    Type: String
-    Description: Artifact hash for asset "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
-  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3BucketC5EE12DD:
-    Type: String
-    Description: S3 bucket for asset "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
-    Default: "covid19hpc-quickstart"
-  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3VersionKey1DA83673:
-    Type: String
-    Description: S3 key for asset version "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
-    Default: "asset/26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d.zip||"
-  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dArtifactHash3101849A:
-    Type: String
-    Description: Artifact hash for asset "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
-  AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3BucketEC634C0C:
-    Type: String
-    Description: S3 bucket for asset "1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad"
-    Default: "covid19hpc-quickstart"
-  AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76:
-    Type: String
-    Description: S3 key for asset version "1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad"
-    Default: "asset/1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad.zip||"
-  AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adArtifactHash13E158B7:
-    Type: String
-    Description: Artifact hash for asset "1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad"
-  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3BucketBC8346B6:
-    Type: String
-    Description: S3 bucket for asset "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
-    Default: "covid19hpc-quickstart"
-  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3VersionKeyDCCB2D9A:
-    Type: String
-    Description: S3 key for asset version "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
-    Default: "asset/3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4.zip||"
-  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4ArtifactHash2FB69DF7:
-    Type: String
-    Description: Artifact hash for asset "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
-  AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31S3Bucket4DD68C61:
-    Type: String
-    Description: S3 bucket for asset "55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31"
-    Default: "covid19hpc-quickstart"
-  AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31S3VersionKeyAE453508:
-    Type: String
-    Description: S3 key for asset version "55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31"
-    Default: "asset/55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31.zip||"
-  AssetParameters55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31ArtifactHash5EEEE582:
-    Type: String
-    Description: Artifact hash for asset "55b31e6690040464b3d9755cd5474bf360777b3f2e4e67f59bf74bfd4f5dbb31"
+  UserLoginUrl:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: AWS::AccountId
+          - .signin.aws.amazon.com/console
+  UserName:
+    Value:
+      Ref: ResearcherB0ACBDEC
 Conditions:
   CDKMetadataAvailable:
     Fn::Or:
