@@ -29,7 +29,7 @@ upload()
 	mv cfn-changed.yaml cfn.yaml
 
 	# Edit to point to correct region
-	sed -i -e "s/Ref: ${asset_bucket_param[$i]}/!FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]/g" cfn.yaml
+	sed -e "s/Ref: ${asset_bucket_param[$i]}/!FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]/g" -i '' cfn.yaml
     done
 }
 
