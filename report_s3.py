@@ -20,7 +20,9 @@ def main():
 
         if asset['data']['packaging'] == "zip":
             # For directories
-            print("aws s3 cp --acl public-read cdk.out/.cache/{i}.zip s3://{b}/asset/".
+            print("cd cdk.out/{p}; zip -r ../{i}.zip *; cd ../..".
+                  format(p=path, i=asset_id[-1]))
+            print("aws s3 cp --acl public-read cdk.out/{i}.zip s3://{b}/asset/".
                   format(p=path, b=bucket, i=asset_id[-1]))
 
             asset_key[-1] = ".".join([asset_id[-1], "zip"])
