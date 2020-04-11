@@ -8,6 +8,7 @@ from aws_cdk import (
     aws_iam as iam,
     aws_cloudformation as cfn,
     aws_secretsmanager as secretsmanager,
+    aws_budgets as budgets,
     custom_resources as cr,
     core as cdk,
     region_info
@@ -234,3 +235,50 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(instance_id)
         c9_bootstrap_cr.node.add_dependency(c9_createkeypair_cr)
         c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
+
+        # Budgets
+        budget_properties = {
+            'budgetType': "COST",
+            'timeUnit': "ANNUALLY",
+            'budgetLimit': {
+                'amount': 5,
+                'unit': "USD",
+            },
+            'budgetName': "CovidHPCExpenses",
+            'costFilters': None,
+            'costTypes': {
+                'includeCredit': False,
+                'includeDiscount': True,
+                'includeOtherSubscription': True,
+                'includeRecurring': True,
+                'includeRefund': True,
+                'includeSubscription': True,
+                'includeSupport': True,
+                'includeTax': True,
+                'includeUpfront': True,
+                'useAmortized': False,
+                'useBlended': False,
+            },
+            'plannedBudgetLimits': None,
+            'timePeriod': None,
+        }
+
+        stesachs = {
+            'notification': {
+                'comparisonOperator': "GREATER_THAN",
+                'notificationType': "ACTUAL",
+                'threshold': 90,
+                'thresholdType': "PERCENTAGE",
+                },
+            'subscribers': [{
+                'address': 'stesachs@amazon.com',
+                'subscriptionType': "EMAIL",
+            }]
+        }
+
+        overall_budget = budgets.CfnBudget(
+            self,
+            "CovidHPCBudget",
+            budget=budget_properties,
+            notifications_with_subscribers=[stesachs],
+        )
