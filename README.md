@@ -17,7 +17,9 @@ After clicking "Launch Stack" you'll be redirected to a screen, leave everything
 ![image](https://user-images.githubusercontent.com/5545980/79008676-bbe20100-7b12-11ea-8f08-cd9b32415221.png)
 
 ### Step 2
-Leave all the parameters as they are and click "Next":
+Fill out the **UserPasswordParameter** with a desired password, you'll be prompted to change it later.
+
+Leave all the other parameters as they are and click "Next":
 
 ![image](https://user-images.githubusercontent.com/5545980/79008772-f481da80-7b12-11ea-852d-66d6963ecfb4.png)
 
@@ -33,6 +35,29 @@ Select "I acknowledge that AWS Cloudformation might create IAM resource" and cli
 After the stack goes into CREATE_COMPLETE, click on the "Outputs" tab of the AWS-HPC-Quickstart stack, there you'll see a URL. Click on that URL and you'll be re-directed to the console:
 
 ![image](https://user-images.githubusercontent.com/5545980/79009644-d4ebb180-7b14-11ea-9029-e79d75647708.png)
+
+### Step 6
+Now you can log in as a `hpc-quickstart` user, go to the stack "Outputs":
+
+Click on the "UserLoginUrl" and you'll be redirected to a page that looks like:
+
+```bash
+UserName: hpc-quickstart
+Password: [set during stack creation]
+```
+
+![image](https://user-images.githubusercontent.com/5545980/79014795-7c221600-7b20-11ea-8933-bdfdd0c7146d.png)
+
+Fill in the username and password you noted above and you'll be asked to reset the password:
+
+![image](https://user-images.githubusercontent.com/5545980/79014415-b0e19d80-7b1f-11ea-885a-0014109879f2.png)
+
+## FAQ
+
+If you see the following:
+**The security token included in the request is invalid**
+
+It's likely an issue with the account having been just created. Wait for some time and try again. 
 
 ## Developer Setup
 

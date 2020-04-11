@@ -20,6 +20,9 @@ class PclusterStack(cdk.Stack):
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        # Password
+        password = cdk.CfnParameter(self, 'UserPasswordParameter', description='Set a password for the hpc-quickstart user', no_echo=True)
+
         # create a VPC
         vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/16', max_azs=99)
 
@@ -131,8 +134,18 @@ class PclusterStack(cdk.Stack):
         bootstrap_script.grant_read(cloud9_role)
         pcluster_post_install_script.grant_read(cloud9_role)
 
-        # Cloud9 User
-        # user = iam.User(self, 'Cloud9User', password=cdk.SecretValue.plain_text('supersecretpassword'), password_reset_required=True)
+        # Admin Group
+        admin_group = iam.Group(self, 'AdminGroup')
+        admin_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AdministratorAccess'))
+        admin_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9Administrator'))
+
+        # HPC User
+        user_name = 'hpc-quickstart'
+        user = iam.User(self, 'Cloud9User', user_name=user_name, password=cdk.SecretValue.cfn_parameter(password), password_reset_required=True)
+        user.add_to_group(group=admin_group)
+        cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]))
+        cdk.CfnOutput(self, 'UserName', value=user_name)
+        # cdk.CfnOutput(self, 'UserPassword', value=password.value_as_string)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
@@ -167,6 +180,7 @@ class PclusterStack(cdk.Stack):
                 'events:DeleteRule',
                 'events:PutTargets',
                 'events:RemoveTargets',
+                'cloud9:CreateEnvironmentMembership',
             ],
             resources=['*'],
         ))
@@ -229,7 +243,8 @@ class PclusterStack(cdk.Stack):
                 'PostInstallScriptS3Url':  "".join( ['s3://', pcluster_post_install_script.s3_bucket_name,  "/", pcluster_post_install_script.s3_object_key ] ),
                 'PostInstallScriptBucket': pcluster_post_install_script.s3_bucket_name,
                 'KeyPairId':  c9_createkeypair_cr.ref,
-                'KeyPairSecretArn': c9_ssh_private_key_secret.ref
+                'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
+                'UserArn': user.user_arn
             }
         )
         c9_bootstrap_cr.node.add_dependency(instance_id)

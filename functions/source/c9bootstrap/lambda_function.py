@@ -9,9 +9,12 @@ helper = CfnResource(json_logging=True, log_level='DEBUG', boto_level='CRITICAL'
 
 try:
     ssm_client = boto3.client('ssm')
+    cloud9_client = boto3.client('cloud9')
 except Exception as e:
     helper.init_failure(e)
 
+def grant_permissions_cloud9(cloud9_environment, user_arn):
+    return cloud9_client.create_environment_membership(environmentId=cloud9_environment, userArn=user_arn, permissions='read-write')
 
 def get_command_output(instance_id, command_id):
     response = ssm_client.get_command_invocation(CommandId=command_id, InstanceId=instance_id)
@@ -47,7 +50,8 @@ def wait_instance_ready(cloud9_environment, context):
 @helper.create
 def create(event, context):
     logger.debug("Got Create")
-    instance_id = wait_instance_ready(event['ResourceProperties']['Cloud9Environment'], context)
+    cloud9_environment = event['ResourceProperties']['Cloud9Environment']
+    instance_id = wait_instance_ready(cloud9_environment, context)
     bootstrap_path = event['ResourceProperties']['BootstrapPath']
     vpc_id = event['ResourceProperties']['VPCID']
     master_subnet_id = event['ResourceProperties']['MasterSubnetID']
@@ -56,6 +60,10 @@ def create(event, context):
     keypair_id = event['ResourceProperties']['KeyPairId']
     keypair_secret_arn = event['ResourceProperties']['KeyPairSecretArn']
     post_install_script_bucket = event['ResourceProperties']['PostInstallScriptBucket']
+    user_arn = event['ResourceProperties']['UserArn']
+
+    # grant s3 permissions
+    grant_permissions_cloud9(cloud9_environment, user_arn)
 
     command = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
                 'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
