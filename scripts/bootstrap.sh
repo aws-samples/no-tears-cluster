@@ -56,10 +56,9 @@ scheduler = slurm
 master_instance_type = c5n.2xlarge
 compute_instance_type = c5n.18xlarge
 vpc_settings = public-private
-#fsx_settings = fsx-scratch2
+fsx_settings = fsx-scratch2
 disable_hyperthreading = true
 dcv_settings = dcv
-#post_install = https://covid19hpc-quickstart-161153343288.s3.amazonaws.com/dev_user_data.sh
 post_install = ${post_install_script_url}
 post_install_args = "/shared/spack-0.13 /opt/slurm/log sacct.log"
 s3_read_resource = arn:aws:s3:::${post_install_script_bucket}/*
@@ -83,12 +82,6 @@ enable = master
 shared_dir = /scratch
 storage_capacity = 1200
 deployment_type = SCRATCH_2
-import_path = s3://ebbollig-fsx-lustre-120988395753
-export_path = s3://ebbollig-fsx-lustre-120988395753
-
-#[fsx fsx]
-#shared_dir = /fsx
-#storage_capacity = 1200
 
 [dcv dcv]
 enable = master
