@@ -73,7 +73,7 @@ which aws
 
 The `pcluster` command will help you connect to and reconfigure a scalable, on-demand HPC environment. The `aws` command enables interaction with other AWS services, like putting data into S3 Object Storage.
 
-The Cloud9 environment comes preloaded with AWS Parallel Cluster configurations for Tightly-Coupled and Loosely-Coupled (a.k.a. Distributed) jobs. Feel free to customize the cluster configurations, including your choice of Scheduler, following the [Parallel Cluster User Guide](https://docs.aws.amazon.com/parallelcluster/latest/ug/aws-parallelcluster-ug.pdf). 
+The Cloud9 environment comes preloaded with an AWS Parallel Cluster configuration for Tightly-Coupled  jobs. Feel free to customize the cluster configurations, including your choice of Scheduler, following the [Parallel Cluster User Guide](https://docs.aws.amazon.com/parallelcluster/latest/ug/aws-parallelcluster-ug.pdf). 
 
 ## 4. Connect to the HPC Environment
 Confirm the name of your AWS Parallel Cluster: 
@@ -94,12 +94,11 @@ pcluster ssh covid-cluster
     <summary>Click to expand</summary>
     <br>
 
-    Instead of `pcluster ssh`, use this command: 
+    Instead of `pcluster ssh`, use this command to connect to the cluster: 
 
     ```bash
     pcluster dcv connect covid-cluster
     ```
-
     <img width="984" alt="Screen Shot 2020-04-13 at 1 41 06 AM" src="https://user-images.githubusercontent.com/187202/79098944-aa724200-7d28-11ea-897c-10e0174dedf1.png">
 
     Open the DCV URL for in another browser tab, and proceed through the warning about an Invalid Cert Authority. You will get access to a full Ubuntu Desktop: 
@@ -155,7 +154,7 @@ df -h
 <img width="582" alt="Screen Shot 2020-04-12 at 11 35 29 PM" src="https://user-images.githubusercontent.com/187202/79092378-53637180-7d16-11ea-81fd-a102d33bc87f.png">
 
 
-### Accessing Data
+## Accessing Data
 
 COVID19 data can be **pulled** into the `covid-cluster` on either Master or Compute nodes. 
 
@@ -184,9 +183,7 @@ Get the folder from S3 storage on the Master node
 aws s3 sync s3://mybucket-012345/input_dir /scratch/input_dir
 ```
 
-
-
-### Install Software
+## Install Software
 The `ubuntu` user has full permissions to install software in the HPC environment via the `sudo` command. Note, however, in order to use software in a batch scheduled job, you must either:  
 1. install the software on a shared filesystem common to Master and Compute nodes, or
 2. install the software individually on every compute node. 
@@ -202,7 +199,7 @@ spack install sra-toolkit
 
 
 
-### Load Environment
+## Load Environment Modules
 
 To see all available modules (including those installed by `spack`), and then load a package, use this syntax: 
 
@@ -225,7 +222,7 @@ https://aws.amazon.com/blogs/compute/running-ansys-fluent-on-amazon-ec2-c5n-with
 and 
 [this](https://aws.amazon.com/blogs/opensource/scale-hpc-workloads-elastic-fabric-adapter-and-aws-parallelcluster/). 
 
-### Submit Jobs
+## Submit Jobs
 
 AWS Parallel Cluster integrates the [SLURM](https://slurm.schedmd.com/documentation.html) job scheduler and Auto-Scaling to meet the demand of your job queue. By default, clusters scale from 0, up to a maximum of 10 Compute nodes. The Master (login) node persists regardless of the scale of the Compute nodes.
 
@@ -273,8 +270,7 @@ AWS Parallel Cluster integrates the [SLURM](https://slurm.schedmd.com/documentat
     When compute nodes become available, `squeue` will look like: 
     <img width="984" alt="Screen Shot 2020-04-13 at 8 48 39 AM" src="https://user-images.githubusercontent.com/187202/79125416-c3e4af80-7d63-11ea-8253-2b391ddcf821.png">
 
-- Completed Jobs
-When jobs complete, they are removed from `squeue`. Find out which jobs have finished with: 
+- When jobs complete, they are removed from `squeue`. Find out which jobs have finished with: 
 
     ```bash
     squeue
@@ -288,6 +284,48 @@ When jobs complete, they are removed from `squeue`. Find out which jobs have fin
     ```
     <img width="624" alt="Screen Shot 2020-04-13 at 8 51 16 AM" src="https://user-images.githubusercontent.com/187202/79125562-03130080-7d64-11ea-9e37-df20ffc8d034.png">
 
+ 
+ ## Get Data out of the Environment (Publish and Archive)
+ 
+ A typical research workflow is expected to produce a large number of intermediate input and output files in the `/scratch` (FSx Lustre) workspace. Typically, only a small number of distilled derivatives will be output for publication, archive, etc. 
+ 
+ Users can export data from the HPC environment in one of two ways: 
+
+#### 1. Export the entire `/scratch` workspace
+- Clean up unnecessary intermediate data and directories in `/scratch`. 
+- Login to the AWS Console via your `UserLoginUrl`. 
+- Go to `Services` > `FSx` > `Filesystems`. 
+- Select your FSx Lustre filesystem, and click `Actions` > `Export data to repository` 
+<img width="984" alt="Screen Shot 2020-04-13 at 4 34 46 PM" src="https://user-images.githubusercontent.com/187202/79163445-b4398b00-7da4-11ea-87b4-e24e9d15e63c.png">
+
+- Enable `Completion report`, and note the `Export destination` path in your data-repository bucket. All data in `/scratch` will be archived to `Export destination` when you click `Create data repository task`. 
+
+    💡ProTip: Any files that are open in `/scratch`, and being written when the task is created, may be incomplete in S3. Finish running your jobs and close open files first. 
+
+    <img width="984" alt="Screen Shot 2020-04-13 at 4 35 47 PM" src="https://user-images.githubusercontent.com/187202/79163511-d92dfe00-7da4-11ea-8f15-db41ba70bf9d.png">
+
+
+#### 2. Selectively export files
+ 
+ - Gather important files into `/scratch/final-output`
+ 
+ - Synchronize all contents in the directory to your project Data-Repository
+    ```bash
+    aws s3 sync /scratch/final-output s3://aws-hpc-quickstart-datarepositoryXXXXXXX-XXXXXXXXX/final-output
+    ```
+ - If you miss any files, they can be copied individually with
+    ```bash
+    aws s3 cp missing-file.txt s3://aws-hpc-quickstart-datarepositoryXXXXXXX-XXXXXXXXX/final-output/missing-file.txt
+    ```
+
+#### 💡Other Tips: 
+    
+- Tools like `scp`, `ftp`, `ascp`*, etc. can **push** data from the Master node to a public data repository or user home institution. *May require installation with `spack`. 
+- Compress and zip files when possible to improve transfer rates: 
+    ```bash 
+    tar cvfz final-output-archive.tar.gz /scratch/final-output
+    aws s3 cp final-output-archive.tar.gz s3://aws-hpc-quickstart-datarepositoryXXXXXXX-XXXXXXXXX/final-output-archive.tar.gz
+    ```
 
 
 ## FAQ

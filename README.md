@@ -50,7 +50,7 @@ Provisioning is complete when all Stacks show *CREATE_COMPLETE*.
 
 ## Onboarding Users
 
-When all stacks show *CREATE_COMPLETE*, click on the `Outputs` tab of the `AWS-HPC-Quickstart` stack. Send the end-user the following information (3 of 4 are on the Outputs tab): 
+When all stacks show *CREATE_COMPLETE*, click on the `Outputs` tab of the `AWS-HPC-Quickstart` stack. Send the end-user the following information (3 of 5 are on the Outputs tab): 
 
 1. `ResearchWorkspaceURL` -- URL to directly access the Cloud9 Research Environment. 
 
@@ -60,9 +60,7 @@ When all stacks show *CREATE_COMPLETE*, click on the `Outputs` tab of the `AWS-H
 
 4. `Password` that you entered to launch the CloudFormation stack. 
 
-
-
-Click on the value of `UserLoginUrl` and your web browser will be re-directed to an AWS Cloud9 interactive console:
+5. The `USER_GUIDE` included in this repository.
 
 <img width="849" alt="Outputs" src="https://user-images.githubusercontent.com/187202/79085211-3cfcec00-7cfd-11ea-94f9-8a8cf88e535b.png">
 
