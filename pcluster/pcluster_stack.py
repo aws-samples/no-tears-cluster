@@ -298,7 +298,7 @@ class PclusterStack(cdk.Stack):
             'timePeriod': None,
         }
 
-        stesachs = {
+        email = {
             'notification': {
                 'comparisonOperator': "GREATER_THAN",
                 'notificationType': "ACTUAL",
@@ -306,7 +306,7 @@ class PclusterStack(cdk.Stack):
                 'thresholdType': "PERCENTAGE",
                 },
             'subscribers': [{
-                'address': cdk.CfnParameter(self, 'NotificationEmail', description='This email address will receive billing alarm notifications when 80% of the budget limit is reached.', default='stesachs@amazon.com').value_as_string,
+                'address': cdk.CfnParameter(self, 'NotificationEmail', description='This email address will receive billing alarm notifications when 80% of the budget limit is reached.', default='email@amazon.com').value_as_string,
                 'subscriptionType': "EMAIL",
             }]
         }
@@ -315,5 +315,5 @@ class PclusterStack(cdk.Stack):
             self,
             "HPCBudget",
             budget=budget_properties,
-            notifications_with_subscribers=[stesachs],
+            notifications_with_subscribers=[email],
         )

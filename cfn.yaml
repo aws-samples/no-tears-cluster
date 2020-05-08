@@ -113,7 +113,7 @@ Parameters:
     Description: The initial budget for this project in USD ($).
   NotificationEmail:
     Type: String
-    Default: stesachs@amazon.com
+    Default: email@amazon.com
     Description: This email address will receive billing alarm notifications when 80% of the budget limit is reached.
 Resources:
   VPCB9E5F0B4:
