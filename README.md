@@ -1,6 +1,6 @@
-# COVID-19 AWS HPC Cluster Deployment Guide
+# AWS HPC Cluster Deployment Guide
 
-## Launch the COVID19 HPC QuickStart Environment
+## Launch the HPC QuickStart Environment
 
 ### Step 1
 To deploy, click:
@@ -38,7 +38,7 @@ Scroll to the bottom of the page, and leave most of the Parameters as they are.
 ### Deployment 
 Deployment takes about 15 minutes. This QuickStart provisions: 
 - a Cloud9 Integrated Development Environment (IDE) in the selected region;
-- an AWS Parallel Cluster environment, named `covid-cluster`, for batch scheduled jobs and interactive computing;
+- an AWS Parallel Cluster environment, named `hpc-cluster`, for batch scheduled jobs and interactive computing;
 - a non-root IAM User, with full Administrator access to the AWS Console to create custom architectures. 
 - a Budget notification email at `80% of the BudgetLimit`
 

@@ -1,5 +1,5 @@
 USER_GUIDE.md
-# COVID-19 AWS HPC Cluster User Guide
+# AWS HPC Cluster User Guide
 
 ## 0. Prerequisites
 
@@ -80,16 +80,16 @@ Confirm the name of your AWS Parallel Cluster:
 ```
 pcluster list
 ```
-The name should be `covid-cluster` and the state should be `CREATE_COMPLETE`. 
+The name should be `hpc-cluster` and the state should be `CREATE_COMPLETE`. 
 <img width="434" alt="Screen Shot 2020-04-12 at 10 16 55 PM" src="https://user-images.githubusercontent.com/187202/79089316-59078a00-7d0b-11ea-9695-c39c50b95b6f.png">
 
 Connect to the cluster: 
 ```bash
-pcluster ssh covid-cluster
+pcluster ssh hpc-cluster
 ```
 <img width="607" alt="Screen Shot 2020-04-12 at 10 23 51 PM" src="https://user-images.githubusercontent.com/187202/79089604-55283780-7d0c-11ea-9709-e5a6a091ff73.png">
 
-- 💡ProTip: You can also Remote Desktop into `covid-cluster` (for Visualization)
+- 💡ProTip: You can also Remote Desktop into `hpc-cluster` (for Visualization)
     <details>
     <summary>Click to expand</summary>
     <br>
@@ -97,7 +97,7 @@ pcluster ssh covid-cluster
     Instead of `pcluster ssh`, use this command to connect to the cluster: 
 
     ```bash
-    pcluster dcv connect covid-cluster
+    pcluster dcv connect hpc-cluster
     ```
     <img width="984" alt="Screen Shot 2020-04-13 at 1 41 06 AM" src="https://user-images.githubusercontent.com/187202/79098944-aa724200-7d28-11ea-897c-10e0174dedf1.png">
 
@@ -110,9 +110,9 @@ pcluster ssh covid-cluster
     </details>
 
 
-## The `covid-cluster` HPC Environment
+## The `hpc-cluster` HPC Environment
 
-The `covid-cluster` HPC Environment has the following features: 
+The `hpc-cluster` HPC Environment has the following features: 
 
 - [Ubuntu 18.04](https://ubuntu.com/aws) operating system (`apt`),
 - [SLURM](https://slurm.schedmd.com/documentation.html) Workload Manager (`sbatch`, `srun`, `squeue`, `sinfo`),
@@ -124,7 +124,7 @@ The `covid-cluster` HPC Environment has the following features:
 
 ### Master and Compute Nodes
 
-The default `covid-cluster` configuration is described in the table below. These values will vary by project, so consult your AWS partner for specific cluster information. 
+The default `hpc-cluster` configuration is described in the table below. These values will vary by project, so consult your AWS partner for specific cluster information. 
 
 | | # Nodes | Longevity | Instance Type | EFA |  <ul>Purpose</ul>  |
 |---|---|---|---|---|---| 
@@ -134,7 +134,7 @@ The default `covid-cluster` configuration is described in the table below. These
 
 
 ### Filesystem Shares
-The `covid-cluster` Master and Compute nodes share a number of common filesystems as described in the table below. Leverage shared filesystems to reduce data movement and duplication. 
+The `hpc-cluster` Master and Compute nodes share a number of common filesystems as described in the table below. Leverage shared filesystems to reduce data movement and duplication. 
 
 | Path  |  Recommended Use |  Storage Backend |  Size  |
 |---|---|---|---|
@@ -156,7 +156,7 @@ df -h
 
 ## Accessing Data
 
-COVID19 data can be **pulled** into the `covid-cluster` on either Master or Compute nodes. 
+Data can be **pulled** into the `hpc-cluster` on either Master or Compute nodes. 
 
 For example, to download a subset of data from the [AWS COVID19 Data Lake](https://aws.amazon.com/blogs/big-data/a-public-data-lake-for-analysis-of-covid-19-data/), it might look something like: 
 
@@ -168,9 +168,9 @@ aws s3 sync s3://covid19-lake/static-datasets /scratch/.
 
 Additional COVID19 related datasets are available on the [AWS Data-Exchange](https://aws.amazon.com/data-exchange/covid-19/).
 
-The HPC Environment also has tools to **pull** data from the Internet (e.g., `scp`, `ftp`, `wget`, etc. from the `covid-cluster` Master node). Direct connections from the Internet (i.e., your home workstation) to the HPC environment are restricted. 
+The HPC Environment also has tools to **pull** data from the Internet (e.g., `scp`, `ftp`, `wget`, etc. from the `hpc-cluster` Master node). Direct connections from the Internet (i.e., your home workstation) to the HPC environment are restricted. 
 
-If pulling the data is not an option, then you can push data into `covid-cluster` via an S3 Bucket as intermediary. Your HPC Environment has an S3 bucket ready to use named something like `s3://aws-hpc-quickstart-datarepositoryXXXXXXX-XXXXXXXXX`, where XXXXXXX-XXXXXXXXX is specific to your environment. Run ```aws s3 ls``` within the `covid-cluster` environment to identify your bucket name. 
+If pulling the data is not an option, then you can push data into `hpc-cluster` via an S3 Bucket as intermediary. Your HPC Environment has an S3 bucket ready to use named something like `s3://aws-hpc-quickstart-datarepositoryXXXXXXX-XXXXXXXXX`, where XXXXXXX-XXXXXXXXX is specific to your environment. Run ```aws s3 ls``` within the `hpc-cluster` environment to identify your bucket name. 
 
 For help installing and activating the AWS CLI in your own environment, see [this guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html). You will also need to [create an Access key-pair](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) for the CLI.  
 

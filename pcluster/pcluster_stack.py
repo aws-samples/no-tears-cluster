@@ -313,7 +313,7 @@ class PclusterStack(cdk.Stack):
 
         overall_budget = budgets.CfnBudget(
             self,
-            "CovidHPCBudget",
+            "HPCBudget",
             budget=budget_properties,
             notifications_with_subscribers=[stesachs],
         )

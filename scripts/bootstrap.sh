@@ -39,7 +39,7 @@ echo "ssh-add ~/.ssh/${ssh_key_id}" >> ~/.bashrc
 mkdir -p ~/.parallelcluster
 cat > ~/.parallelcluster/config <<EOF
 [global]
-cluster_template = covid
+cluster_template = hpc
 update_check = true
 sanity_check = true
 
@@ -49,12 +49,12 @@ aws_region_name = ${AWS_DEFAULT_REGION}
 [aliases]
 ssh = ssh {CFN_USER}@{MASTER_IP} {ARGS}
 
-[cluster covid]
+[cluster hpc]
 key_name = ${ssh_key_id}
 base_os = ubuntu1804
 scheduler = slurm
-master_instance_type = c5n.2xlarge
-compute_instance_type = c5n.18xlarge
+master_instance_type = c5.2xlarge
+compute_instance_type = c5.18xlarge
 vpc_settings = public-private
 fsx_settings = fsx-scratch2
 disable_hyperthreading = true
@@ -114,7 +114,7 @@ env >> /tmp/BOOTSTRAP.PCLUSTER
 pcluster list
 
 # Start the pcluster provisioning, but don't wait for it to complete.
-pcluster create -t covid covid-cluster -c ~/.parallelcluster/config --nowait -nr
+pcluster create -t hpc hpc-cluster -c ~/.parallelcluster/config --nowait -nr
 
 echo "Finished" >> /tmp/BOOTSTRAP.WHOAMI
 echo "Finished"
