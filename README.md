@@ -84,6 +84,9 @@ When all stacks show *CREATE_COMPLETE*, click on the `Outputs` tab of the `AWS-H
 <details>
 <summary>Click to expand</summary>
 <br>
+
+> Note: This section is only for developing the solution, to create a cluster, see [Launch the HPC Quickstart Envrionment](#launch-the-hpc-quickstart-environment)
+
 The first step is installing node.js, this can be done easily with Homebrew. After that completes, install aws-cdk:
 
 ```
@@ -92,13 +95,19 @@ $ npm install -g aws-cdk
 ```
 (Alternatively, use ```brew install aws-cdk```)
 
-Create a python virtualenv or conda environment. We assume this is in ```./.env```. 
+Optionally create a python virtualenv or conda environment. We assume this is in ```./.env```.
 
 Now you can activate the python virtualenv and install the python dependencies:
 
 ```
-$ source .env/bin/activate
+$ source .env/bin/activate               # Can be skipped if not using a virtualenv
 $ pip install -r requirements.txt
+```
+
+Make sure your region and aws credentials are setup by running:
+
+```
+$ aws configure
 ```
 
 At this point, it's time to setup CDK, the following needs to be done once in each account:

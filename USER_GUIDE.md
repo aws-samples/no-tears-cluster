@@ -237,6 +237,8 @@ AWS Parallel Cluster integrates the [SLURM](https://slurm.schedmd.com/documentat
     <summary>test_job.sbatch (Click to Expand) </summary>
     <br>
 
+    Create a file `/scratch/test_job.sbatch` with the following contents:
+
     ```bash
     #!/bin/bash
     #SBATCH --nodes=2
