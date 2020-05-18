@@ -70,7 +70,6 @@ master_root_volume_size = 200
 compute_root_volume_size = 80
 ebs_settings = myebs
 cw_log_settings = cw-logs
-enable_efa = compute
 
 [ebs myebs]
 volume_size = 500
