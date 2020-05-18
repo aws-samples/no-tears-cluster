@@ -329,6 +329,17 @@ AWS Parallel Cluster integrates the [SLURM](https://slurm.schedmd.com/documentat
     aws s3 cp final-output-archive.tar.gz s3://aws-hpc-quickstart-datarepositoryXXXXXXX-XXXXXXXXX/final-output-archive.tar.gz
     ```
 
+## Cleanup
+
+The cluster and corresponding resources can be easily deleted once you're finished.
+
+1. Go to the [AWS Cloudformation Console](https://console.aws.amazon.com/cloudformation/home)
+2. Delete the stack `parallelcluster-hpc-cluster`
+3. Delete the stack `AWS-HPC-Quickstart`
+
+<img width="798" alt="AWS Cloudformation Delete Resources" src="https://user-images.githubusercontent.com/5545980/82239195-41648800-98ed-11ea-9b6b-a5af8f049afe.png">
+
+That's it, all the resources created in this tutorial will be deleted.
 
 ## FAQ
 
