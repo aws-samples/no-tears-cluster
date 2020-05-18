@@ -156,14 +156,11 @@ class PclusterStack(cdk.Stack):
         poweruser_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9Administrator'))
 
         # HPC User
-        user_name = 'hpc-quickstart'
         user = iam.User(self, 'Researcher',
-                        user_name=user_name,
                         password=cdk.SecretValue.cfn_parameter(password), password_reset_required=True)
         user.add_to_group(group=admin_group)
         cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]))
         cdk.CfnOutput(self, 'UserName', value=user.user_name)
-        # cdk.CfnOutput(self, 'UserPassword', value=password.value_as_string)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
