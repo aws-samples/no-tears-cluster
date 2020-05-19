@@ -331,13 +331,19 @@ AWS Parallel Cluster integrates the [SLURM](https://slurm.schedmd.com/documentat
 
 ## Cleanup
 
-The cluster and corresponding resources can be easily deleted once you're finished.
+The cluster and corresponding resources can be easily deleted once you're finished:
 
 1. Go to the [AWS Cloudformation Console](https://console.aws.amazon.com/cloudformation/home)
 2. Delete the stack `parallelcluster-hpc-cluster`
 3. Delete the stack `AWS-HPC-Quickstart`
+<img width="880" alt="cleanup" src="https://user-images.githubusercontent.com/5545980/82369971-a511b280-99cc-11ea-9ea9-ee0d2974e694.png">
 
-<img width="798" alt="AWS Cloudformation Delete Resources" src="https://user-images.githubusercontent.com/5545980/82239195-41648800-98ed-11ea-9b6b-a5af8f049afe.png">
+There's no need to delete other stacks as they'll get automatically deleted with those two stacks.
+
+4. Go to [S3 Console](https://s3.console.aws.amazon.com/s3/home) and delete the S3 Buckets `aws-hpc-quickstart-cloudtraillogs...` and `aws-hpc-quickstart-datarepository...`. To do so, you'll first have delete the contents of that bucket, then delete the bucket.
+
+<img width="623" alt="Screen Shot 2020-05-19 at 12 37 17 PM" src="https://user-images.githubusercontent.com/5545980/82370581-a42d5080-99cd-11ea-9517-4521bd64f56b.png">
+
 
 That's it, all the resources created in this tutorial will be deleted.
 
