@@ -329,6 +329,25 @@ AWS Parallel Cluster integrates the [SLURM](https://slurm.schedmd.com/documentat
     aws s3 cp final-output-archive.tar.gz s3://aws-hpc-quickstart-datarepositoryXXXXXXX-XXXXXXXXX/final-output-archive.tar.gz
     ```
 
+## Customize Cluster
+
+When a cluster is bootstrapped, the config is pulled down from S3. To customize this cluster config, you can set the `ConfigS3URI` parameter. By default this is set to `s3://notearshpc-quickstart/config.ini`.
+
+The cluster config takes the following parameters:
+
+```bash
+${AWS_DEFAULT_REGION}
+${ssh_key_id}
+${post_install_script_url}
+${s3_read_write_resource}
+${s3_read_write_url}
+${vpc_id}
+${master_subnet_id}
+${compute_subnet_id}
+```
+
+These resources are created by the CloudFormation stack and can be used in the cluster config.
+
 ## Cleanup
 
 The cluster and corresponding resources can be easily deleted once you're finished:

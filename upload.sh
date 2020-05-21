@@ -35,6 +35,12 @@ upload()
     done
 }
 
+# Upload default AWS ParallelCluster config file
+upload_config()
+{
+	aws s3 cp --acl public-read scripts/config.ini s3://${s3_bucket}/config.ini
+}
+
 upload_cfn()
 {
 	if ! $(aws s3 ls s3://${s3_bucket} &> /dev/null)
@@ -80,4 +86,5 @@ edit_cfn
 upload
 upload_lambda_worldwide
 upload_cfn
+upload_config
 echo "Use cfn.yaml for CloudFormation"
