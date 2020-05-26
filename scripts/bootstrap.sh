@@ -1,4 +1,6 @@
 #!/usr/bin/env bash -l
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
 
 # Note the -l above to get .bashrc and /etc/profile
 
