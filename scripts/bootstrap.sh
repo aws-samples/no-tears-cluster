@@ -38,6 +38,37 @@ chmod 600 ~/.ssh/${ssh_key_id}
 echo 'eval $(ssh-agent)' >> ~/.bashrc
 echo "ssh-add ~/.ssh/${ssh_key_id}" >> ~/.bashrc
 
+# pcluster shortcuts
+cat <<\EOF >> ~/.bashrc
+alias pl="pcluster list --color"
+alias p="pcluster"
+alias pssh="pcluster ssh"
+EOF
+
+# Welcome message
+cat <<\WELCOME > ~/Welcome.txt
+  _   _         _______                     _____ _           _
+ | \ | |       |__   __|                   / ____| |         | |
+ |  \| | ___      | | ___  __ _ _ __ ___  | |    | |_   _ ___| |_ ___ _ __
+ | . ` |/ _ \     | |/ _ \/ _` | '__/ __| | |    | | | | / __| __/ _ \ '__|
+ | |\  | (_) |    | |  __/ (_| | |  \__ \ | |____| | |_| \__ \ ||  __/ |
+ |_| \_|\___/     |_|\___|\__,_|_|  |___/  \_____|_|\__,_|___/\__\___|_|
+
+ To get started, run:
+
+ $ pcluster list --color
+
+ To ssh into the cluster, once it's gone into CREATE_COMPLETE, run:
+
+ $ pcluster ssh hpc-cluster
+
+ To connect to the desktop GUI via DCV run:
+
+ $ pcluster dcv connect hpc-cluster
+WELCOME
+
+sudo cp ~/Welcome.txt /etc/motd
+
 # Fetch the config file from S3 and substitute variables
 mkdir -p ~/.parallelcluster
 aws s3 cp ${config} /tmp/config.ini --quiet
