@@ -35,8 +35,8 @@ aws secretsmanager get-secret-value --secret-id ${private_key_arn} --query Secre
 chmod 600 ~/.ssh/${ssh_key_id}
 
 # Automatically add ssh key into agent. we need to make the agent stop asking for a password
-echo 'eval $(ssh-agent)' >> ~/.bashrc
-echo "ssh-add ~/.ssh/${ssh_key_id}" >> ~/.bashrc
+echo 'eval $(ssh-agent) &>/dev/null' >> ~/.bashrc
+echo "ssh-add ~/.ssh/${ssh_key_id} &>/dev/null" >> ~/.bashrc
 
 # pcluster shortcuts
 cat <<\EOF >> ~/.bashrc
