@@ -4,7 +4,7 @@
     <img alt="No Tears Cluster Architecture" src="https://user-images.githubusercontent.com/5545980/85885560-61fbe980-b799-11ea-9fcd-a7ad1f344f40.png">
 </p>
 
-## Launch the HPC QuickStart Environment
+## Launch the HPC QuickStart Environment 🚀
 
 ### Step 1
 To deploy, click:
@@ -52,7 +52,7 @@ Provisioning is complete when all Stacks show *CREATE_COMPLETE*.
 
 --- 
 
-## Onboarding Users
+## Onboarding Users 👨‍💻👩‍💻
 
 When all stacks show *CREATE_COMPLETE*, click on the `Outputs` tab of the `AWS-HPC-Quickstart` stack. Send the end-user the following information (3 of 5 are on the Outputs tab): 
 
@@ -69,7 +69,7 @@ When all stacks show *CREATE_COMPLETE*, click on the `Outputs` tab of the `AWS-H
 <img width="849" alt="Outputs" src="https://user-images.githubusercontent.com/187202/79085211-3cfcec00-7cfd-11ea-94f9-8a8cf88e535b.png">
 
 ---
-## FAQ
+## FAQ 🧐
 
 - If you see the following:
 **The security token included in the request is invalid**
