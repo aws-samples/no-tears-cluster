@@ -1,5 +1,9 @@
 # AWS HPC Cluster Deployment Guide
 
+<p align="center">
+    <img alt="No Tears Cluster Architecture" src="https://user-images.githubusercontent.com/5545980/85885560-61fbe980-b799-11ea-9fcd-a7ad1f344f40.png">
+</p>
+
 ## Launch the HPC QuickStart Environment
 
 ### Step 1
