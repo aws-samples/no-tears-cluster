@@ -30,7 +30,21 @@ class PclusterStack(cdk.Stack):
         password = cdk.CfnParameter(self, 'UserPasswordParameter', description='Set a password for the hpc-quickstart user', no_echo=True)
 
         # create a VPC
-        vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/20', max_azs=99)
+        # https://docs.aws.amazon.com/cdk/api/latest/python/aws_cdk.aws_ec2.README.html#vpc-endpoints
+        vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/20',
+                      gateway_endpoints={
+                          "S3": ec2.GatewayVpcEndpointOptions(
+                              service=ec2.GatewayVpcEndpointAwsService.S3
+                          ),
+                          "DynamoDB": ec2.GatewayVpcEndpointOptions(
+                              service=ec2.GatewayVpcEndpointAwsService.DYNAMODB
+                          )
+                      },
+                      max_azs=99)
+        # Add an interface endpoint
+        #vpc.add_interface_endpoint("EcrDockerEndpoint", {
+        #    "service": ec2.InterfaceVpcEndpointAwsService.ECR_DOCKER
+        #})
 
         # create a private and public subnet per vpc
         selection = vpc.select_subnets(
