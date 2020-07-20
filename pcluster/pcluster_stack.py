@@ -24,7 +24,7 @@ class PclusterStack(cdk.Stack):
         super().__init__(scope, id, **kwargs)
 
         # S3 URI for Config file
-        config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='s3://notearshpc-quickstart/config.ini')
+        config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/config.ini')
 
         # Password
         password = cdk.CfnParameter(self, 'UserPasswordParameter', description='Set a password for the hpc-quickstart user', no_echo=True)
