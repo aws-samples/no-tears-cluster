@@ -68,10 +68,21 @@ cat <<\WELCOME > ~/Welcome.txt
 WELCOME
 
 sudo cp ~/Welcome.txt /etc/motd
+echo 'cat /etc/motd' >> ~/.bash_profile
 
 # Fetch the config file from S3 and substitute variables
 mkdir -p ~/.parallelcluster
-aws s3 cp ${config} /tmp/config.ini --quiet
+
+echo "Pulling Config: ${config}"
+case "${config}" in
+    s3://*)
+        aws s3 cp ${config} /tmp/config.ini --quiet;;
+    http://*|https://*)
+        wget ${config} -O /tmp/config.ini -o /tmp/BOOTSTRAP.wget;;
+    *)
+        echo "Unknown/Unsupported post_install_script URI"
+        ;;
+esac
 envsubst < /tmp/config.ini > ~/.parallelcluster/config
 
 . ~/.bashrc
