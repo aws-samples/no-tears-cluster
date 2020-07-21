@@ -41,7 +41,8 @@ if [[ ! -z $YUM_CMD ]]; then
      systemctl restart docker
     fi
 elif [[ ! -z $APT_GET_CMD ]]; then
-    apt-get -y libswitch-perl python3 links
+    apt-get update
+    apt-get install -y libswitch-perl python3 links
     OSUSER=ubuntu
     OSGROUP=ubuntu
 
@@ -69,6 +70,11 @@ env > /opt/user_data_env.txt
 
 case "${cfn_node_type}" in
     MasterServer)
+
+        export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | rev | cut -c 2- | rev)
+        aws configure set default.region ${AWS_DEFAULT_REGION}
+        aws configure set default.output json
+
         # Setup spack on master:
         git clone https://github.com/spack/spack -b ${spack_tag} ${spack_install_path}
 
