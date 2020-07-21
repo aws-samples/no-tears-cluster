@@ -77,7 +77,7 @@ class PclusterStack(cdk.Stack):
         # Create a Cloud9 instance
         # Cloud9 doesn't have the ability to provide userdata
         # Because of this we need to use SSM run command
-        cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9Env', ec2_environment_name='ResearchWorkspace', vpc=vpc, instance_type=ec2.InstanceType(instance_type_identifier='c5.large'))
+        cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9ResearchWorkspace', vpc=vpc, instance_type=ec2.InstanceType(instance_type_identifier='c5.large'))
         cdk.CfnOutput(self, 'Research Workspace URL',  value=cloud9_instance.ide_url)
 
 
