@@ -46,7 +46,7 @@ alias pssh="pcluster ssh"
 EOF
 
 # Welcome message
-cat <<\WELCOME > ~/Welcome.txt
+cat <<\WELCOME > ~/environment/Welcome.txt
   _   _         _______                     _____ _           _
  | \ | |       |__   __|                   / ____| |         | |
  |  \| | ___      | | ___  __ _ _ __ ___  | |    | |_   _ ___| |_ ___ _ __
@@ -67,7 +67,7 @@ cat <<\WELCOME > ~/Welcome.txt
  $ pcluster dcv connect hpc-cluster
 WELCOME
 
-sudo cp ~/Welcome.txt /etc/motd
+sudo cp ~/environment/Welcome.txt /etc/motd
 echo 'cat /etc/motd' >> ~/.bash_profile
 
 # Fetch the config file from S3 and substitute variables
@@ -83,7 +83,13 @@ case "${config}" in
         echo "Unknown/Unsupported post_install_script URI"
         ;;
 esac
-envsubst < /tmp/config.ini > ~/.parallelcluster/config
+envsubst < /tmp/config.ini > ~/environment/config.ini
+
+# change default config file
+cat <<\EOF >> ~/.bashrc
+# Set default config file to be the in Cloud9 environment
+export AWS_PCLUSTER_CONFIG_FILE=~/environment/config.ini
+EOF
 
 . ~/.bashrc
 . /etc/profile
