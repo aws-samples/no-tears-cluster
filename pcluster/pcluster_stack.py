@@ -17,6 +17,7 @@ from aws_cdk import (
     region_info
 )
 import json
+from pcluster import __version__
 
 class PclusterStack(cdk.Stack):
 
@@ -24,7 +25,7 @@ class PclusterStack(cdk.Stack):
         super().__init__(scope, id, **kwargs)
 
         # S3 URI for Config file
-        config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/config.ini')
+        config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
 
         # Password
         password = cdk.CfnParameter(self, 'UserPasswordParameter', description='Set a password for the hpc-quickstart user', no_echo=True)
@@ -69,6 +70,11 @@ class PclusterStack(cdk.Stack):
         # Upload parallel cluster post_install_script to that bucket
         pcluster_post_install_script = assets.Asset(self, 'PclusterPostInstallScript',
             path='scripts/post_install_script.sh'
+        )
+
+        # Upload parallel cluster post_install_script to that bucket
+        pcluster_config_script = assets.Asset(self, 'PclusterConfigScript',
+            path='scripts/config.ini'
         )
 
         # Setup CloudTrail
@@ -159,6 +165,7 @@ class PclusterStack(cdk.Stack):
 
         bootstrap_script.grant_read(cloud9_role)
         pcluster_post_install_script.grant_read(cloud9_role)
+        pcluster_config_script.grant_read(cloud9_role)
 
         # Admin Group
         admin_group = iam.Group(self, 'AdminGroup')
@@ -266,12 +273,12 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider,
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
-                'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
-                'Config': config,
+                'BootstrapPath': 's3://%s/%s/%s' % (bootstrap_script.s3_bucket_name, __version__, bootstrap_script.s3_object_key),
+                'Config': "".join( ['https://', pcluster_post_install_script.s3_bucket_name,  ".s3.amazonaws.com/{0}/".format(__version__), pcluster_post_install_script.s3_object_key ] ),
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
-                'PostInstallScriptS3Url':  "".join( ['s3://', pcluster_post_install_script.s3_bucket_name,  "/", pcluster_post_install_script.s3_object_key ] ),
+                'PostInstallScriptS3Url':  "".join( ['s3://', pcluster_post_install_script.s3_bucket_name,  "/{0}/".format(__version__), pcluster_post_install_script.s3_object_key ] ),
                 'PostInstallScriptBucket': pcluster_post_install_script.s3_bucket_name,
                 'S3ReadWriteResource': data_bucket.bucket_arn,
                 'S3ReadWriteUrl': 's3://%s' % ( data_bucket.bucket_name ),

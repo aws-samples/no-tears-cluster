@@ -1,112 +1,127 @@
 Mappings:
   RegionMap:
     us-west-2:
-      RegionBucket: notearshpc-quickstart-us-west-2
+      RegionBucket: ebbollig-notearshpc-120988395753-us-west-2
     us-west-1:
-      RegionBucket: notearshpc-quickstart-us-west-1
+      RegionBucket: ebbollig-notearshpc-120988395753-us-west-1
     us-east-2:
-      RegionBucket: notearshpc-quickstart-us-east-2
+      RegionBucket: ebbollig-notearshpc-120988395753-us-east-2
     us-east-1:
-      RegionBucket: notearshpc-quickstart-us-east-1
+      RegionBucket: ebbollig-notearshpc-120988395753-us-east-1
     eu-central-1:
-      RegionBucket: notearshpc-quickstart-eu-central-1
+      RegionBucket: ebbollig-notearshpc-120988395753-eu-central-1
     ap-southeast-2:
-      RegionBucket: notearshpc-quickstart-ap-southeast-2
+      RegionBucket: ebbollig-notearshpc-120988395753-ap-southeast-2
     ap-southeast-1:
-      RegionBucket: notearshpc-quickstart-ap-southeast-1
+      RegionBucket: ebbollig-notearshpc-120988395753-ap-southeast-1
     ca-central-1:
-      RegionBucket: notearshpc-quickstart-ca-central-1
+      RegionBucket: ebbollig-notearshpc-120988395753-ca-central-1
     sa-east-1:
-      RegionBucket: notearshpc-quickstart-sa-east-1
+      RegionBucket: ebbollig-notearshpc-120988395753-sa-east-1
     ap-northeast-1:
-      RegionBucket: notearshpc-quickstart-ap-northeast-1
+      RegionBucket: ebbollig-notearshpc-120988395753-ap-northeast-1
     ap-northeast-2:
-      RegionBucket: notearshpc-quickstart-ap-northeast-2
+      RegionBucket: ebbollig-notearshpc-120988395753-ap-northeast-2
     ap-northeast-3:
-      RegionBucket: notearshpc-quickstart-ap-northeast-3
+      RegionBucket: ebbollig-notearshpc-120988395753-ap-northeast-3
     eu-west-1:
-      RegionBucket: notearshpc-quickstart-eu-west-1
+      RegionBucket: ebbollig-notearshpc-120988395753-eu-west-1
     eu-west-2:
-      RegionBucket: notearshpc-quickstart-eu-west-2
+      RegionBucket: ebbollig-notearshpc-120988395753-eu-west-2
     eu-west-3:
-      RegionBucket: notearshpc-quickstart-eu-west-3
+      RegionBucket: ebbollig-notearshpc-120988395753-eu-west-3
     ap-south-1:
-      RegionBucket: notearshpc-quickstart-ap-south-1
+      RegionBucket: ebbollig-notearshpc-120988395753-ap-south-1
     eu-north-1:
-      RegionBucket: notearshpc-quickstart-eu-north-1
+      RegionBucket: ebbollig-notearshpc-120988395753-eu-north-1
 
 
 Parameters:
+  ConfigS3URI:
+    Type: String
+    Default: https://notearshpc-quickstart.s3.amazonaws.com/0.1.0/config.ini
+    Description: Set a custom parallelcluster config file.
   UserPasswordParameter:
     Type: String
     Description: Set a password for the hpc-quickstart user
     NoEcho: true
-  AssetParameters7fb286f207a439f1c5271b81992b24c4fb021c955d6f5b4d5c6203850b63273eS3BucketB8E9F8A6:
+  AssetParameters9e14edb98c9b773ea519f9c0b592ac6909f6d0eb5930ae0937657c42dafcab6eS3Bucket216ABB36:
     Type: String
-    Description: S3 bucket for asset "7fb286f207a439f1c5271b81992b24c4fb021c955d6f5b4d5c6203850b63273e"
-    Default: "notearshpc-quickstart"
-  AssetParameters7fb286f207a439f1c5271b81992b24c4fb021c955d6f5b4d5c6203850b63273eS3VersionKey87859B5C:
+    Description: S3 bucket for asset "9e14edb98c9b773ea519f9c0b592ac6909f6d0eb5930ae0937657c42dafcab6e"
+    Default: "ebbollig-notearshpc-120988395753"
+  AssetParameters9e14edb98c9b773ea519f9c0b592ac6909f6d0eb5930ae0937657c42dafcab6eS3VersionKey59874595:
     Type: String
-    Description: S3 key for asset version "7fb286f207a439f1c5271b81992b24c4fb021c955d6f5b4d5c6203850b63273e"
-    Default: "asset/7fb286f207a439f1c5271b81992b24c4fb021c955d6f5b4d5c6203850b63273e.sh||"
-  AssetParameters7fb286f207a439f1c5271b81992b24c4fb021c955d6f5b4d5c6203850b63273eArtifactHashC794B9A3:
+    Description: S3 key for asset version "9e14edb98c9b773ea519f9c0b592ac6909f6d0eb5930ae0937657c42dafcab6e"
+    Default: "asset/9e14edb98c9b773ea519f9c0b592ac6909f6d0eb5930ae0937657c42dafcab6e.sh||"
+  AssetParameters9e14edb98c9b773ea519f9c0b592ac6909f6d0eb5930ae0937657c42dafcab6eArtifactHashD2DFC83A:
     Type: String
-    Description: Artifact hash for asset "7fb286f207a439f1c5271b81992b24c4fb021c955d6f5b4d5c6203850b63273e"
-  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3Bucket8A68B524:
+    Description: Artifact hash for asset "9e14edb98c9b773ea519f9c0b592ac6909f6d0eb5930ae0937657c42dafcab6e"
+  AssetParameters1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187S3Bucket1CCD4369:
     Type: String
-    Description: S3 bucket for asset "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
-    Default: "notearshpc-quickstart"
-  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3VersionKey3681CC3F:
+    Description: S3 bucket for asset "1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187"
+    Default: "ebbollig-notearshpc-120988395753"
+  AssetParameters1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187S3VersionKey3E1A0BD1:
     Type: String
-    Description: S3 key for asset version "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
-    Default: "asset/d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f.sh||"
-  AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fArtifactHashD19E18AF:
+    Description: S3 key for asset version "1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187"
+    Default: "asset/1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187.sh||"
+  AssetParameters1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187ArtifactHashE8EAE5BE:
     Type: String
-    Description: Artifact hash for asset "d188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0f"
-  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3BucketC5EE12DD:
+    Description: Artifact hash for asset "1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187"
+  AssetParametersefa557bdace345950fec768de61bef5d212eaa7493138e066a6e5b3e22d686b1S3BucketE50CA0EE:
     Type: String
-    Description: S3 bucket for asset "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
-    Default: "notearshpc-quickstart"
-  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3VersionKey1DA83673:
+    Description: S3 bucket for asset "efa557bdace345950fec768de61bef5d212eaa7493138e066a6e5b3e22d686b1"
+    Default: "ebbollig-notearshpc-120988395753"
+  AssetParametersefa557bdace345950fec768de61bef5d212eaa7493138e066a6e5b3e22d686b1S3VersionKeyF2280D6C:
     Type: String
-    Description: S3 key for asset version "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
-    Default: "asset/26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d.zip||"
-  AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dArtifactHash3101849A:
+    Description: S3 key for asset version "efa557bdace345950fec768de61bef5d212eaa7493138e066a6e5b3e22d686b1"
+    Default: "asset/efa557bdace345950fec768de61bef5d212eaa7493138e066a6e5b3e22d686b1.ini||"
+  AssetParametersefa557bdace345950fec768de61bef5d212eaa7493138e066a6e5b3e22d686b1ArtifactHash68F4BF77:
     Type: String
-    Description: Artifact hash for asset "26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d"
-  AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3BucketEC634C0C:
+    Description: Artifact hash for asset "efa557bdace345950fec768de61bef5d212eaa7493138e066a6e5b3e22d686b1"
+  AssetParametersd23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330bS3Bucket43945E45:
     Type: String
-    Description: S3 bucket for asset "1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad"
-    Default: "notearshpc-quickstart"
-  AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76:
+    Description: S3 bucket for asset "d23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330b"
+    Default: "ebbollig-notearshpc-120988395753"
+  AssetParametersd23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330bS3VersionKeyD437664E:
     Type: String
-    Description: S3 key for asset version "1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad"
-    Default: "asset/1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad.zip||"
-  AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adArtifactHash13E158B7:
+    Description: S3 key for asset version "d23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330b"
+    Default: "asset/d23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330b.zip||"
+  AssetParametersd23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330bArtifactHash5F6D0215:
     Type: String
-    Description: Artifact hash for asset "1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad"
-  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3BucketBC8346B6:
+    Description: Artifact hash for asset "d23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330b"
+  AssetParameters812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14S3BucketE74F71F4:
     Type: String
-    Description: S3 bucket for asset "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
-    Default: "notearshpc-quickstart"
-  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3VersionKeyDCCB2D9A:
+    Description: S3 bucket for asset "812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14"
+    Default: "ebbollig-notearshpc-120988395753"
+  AssetParameters812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14S3VersionKeyCDA54A41:
     Type: String
-    Description: S3 key for asset version "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
-    Default: "asset/3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4.zip||"
-  AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4ArtifactHash2FB69DF7:
+    Description: S3 key for asset version "812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14"
+    Default: "asset/812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14.zip||"
+  AssetParameters812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14ArtifactHash47216AA1:
     Type: String
-    Description: Artifact hash for asset "3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4"
-  AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43S3Bucket9CFBE28B:
+    Description: Artifact hash for asset "812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14"
+  AssetParametersc48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8fS3Bucket85295B09:
     Type: String
-    Description: S3 bucket for asset "e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43"
-    Default: "notearshpc-quickstart"
-  AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43S3VersionKeyDA8E2ECF:
+    Description: S3 bucket for asset "c48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8f"
+    Default: "ebbollig-notearshpc-120988395753"
+  AssetParametersc48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8fS3VersionKey4A4E4131:
     Type: String
-    Description: S3 key for asset version "e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43"
-    Default: "asset/e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43.zip||"
-  AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43ArtifactHash4E0D620D:
+    Description: S3 key for asset version "c48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8f"
+    Default: "asset/c48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8f.zip||"
+  AssetParametersc48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8fArtifactHashC4A6F08C:
     Type: String
-    Description: Artifact hash for asset "e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43"
+    Description: Artifact hash for asset "c48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8f"
+  AssetParameters68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bfS3Bucket71C6F187:
+    Type: String
+    Description: S3 bucket for asset "68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bf"
+    Default: "ebbollig-notearshpc-120988395753"
+  AssetParameters68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bfS3VersionKey28D10DE9:
+    Type: String
+    Description: S3 key for asset version "68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bf"
+    Default: "asset/68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bf.zip||"
+  AssetParameters68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bfArtifactHashFE9FEA44:
+    Type: String
+    Description: Artifact hash for asset "68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bf"
   BudgetLimit:
     Type: Number
     Default: 2000
@@ -140,12 +155,12 @@ Resources:
           - Fn::GetAZs: ""
       MapPublicIpOnLaunch: true
       Tags:
-        - Key: Name
-          Value: pcluster/VPC/PublicSubnet1
         - Key: aws-cdk:subnet-name
           Value: Public
         - Key: aws-cdk:subnet-type
           Value: Public
+        - Key: Name
+          Value: pcluster/VPC/PublicSubnet1
     Metadata:
       aws:cdk:path: pcluster/VPC/PublicSubnet1/Subnet
   VPCPublicSubnet1RouteTableFEE4B781:
@@ -214,12 +229,12 @@ Resources:
           - Fn::GetAZs: ""
       MapPublicIpOnLaunch: true
       Tags:
-        - Key: Name
-          Value: pcluster/VPC/PublicSubnet2
         - Key: aws-cdk:subnet-name
           Value: Public
         - Key: aws-cdk:subnet-type
           Value: Public
+        - Key: Name
+          Value: pcluster/VPC/PublicSubnet2
     Metadata:
       aws:cdk:path: pcluster/VPC/PublicSubnet2/Subnet
   VPCPublicSubnet2RouteTable6F1A15F1:
@@ -288,12 +303,12 @@ Resources:
           - Fn::GetAZs: ""
       MapPublicIpOnLaunch: false
       Tags:
-        - Key: Name
-          Value: pcluster/VPC/PrivateSubnet1
         - Key: aws-cdk:subnet-name
           Value: Private
         - Key: aws-cdk:subnet-type
           Value: Private
+        - Key: Name
+          Value: pcluster/VPC/PrivateSubnet1
     Metadata:
       aws:cdk:path: pcluster/VPC/PrivateSubnet1/Subnet
   VPCPrivateSubnet1RouteTableBE8A6027:
@@ -337,12 +352,12 @@ Resources:
           - Fn::GetAZs: ""
       MapPublicIpOnLaunch: false
       Tags:
-        - Key: Name
-          Value: pcluster/VPC/PrivateSubnet2
         - Key: aws-cdk:subnet-name
           Value: Private
         - Key: aws-cdk:subnet-type
           Value: Private
+        - Key: Name
+          Value: pcluster/VPC/PrivateSubnet2
     Metadata:
       aws:cdk:path: pcluster/VPC/PrivateSubnet2/Subnet
   VPCPrivateSubnet2RouteTable0A19E10E:
@@ -391,6 +406,44 @@ Resources:
         Ref: VPCIGWB7E252D3
     Metadata:
       aws:cdk:path: pcluster/VPC/VPCGW
+  VPCS3CC6C5EE4:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName:
+        Fn::Join:
+          - ""
+          - - com.amazonaws.
+            - Ref: AWS::Region
+            - .s3
+      VpcId:
+        Ref: VPCB9E5F0B4
+      RouteTableIds:
+        - Ref: VPCPrivateSubnet1RouteTableBE8A6027
+        - Ref: VPCPrivateSubnet2RouteTable0A19E10E
+        - Ref: VPCPublicSubnet1RouteTableFEE4B781
+        - Ref: VPCPublicSubnet2RouteTable6F1A15F1
+      VpcEndpointType: Gateway
+    Metadata:
+      aws:cdk:path: pcluster/VPC/S3/Resource
+  VPCDynamoDB137E34D7:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName:
+        Fn::Join:
+          - ""
+          - - com.amazonaws.
+            - Ref: AWS::Region
+            - .dynamodb
+      VpcId:
+        Ref: VPCB9E5F0B4
+      RouteTableIds:
+        - Ref: VPCPrivateSubnet1RouteTableBE8A6027
+        - Ref: VPCPrivateSubnet2RouteTable0A19E10E
+        - Ref: VPCPublicSubnet1RouteTableFEE4B781
+        - Ref: VPCPublicSubnet2RouteTable6F1A15F1
+      VpcEndpointType: Gateway
+    Metadata:
+      aws:cdk:path: pcluster/VPC/DynamoDB/Resource
   DataRepositoryB58C03BE:
     Type: AWS::S3::Bucket
     UpdateReplacePolicy: Retain
@@ -451,15 +504,14 @@ Resources:
       - CloudTrailLogsPolicy2265F07C
     Metadata:
       aws:cdk:path: pcluster/CloudTrail/Resource
-  Cloud9EnvD28F4C4F:
+  ResearchWorkspace61444B30:
     Type: AWS::Cloud9::EnvironmentEC2
     Properties:
       InstanceType: c5.large
-      Name: ResearchWorkspace
       SubnetId:
         Ref: VPCPublicSubnet1SubnetB4246D30
     Metadata:
-      aws:cdk:path: pcluster/Cloud9Env/Resource
+      aws:cdk:path: pcluster/ResearchWorkspace/Resource
   Cloud9CreateKeypairRole4A1B132A:
     Type: AWS::IAM::Role
     Properties:
@@ -507,12 +559,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3VersionKey1DA83673
+                      - Ref: AssetParametersd23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330bS3VersionKeyD437664E
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971dS3VersionKey1DA83673
+                      - Ref: AssetParametersd23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330bS3VersionKeyD437664E
       Handler: lambda_function.handler
       Role:
         Fn::GetAtt:
@@ -525,7 +577,7 @@ Resources:
       - Cloud9CreateKeypairRole4A1B132A
     Metadata:
       aws:cdk:path: pcluster/C9CreateKeyPairLambda/Resource
-      aws:asset:path: asset.26ff3816d502d3d269655a55e8c73114e8ef1ae7d56baa1a5afd1a392fce971d
+      aws:asset:path: asset.d23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330b
       aws:asset:property: Code
   C9CreateKeyPairProviderframeworkonEventServiceRoleE6670C17:
     Type: AWS::IAM::Role
@@ -575,18 +627,19 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14S3VersionKeyCDA54A41
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14S3VersionKeyCDA54A41
       Handler: framework.onEvent
       Role:
         Fn::GetAtt:
           - C9CreateKeyPairProviderframeworkonEventServiceRoleE6670C17
           - Arn
       Runtime: nodejs10.x
+      Description: AWS CDK resource provider framework - onEvent (pcluster/C9CreateKeyPairProvider)
       Environment:
         Variables:
           USER_ON_EVENT_FUNCTION_ARN:
@@ -599,7 +652,7 @@ Resources:
       - C9CreateKeyPairProviderframeworkonEventServiceRoleE6670C17
     Metadata:
       aws:cdk:path: pcluster/C9CreateKeyPairProvider/framework-onEvent/Resource
-      aws:asset:path: asset.1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad
+      aws:asset:path: asset.812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14
       aws:asset:property: Code
   C9CreateKeyPair:
     Type: AWS::CloudFormation::CustomResource
@@ -787,6 +840,10 @@ Resources:
               - arn:aws:s3:::sa-east-1-aws-parallelcluster*
               - arn:aws:s3:::us-east-1-aws-parallelcluster*
               - arn:aws:s3:::us-east-2-aws-parallelcluster*
+              - arn:aws:s3:::us-gov-east-1-aws-parallelcluster*
+              - arn:aws:s3:::us-gov-west-1-aws-parallelcluster*
+              - arn:aws:s3:::us-iso-east-1-aws-parallelcluster*
+              - arn:aws:s3:::us-isob-east-1-aws-parallelcluster*
               - arn:aws:s3:::us-west-1-aws-parallelcluster*
               - arn:aws:s3:::us-west-2-aws-parallelcluster*
             Sid: S3ParallelClusterReadOnly
@@ -908,6 +965,25 @@ Resources:
                   - ""
                   - - "arn:aws:s3:::"
                     - Ref: DataRepositoryB58C03BE
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+                    - /*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -1084,12 +1160,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3VersionKeyDCCB2D9A
+                      - Ref: AssetParametersc48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8fS3VersionKey4A4E4131
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4S3VersionKeyDCCB2D9A
+                      - Ref: AssetParametersc48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8fS3VersionKey4A4E4131
       Handler: lambda_function.handler
       Role:
         Fn::GetAtt:
@@ -1102,7 +1178,7 @@ Resources:
       - Cloud9SetupRole5712B5A6
     Metadata:
       aws:cdk:path: pcluster/C9InstanceProfileLambda/Resource
-      aws:asset:path: asset.3f25d6396cacd93ec80401c4f9ed1b721c13fae79e8ee2e6b66b361bca7507d4
+      aws:asset:path: asset.c48822457e8605e268f475d3928a59915c8bb7e090f602882e65a2dcb6f26c8f
       aws:asset:property: Code
   C9InstanceProfileProviderframeworkonEventServiceRole77941550:
     Type: AWS::IAM::Role
@@ -1152,18 +1228,19 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14S3VersionKeyCDA54A41
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14S3VersionKeyCDA54A41
       Handler: framework.onEvent
       Role:
         Fn::GetAtt:
           - C9InstanceProfileProviderframeworkonEventServiceRole77941550
           - Arn
       Runtime: nodejs10.x
+      Description: AWS CDK resource provider framework - onEvent (pcluster/C9InstanceProfileProvider)
       Environment:
         Variables:
           USER_ON_EVENT_FUNCTION_ARN:
@@ -1176,7 +1253,7 @@ Resources:
       - C9InstanceProfileProviderframeworkonEventServiceRole77941550
     Metadata:
       aws:cdk:path: pcluster/C9InstanceProfileProvider/framework-onEvent/Resource
-      aws:asset:path: asset.1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad
+      aws:asset:path: asset.812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14
       aws:asset:property: Code
   C9InstanceProfile:
     Type: AWS::CloudFormation::CustomResource
@@ -1188,9 +1265,9 @@ Resources:
       InstanceProfile:
         Ref: Cloud9InstanceProfile
       Cloud9Environment:
-        Ref: Cloud9EnvD28F4C4F
+        Ref: ResearchWorkspace61444B30
     DependsOn:
-      - Cloud9EnvD28F4C4F
+      - ResearchWorkspace61444B30
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
     Metadata:
@@ -1208,12 +1285,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43S3VersionKeyDA8E2ECF
+                      - Ref: AssetParameters68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bfS3VersionKey28D10DE9
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameterse61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43S3VersionKeyDA8E2ECF
+                      - Ref: AssetParameters68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bfS3VersionKey28D10DE9
       Handler: lambda_function.handler
       Role:
         Fn::GetAtt:
@@ -1226,7 +1303,7 @@ Resources:
       - Cloud9SetupRole5712B5A6
     Metadata:
       aws:cdk:path: pcluster/C9BootstrapLambda/Resource
-      aws:asset:path: asset.e61123a66b93fa600436c56dca3fd6281a7a0355b633fd39f15dd13006a35a43
+      aws:asset:path: asset.68144a2b2756f242701a24eb133be85c64921da0317f4d548d4ae8c39a2c30bf
       aws:asset:property: Code
   C9BootstrapProviderframeworkonEventServiceRole9DB6888B:
     Type: AWS::IAM::Role
@@ -1276,18 +1353,19 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14S3VersionKeyCDA54A41
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1adS3VersionKey28104A76
+                      - Ref: AssetParameters812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14S3VersionKeyCDA54A41
       Handler: framework.onEvent
       Role:
         Fn::GetAtt:
           - C9BootstrapProviderframeworkonEventServiceRole9DB6888B
           - Arn
       Runtime: nodejs10.x
+      Description: AWS CDK resource provider framework - onEvent (pcluster/C9BootstrapProvider)
       Environment:
         Variables:
           USER_ON_EVENT_FUNCTION_ARN:
@@ -1300,7 +1378,7 @@ Resources:
       - C9BootstrapProviderframeworkonEventServiceRole9DB6888B
     Metadata:
       aws:cdk:path: pcluster/C9BootstrapProvider/framework-onEvent/Resource
-      aws:asset:path: asset.1c9562cbb8db7083c4a0e68da4b60a791cfda099373f7df25d2f438ade62c1ad
+      aws:asset:path: asset.812fb1ad6d57643790c0c720ff7b1226e49679db821db771446a9a950a477b14
       aws:asset:property: Code
   C9Bootstrap:
     Type: AWS::CloudFormation::CustomResource
@@ -1310,23 +1388,39 @@ Resources:
           - C9BootstrapProviderframeworkonEvent2A7A53DB
           - Arn
       Cloud9Environment:
-        Ref: Cloud9EnvD28F4C4F
+        Ref: ResearchWorkspace61444B30
       BootstrapPath:
         Fn::Join:
           - ""
           - - s3://
             - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
-            - /
+            - /0.1.0/
             - Fn::Select:
                 - 0
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParameters7fb286f207a439f1c5271b81992b24c4fb021c955d6f5b4d5c6203850b63273eS3VersionKey87859B5C
+                    - Ref: AssetParameters9e14edb98c9b773ea519f9c0b592ac6909f6d0eb5930ae0937657c42dafcab6eS3VersionKey59874595
             - Fn::Select:
                 - 1
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParameters7fb286f207a439f1c5271b81992b24c4fb021c955d6f5b4d5c6203850b63273eS3VersionKey87859B5C
+                    - Ref: AssetParameters9e14edb98c9b773ea519f9c0b592ac6909f6d0eb5930ae0937657c42dafcab6eS3VersionKey59874595
+      Config:
+        Fn::Join:
+          - ""
+          - - https://
+            - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
+            - .s3.amazonaws.com/0.1.0/
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "||"
+                    - Ref: AssetParameters1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187S3VersionKey3E1A0BD1
+            - Fn::Select:
+                - 1
+                - Fn::Split:
+                    - "||"
+                    - Ref: AssetParameters1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187S3VersionKey3E1A0BD1
       VPCID:
         Ref: VPCB9E5F0B4
       MasterSubnetID:
@@ -1338,17 +1432,17 @@ Resources:
           - ""
           - - s3://
             - !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
-            - /
+            - /0.1.0/
             - Fn::Select:
                 - 0
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3VersionKey3681CC3F
+                    - Ref: AssetParameters1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187S3VersionKey3E1A0BD1
             - Fn::Select:
                 - 1
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParametersd188314946020c7335b7a6ab6129c931d21cfba9000a19ff61eaa5c8cb7ecb0fS3VersionKey3681CC3F
+                    - Ref: AssetParameters1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187S3VersionKey3E1A0BD1
       PostInstallScriptBucket:
         !FindInMap [RegionMap, !Ref 'AWS::Region', RegionBucket]
       S3ReadWriteResource:
@@ -1414,7 +1508,7 @@ Resources:
   CDKMetadata:
     Type: AWS::CDK::Metadata
     Properties:
-      Modules: aws-cdk=1.31.0,@aws-cdk/assets=1.31.0,@aws-cdk/aws-apigateway=1.31.0,@aws-cdk/aws-applicationautoscaling=1.31.0,@aws-cdk/aws-autoscaling=1.31.0,@aws-cdk/aws-autoscaling-common=1.31.0,@aws-cdk/aws-autoscaling-hooktargets=1.31.0,@aws-cdk/aws-batch=1.31.0,@aws-cdk/aws-budgets=1.31.0,@aws-cdk/aws-certificatemanager=1.31.0,@aws-cdk/aws-cloud9=1.31.0,@aws-cdk/aws-cloudformation=1.31.0,@aws-cdk/aws-cloudfront=1.31.0,@aws-cdk/aws-cloudtrail=1.31.0,@aws-cdk/aws-cloudwatch=1.31.0,@aws-cdk/aws-ec2=1.31.0,@aws-cdk/aws-ecr=1.31.0,@aws-cdk/aws-ecr-assets=1.31.0,@aws-cdk/aws-ecs=1.31.0,@aws-cdk/aws-elasticloadbalancing=1.31.0,@aws-cdk/aws-elasticloadbalancingv2=1.31.0,@aws-cdk/aws-events=1.31.0,@aws-cdk/aws-glue=1.31.0,@aws-cdk/aws-iam=1.31.0,@aws-cdk/aws-kms=1.31.0,@aws-cdk/aws-lambda=1.31.0,@aws-cdk/aws-logs=1.31.0,@aws-cdk/aws-route53=1.31.0,@aws-cdk/aws-route53-targets=1.31.0,@aws-cdk/aws-s3=1.31.0,@aws-cdk/aws-s3-assets=1.31.0,@aws-cdk/aws-sam=1.31.0,@aws-cdk/aws-secretsmanager=1.31.0,@aws-cdk/aws-servicediscovery=1.31.0,@aws-cdk/aws-sns=1.31.0,@aws-cdk/aws-sns-subscriptions=1.31.0,@aws-cdk/aws-sqs=1.31.0,@aws-cdk/aws-ssm=1.31.0,@aws-cdk/aws-stepfunctions=1.31.0,@aws-cdk/aws-stepfunctions-tasks=1.31.0,@aws-cdk/core=1.31.0,@aws-cdk/custom-resources=1.31.0,@aws-cdk/cx-api=1.31.0,@aws-cdk/region-info=1.31.0,jsii-runtime=Python/3.6.8
+      Modules: aws-cdk=1.52.0,@aws-cdk/assets=1.53.0,@aws-cdk/aws-budgets=1.53.0,@aws-cdk/aws-cloud9=1.53.0,@aws-cdk/aws-cloudformation=1.53.0,@aws-cdk/aws-cloudtrail=1.53.0,@aws-cdk/aws-cloudwatch=1.53.0,@aws-cdk/aws-codecommit=1.53.0,@aws-cdk/aws-codeguruprofiler=1.53.0,@aws-cdk/aws-ec2=1.53.0,@aws-cdk/aws-efs=1.53.0,@aws-cdk/aws-events=1.53.0,@aws-cdk/aws-iam=1.53.0,@aws-cdk/aws-kms=1.53.0,@aws-cdk/aws-lambda=1.53.0,@aws-cdk/aws-logs=1.53.0,@aws-cdk/aws-s3=1.53.0,@aws-cdk/aws-s3-assets=1.53.0,@aws-cdk/aws-sam=1.53.0,@aws-cdk/aws-secretsmanager=1.53.0,@aws-cdk/aws-sns=1.53.0,@aws-cdk/aws-sqs=1.53.0,@aws-cdk/aws-ssm=1.53.0,@aws-cdk/cloud-assembly-schema=1.53.0,@aws-cdk/core=1.53.0,@aws-cdk/custom-resources=1.53.0,@aws-cdk/cx-api=1.53.0,@aws-cdk/region-info=1.53.0,jsii-runtime=Python/3.8.2
     Condition: CDKMetadataAvailable
 Outputs:
   PublicSubnet0:
@@ -1442,7 +1536,7 @@ Outputs:
         - - https://
           - Ref: AWS::Region
           - .console.aws.amazon.com/cloud9/ide/
-          - Ref: Cloud9EnvD28F4C4F
+          - Ref: ResearchWorkspace61444B30
   UserLoginUrl:
     Value:
       Fn::Join:

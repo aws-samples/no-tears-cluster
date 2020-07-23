@@ -4,6 +4,7 @@
 import json
 import sys
 
+from pcluster import __version__
 
 def main():
 
@@ -13,7 +14,7 @@ def main():
     asset_id = []
     asset_key = []
     asset_bucket_param = []
-    
+
     for asset in manifest['artifacts']['pcluster']['metadata']['/pcluster']:
         asset_id.append(asset['data']['id'])
         path = asset['data']['path']
@@ -24,16 +25,16 @@ def main():
             # For directories
             print("cd cdk.out/{p}; zip -r ../{i}.zip *; cd ../..".
                   format(p=path, i=asset_id[-1]))
-            print("aws s3 cp --acl public-read cdk.out/{i}.zip s3://{b}/asset/".
-                  format(p=path, b=bucket, i=asset_id[-1]))
+            print("aws s3 cp --acl public-read cdk.out/{i}.zip s3://{b}/{v}/asset/".
+                  format(p=path, b=bucket, i=asset_id[-1], v=__version__))
 
             asset_key[-1] = ".".join([asset_id[-1], "zip"])
             asset_key[-1] = "/".join(["asset", asset_key[-1]])
 
         elif asset['data']['packaging'] == "file":
             # For single files
-            print("aws s3 cp --acl public-read cdk.out/{p} s3://{b}/{k}".
-                  format(p=path, b=bucket, k=path.replace(".", "/", 1)))
+            print("aws s3 cp --acl public-read cdk.out/{p} s3://{b}/{v}/{k}".
+                  format(p=path, b=bucket, k=path.replace(".", "/", 1), v=__version__))
 
             asset_key[-1] = path.replace(".", "/", 1)
 

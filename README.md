@@ -162,7 +162,7 @@ Provide parameters to the stack via `cdk deploy --parameters pcluster:KEY=VALUE`
 
  * `cdk ls`          list all stacks in the app
  * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
+ * `cdk deploy`      deploy this stack to your default AWS account/region (remember to update the version number on the quick launch buttons in the README!)
  * `cdk diff`        compare deployed stack with current state
  * `cdk docs`        open CDK documentation
 
