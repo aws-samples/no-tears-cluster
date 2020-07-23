@@ -33,7 +33,7 @@ upload()
     do
 	# DEBUG echo "${asset_id[$i]} ${asset_key[$i]}"
 	# Edit cfn.yaml to include correct keys
-	awk -v key=${asset_key[$i]}  '1;/Description: S3 key for asset version "'${asset_id[$i]}'"/{ print "    Default: \"" key "||\""}' cfn.yaml > cfn-changed.yaml
+	awk -v key=${version}/${asset_key[$i]}  '1;/Description: S3 key for asset version "'${asset_id[$i]}'"/{ print "    Default: \"" key "||\""}' cfn.yaml > cfn-changed.yaml
 	mv cfn-changed.yaml cfn.yaml
 
 	# Edit to point to correct region
