@@ -45,17 +45,17 @@ Parameters:
     Type: String
     Description: Set a password for the hpc-quickstart user
     NoEcho: true
-  AssetParameters219772a1720018f6ef704fab7db150f052f0c48cc5d153af1a055fc07d70e642S3BucketD0EBE60B:
+  AssetParameters9c761b804ba7cab28d2fd36fee5aa148843ae638efacbfe6873873076ddc24cfS3Bucket59123DCB:
     Type: String
-    Description: S3 bucket for asset "219772a1720018f6ef704fab7db150f052f0c48cc5d153af1a055fc07d70e642"
+    Description: S3 bucket for asset "9c761b804ba7cab28d2fd36fee5aa148843ae638efacbfe6873873076ddc24cf"
     Default: "ebbollig-notearshpc-120988395753"
-  AssetParameters219772a1720018f6ef704fab7db150f052f0c48cc5d153af1a055fc07d70e642S3VersionKeyBC6E37D9:
+  AssetParameters9c761b804ba7cab28d2fd36fee5aa148843ae638efacbfe6873873076ddc24cfS3VersionKeyFDCEC68A:
     Type: String
-    Description: S3 key for asset version "219772a1720018f6ef704fab7db150f052f0c48cc5d153af1a055fc07d70e642"
-    Default: "0.1.0/asset/219772a1720018f6ef704fab7db150f052f0c48cc5d153af1a055fc07d70e642.sh||"
-  AssetParameters219772a1720018f6ef704fab7db150f052f0c48cc5d153af1a055fc07d70e642ArtifactHashF0B2843C:
+    Description: S3 key for asset version "9c761b804ba7cab28d2fd36fee5aa148843ae638efacbfe6873873076ddc24cf"
+    Default: "0.1.0/asset/9c761b804ba7cab28d2fd36fee5aa148843ae638efacbfe6873873076ddc24cf.sh||"
+  AssetParameters9c761b804ba7cab28d2fd36fee5aa148843ae638efacbfe6873873076ddc24cfArtifactHash7CB53B19:
     Type: String
-    Description: Artifact hash for asset "219772a1720018f6ef704fab7db150f052f0c48cc5d153af1a055fc07d70e642"
+    Description: Artifact hash for asset "9c761b804ba7cab28d2fd36fee5aa148843ae638efacbfe6873873076ddc24cf"
   AssetParameters1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187S3Bucket1CCD4369:
     Type: String
     Description: S3 bucket for asset "1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187"
@@ -67,17 +67,17 @@ Parameters:
   AssetParameters1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187ArtifactHashE8EAE5BE:
     Type: String
     Description: Artifact hash for asset "1f8b4760af092cc9f4253348dd8d0713337cb9dc8163e76a45d3815dffd38187"
-  AssetParameters02ed7a63baf2e8ec245523e2d93e0df97131bc24bc65717b0b318f90baadf066S3BucketBE0B2B99:
+  AssetParametersb724750bba9e668054dc91b6e32c50d84f9dea7260fc726d2f0542d75d3364d7S3Bucket3180C8C3:
     Type: String
-    Description: S3 bucket for asset "02ed7a63baf2e8ec245523e2d93e0df97131bc24bc65717b0b318f90baadf066"
+    Description: S3 bucket for asset "b724750bba9e668054dc91b6e32c50d84f9dea7260fc726d2f0542d75d3364d7"
     Default: "ebbollig-notearshpc-120988395753"
-  AssetParameters02ed7a63baf2e8ec245523e2d93e0df97131bc24bc65717b0b318f90baadf066S3VersionKeyC4DBA5C1:
+  AssetParametersb724750bba9e668054dc91b6e32c50d84f9dea7260fc726d2f0542d75d3364d7S3VersionKey280F6C6E:
     Type: String
-    Description: S3 key for asset version "02ed7a63baf2e8ec245523e2d93e0df97131bc24bc65717b0b318f90baadf066"
-    Default: "0.1.0/asset/02ed7a63baf2e8ec245523e2d93e0df97131bc24bc65717b0b318f90baadf066.ini||"
-  AssetParameters02ed7a63baf2e8ec245523e2d93e0df97131bc24bc65717b0b318f90baadf066ArtifactHashA1DEE526:
+    Description: S3 key for asset version "b724750bba9e668054dc91b6e32c50d84f9dea7260fc726d2f0542d75d3364d7"
+    Default: "0.1.0/asset/b724750bba9e668054dc91b6e32c50d84f9dea7260fc726d2f0542d75d3364d7.ini||"
+  AssetParametersb724750bba9e668054dc91b6e32c50d84f9dea7260fc726d2f0542d75d3364d7ArtifactHashC73554BC:
     Type: String
-    Description: Artifact hash for asset "02ed7a63baf2e8ec245523e2d93e0df97131bc24bc65717b0b318f90baadf066"
+    Description: Artifact hash for asset "b724750bba9e668054dc91b6e32c50d84f9dea7260fc726d2f0542d75d3364d7"
   AssetParametersd23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330bS3Bucket43945E45:
     Type: String
     Description: S3 bucket for asset "d23171738749dcc1786a0493c9e9bc342bd568ae09df62c22c5bfe899d9d330b"
@@ -1399,12 +1399,12 @@ Resources:
                 - 0
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParameters219772a1720018f6ef704fab7db150f052f0c48cc5d153af1a055fc07d70e642S3VersionKeyBC6E37D9
+                    - Ref: AssetParameters9c761b804ba7cab28d2fd36fee5aa148843ae638efacbfe6873873076ddc24cfS3VersionKeyFDCEC68A
             - Fn::Select:
                 - 1
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParameters219772a1720018f6ef704fab7db150f052f0c48cc5d153af1a055fc07d70e642S3VersionKeyBC6E37D9
+                    - Ref: AssetParameters9c761b804ba7cab28d2fd36fee5aa148843ae638efacbfe6873873076ddc24cfS3VersionKeyFDCEC68A
       Config:
         Fn::Join:
           - ""
@@ -1415,12 +1415,12 @@ Resources:
                 - 0
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParameters02ed7a63baf2e8ec245523e2d93e0df97131bc24bc65717b0b318f90baadf066S3VersionKeyC4DBA5C1
+                    - Ref: AssetParametersb724750bba9e668054dc91b6e32c50d84f9dea7260fc726d2f0542d75d3364d7S3VersionKey280F6C6E
             - Fn::Select:
                 - 1
                 - Fn::Split:
                     - "||"
-                    - Ref: AssetParameters02ed7a63baf2e8ec245523e2d93e0df97131bc24bc65717b0b318f90baadf066S3VersionKeyC4DBA5C1
+                    - Ref: AssetParametersb724750bba9e668054dc91b6e32c50d84f9dea7260fc726d2f0542d75d3364d7S3VersionKey280F6C6E
       VPCID:
         Ref: VPCB9E5F0B4
       MasterSubnetID:
