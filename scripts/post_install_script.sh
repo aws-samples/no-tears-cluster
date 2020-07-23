@@ -138,7 +138,7 @@ packages:
                   mariadb-client: [mariadb-c-client, mariadb]
                   mkl: [intel-mkl]
                   mpe: [mpe2]
-                  mpi: [openmpi, intelmpi, mpich]
+                  mpi: [openmpi, intel-mpi, mpich]
                   mysql-client: [mysql, mariadb-c-client]
                   opencl: [pocl]
                   pil: [py-pillow]
