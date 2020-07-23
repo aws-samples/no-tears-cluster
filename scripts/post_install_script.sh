@@ -99,16 +99,16 @@ case "${cfn_node_type}" in
         #GCC_VERSION=7.3.1
         GCC_VERSION=$( gcc -v 2>&1 |tail -n 1| awk '{print $3}' )
 
-        #NOTE: we do not build openmpi with pmi support because slurm is not built for PMI
+        #NOTE: as of parallelcluster v2.8.0, SLURM is built with PMI3
         cat << EOF > ${spack_install_path}/etc/spack/packages.yaml
 packages:
         openmpi:
                 modules:
                         openmpi@${OPENMPI_VERSION} fabrics=auto +pmi schedulers=slurm: openmpi/${OPENMPI_VERSION}
                 buildable: True
-        intelmpi:
+        intel-mpi:
                 modules:
-                        intelmpi@${INTELMPI_VERSION}: intelmpi
+                        intel-mpi@${INTELMPI_VERSION}: intelmpi
                 buildable: True
         slurm:
                 paths:
