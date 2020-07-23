@@ -104,7 +104,7 @@ case "${cfn_node_type}" in
 packages:
         openmpi:
                 modules:
-                        openmpi@${OPENMPI_VERSION} fabrics=libfabric +pmi schedulers=slurm: openmpi/${OPENMPI_VERSION}
+                        openmpi@${OPENMPI_VERSION} fabrics=auto +pmi schedulers=slurm: openmpi/${OPENMPI_VERSION}
                 buildable: True
         intelmpi:
                 modules:
@@ -112,7 +112,7 @@ packages:
                 buildable: True
         slurm:
                 paths:
-                        slurm@${SLURM_VERSION}: /opt/slurm/
+                        slurm@${SLURM_VERSION} +pmix: /opt/slurm/
                 buildable: False
         libfabric:
                 modules:
@@ -138,7 +138,7 @@ packages:
                   mariadb-client: [mariadb-c-client, mariadb]
                   mkl: [intel-mkl]
                   mpe: [mpe2]
-                  mpi: [openmpi, mpich]
+                  mpi: [openmpi, intelmpi, mpich]
                   mysql-client: [mysql, mariadb-c-client]
                   opencl: [pocl]
                   pil: [py-pillow]
