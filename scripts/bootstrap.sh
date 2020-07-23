@@ -25,7 +25,7 @@ env >> /tmp/BOOTSTRAP.WHOAMI
 #export PRIVATE_KEY_ARN=${2:-default}
 
 #TODO:
-sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster --upgrade
+sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster==2.7.0 --upgrade
 #sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster --user
 
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | rev | cut -c 2- | rev)
