@@ -37,7 +37,7 @@ def send_command(instance_id, commands):
 def wait_instance_ready(cloud9_environment, context):
     while True:
         instance_info = ssm_client.describe_instance_information(Filters=[{
-            'Key': 'Tag', 'Values': ['aws:cloud9:environment:%s' % cloud9_environment]
+            'Key': 'tag:aws:cloud9:environment', 'Values': [cloud9_environment]
         },
         {
             'Key': 'PingStatus', 'Values': ['Online']
