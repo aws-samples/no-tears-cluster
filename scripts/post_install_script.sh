@@ -85,18 +85,19 @@ case "${cfn_node_type}" in
         mkdir -p ${spack_install_path}/etc/spack
         # V2.0 borrowed "all:" block from https://spack-tutorial.readthedocs.io/en/latest/tutorial_configuration.html
 
-        #OPENMPI_VERSION=4.0.2
+        # Autodetect OPENMPI, INTELMPI, SLURM, LIBFABRIC and GCC versions to inform Spack of available packages.
+        # e.g., OPENMPI_VERSION=4.0.3
         OPENMPI_VERSION=$(. /etc/profile && module avail openmpi 2>&1 | grep openmpi | head -n 1 | cut -d / -f 2)
-        #INTELMPI_VERSION=2019.6.166
+        # e.g., INTELMPI_VERSION=2019.7.166
         INTELMPI_VERSION=$(. /etc/profile && module show intelmpi 2>&1 | grep I_MPI_ROOT | sed 's/[[:alpha:]|_|:|\/|(|[:space:]]//g' | awk -F- '{print $1}' )
-        #SLURM_VERSION=19.05.5
+        # e.g., SLURM_VERSION=19.05.5
         SLURM_VERSION=$(. /etc/profile && sinfo --version | cut -d' ' -f 2)
-        #LIBFABRIC_VERSION=1.9.0
-        #LIBFABRIC_MODULE=1.9.0amzn1.1
+        # e.g., LIBFABRIC_VERSION=1.10.0
+        # e.g., LIBFABRIC_MODULE=1.10.0amzn1.1
         LIBFABRIC_MODULE=$(. /etc/profile && module avail libfabric 2>&1 | grep libfabric | head -n 1 )
         LIBFABRIC_MODULE_VERSION=$(. /etc/profile && module avail libfabric 2>&1 | grep libfabric | head -n 1 |  cut -d / -f 2 )
         LIBFABRIC_VERSION=${LIBFABRIC_MODULE_VERSION//amzn*}
-        #GCC_VERSION=7.3.1
+        # e.g., GCC_VERSION=7.3.5
         GCC_VERSION=$( gcc -v 2>&1 |tail -n 1| awk '{print $3}' )
 
         #NOTE: as of parallelcluster v2.8.0, SLURM is built with PMI3
@@ -207,11 +208,10 @@ modules:
           FC: gfortran
           F90: gfortran
           F77: gfortran
-    #openmpi:
-    #  environment:
-    #    set:
-    #      SLURM_MPI_TYPE: pmi2
-    #      #OMPI_MCA_btl_openib_warn_default_gid_prefix: '0'
+    openmpi:
+      environment:
+        set:
+          SLURM_MPI_TYPE: pmix
     netlib-scalapack:
       suffixes:
         '^openmpi': openmpi
