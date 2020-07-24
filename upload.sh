@@ -21,7 +21,6 @@ edit_cfn()
 {
     awk -v s3=${s3_bucket} '1;/Description: S3 bucket for asset/{ print "    Default: \"" s3 "\""}' cfn.yaml > cfn-changed.yaml
     mv cfn-changed.yaml cfn.yaml
-
 }
 
 upload()

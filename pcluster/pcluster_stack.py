@@ -24,6 +24,9 @@ class PclusterStack(cdk.Stack):
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        # Version of ParallelCluster for Cloud9
+        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.8.0', type='String')
+
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
 
@@ -274,7 +277,7 @@ class PclusterStack(cdk.Stack):
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
                 'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
-                'Config': "".join( ['https://', pcluster_config_script.s3_bucket_name,  ".s3.amazonaws.com/", pcluster_config_script.s3_object_key ] ),
+                'Config': config,
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
@@ -284,7 +287,8 @@ class PclusterStack(cdk.Stack):
                 'S3ReadWriteUrl': 's3://%s' % ( data_bucket.bucket_name ),
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
-                'UserArn': user.user_arn
+                'UserArn': user.user_arn,
+                'PclusterVersion': pcluster_version.value_as_string
             }
         )
         c9_bootstrap_cr.node.add_dependency(instance_id)
