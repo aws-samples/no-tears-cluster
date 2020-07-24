@@ -110,8 +110,8 @@ pcluster list
 # Start the pcluster provisioning, but don't wait for it to complete.
 pcluster create -t hpc hpc-cluster -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
 if [ $? != 0 ]; then
-    c9project_tag=$(echo $C9_PROJECT | sed -e 's/^.*-//g')
-    pcluster create -t hpc hpc-cluster-${c9project_tag} -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
+    cloud9_environment=${cloud9_environment:-$(uuidgen)}
+    pcluster create -t hpc hpc-cluster-${cloud9_environment} -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
 fi
 
 echo "Finished" >> /tmp/BOOTSTRAP.WHOAMI
