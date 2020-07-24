@@ -36,15 +36,17 @@ def send_command(instance_id, commands):
 
 def wait_instance_ready(cloud9_environment, context):
     while True:
+        logger.debug("Cloud9_environment: {}".format(cloud9_environment))
         instance_info = ssm_client.describe_instance_information(Filters=[{
-            'Key': 'tag:aws:cloud9:environment', 'Values': [cloud9_environment]
-        },
-        {
-            'Key': 'PingStatus', 'Values': ['Online']
-        }
-        ])
+            'Key': 'tag:aws:cloud9:environment', 'Values': [ "{}".format(cloud9_environment)]
+        }])
+        logger.debug(instance_info)
         if instance_info.get('InstanceInformationList'):
-            return instance_info.get('InstanceInformationList')[0].get('InstanceId')
+            logger.debug("Got Instance Info")
+            logger.debug(instance_info.get('InstanceInformationList')[0].get('PingStatus'))
+            if instance_info.get('InstanceInformationList')[0].get('PingStatus') == 'Online':
+                logger.debug("Returning InstanceId")
+                return instance_info.get('InstanceInformationList')[0].get('InstanceId')
         if context.get_remaining_time_in_millis() < 20000:
             raise Exception("Timed out waiting for instance to be ready")
         sleep(15)

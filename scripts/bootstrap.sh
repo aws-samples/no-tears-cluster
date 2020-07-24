@@ -26,6 +26,7 @@ env >> /tmp/BOOTSTRAP.WHOAMI
 
 # Default to 2.8.0 if no value is provided
 pcluster_version=${pcluster_version:-2.8.0}
+notearshpc_version=${notearshpc_version:-0.1.0}
 
 #TODO:
 sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster==${pcluster_version} --upgrade
@@ -107,7 +108,11 @@ env >> /tmp/BOOTSTRAP.PCLUSTER
 pcluster list
 
 # Start the pcluster provisioning, but don't wait for it to complete.
-pcluster create -t hpc hpc-cluster -c ~/environment/config.ini --nowait -nr
+pcluster create -t hpc hpc-cluster -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
+if [ $? != 0 ]; then
+    c9project_tag=$(echo $C9_PROJECT | sed -e 's/^.*-//g')
+    pcluster create -t hpc hpc-cluster-${c9project_tag} -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
+fi
 
 echo "Finished" >> /tmp/BOOTSTRAP.WHOAMI
 echo "Finished"
