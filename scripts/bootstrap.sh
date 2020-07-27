@@ -26,6 +26,7 @@ env >> /tmp/BOOTSTRAP.WHOAMI
 
 # Default to 2.8.0 if no value is provided
 pcluster_version=${pcluster_version:-2.8.0}
+spack_version=${spack_version:-v0.15.2}
 notearshpc_version=${notearshpc_version:-0.1.0}
 
 sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster==${pcluster_version} --upgrade

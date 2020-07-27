@@ -20,7 +20,7 @@ import json
 from pcluster import __version__
 
 # Returns package version numbers available from pypi
-def get_version_list(package_name):
+def pypi_version_list(package_name):
     import json
     import requests
     from distutils.version import StrictVersion
@@ -30,13 +30,28 @@ def get_version_list(package_name):
     versions = data["releases"].keys()
     return list(versions)
 
+# Returns package version numbers available from GitHub
+def github_version_list(owner, repo):
+    import json
+    import requests
+    from distutils.version import StrictVersion
+
+    url = "https://api.github.com/repos/%s/%s/releases" % (owner, repo,)
+    data = requests.get(url).json()
+    if type(data) is not list:
+        return ['v0.15.2','v0.15.1','v0.15']
+    return [i['name'] for i in data if i['name'] ]
+
 class PclusterStack(cdk.Stack):
 
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         # Version of ParallelCluster for Cloud9.
-        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.8.0', type='String', allowed_values=get_version_list('aws-parallelcluster'))
+        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.8.0', type='String', allowed_values=pypi_version_list('aws-parallelcluster'))
+
+        # Version of ParallelCluster for Cloud9.
+        spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version.', default='v0.15.2', type='String', allowed_values=github_version_list('spack','spack'))
 
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
@@ -299,7 +314,8 @@ class PclusterStack(cdk.Stack):
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
                 'UserArn': user.user_arn,
-                'PclusterVersion': pcluster_version.value_as_string
+                'PclusterVersion': pcluster_version.value_as_string,
+                'SpackVersion': spack_version.value_as_string
             }
         )
         c9_bootstrap_cr.node.add_dependency(instance_id)

@@ -70,6 +70,7 @@ def create(event, context):
     user_arn = event['ResourceProperties']['UserArn']
     config = event['ResourceProperties']['Config']
     pcluster_version = event['ResourceProperties']['PclusterVersion']
+    spack_version = event['ResourceProperties']['SpackVersion']
 
     # grant s3 permissions
     grant_permissions_cloud9(cloud9_environment, user_arn)
@@ -89,6 +90,7 @@ def create(event, context):
                 + ' ssh_key_id=' + keypair_id
                 + ' config=' + config
                 + ' pcluster_version=' + pcluster_version
+                + ' spack_version=' + spack_version
                 + ' cloud9_environment=' + cloud9_environment
                 + ' bash bootstrap.sh']
     send_response = send_command(instance_id, command)
