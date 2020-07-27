@@ -28,9 +28,7 @@ env >> /tmp/BOOTSTRAP.WHOAMI
 pcluster_version=${pcluster_version:-2.8.0}
 notearshpc_version=${notearshpc_version:-0.1.0}
 
-#TODO:
 sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster==${pcluster_version} --upgrade
-#sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster --user
 
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | rev | cut -c 2- | rev)
 
