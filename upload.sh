@@ -7,16 +7,20 @@ set -e
 # Run this file to copy all required assets into $s3_bucket as well as ${s3_bucket}-${region}
 # for all regions and make cfn.yaml reference those assets.
 
+# Example execution:
+#
+#  sh upload.sh my-test-bucket-name
+
 # Output cfn.yaml : Can be used on a new clean account by a different user.
 
-s3_bucket=${1:-notearshpc-quickstart} #8192-stesachs #covid19hpc-bucket-stesachs #covid19hpc-quickstart-161153343288
+s3_bucket=${1:-notearshpc-quickstart}
+version=$( python setup.py --version )
 
 # Edit cfn.yaml to include correct bucket
 edit_cfn()
 {
     awk -v s3=${s3_bucket} '1;/Description: S3 bucket for asset/{ print "    Default: \"" s3 "\""}' cfn.yaml > cfn-changed.yaml
     mv cfn-changed.yaml cfn.yaml
-
 }
 
 upload()
@@ -28,7 +32,7 @@ upload()
     do
 	# DEBUG echo "${asset_id[$i]} ${asset_key[$i]}"
 	# Edit cfn.yaml to include correct keys
-	awk -v key=${asset_key[$i]}  '1;/Description: S3 key for asset version "'${asset_id[$i]}'"/{ print "    Default: \"" key "||\""}' cfn.yaml > cfn-changed.yaml
+	awk -v key=${version}/${asset_key[$i]}  '1;/Description: S3 key for asset version "'${asset_id[$i]}'"/{ print "    Default: \"" key "||\""}' cfn.yaml > cfn-changed.yaml
 	mv cfn-changed.yaml cfn.yaml
 
 	# Edit to point to correct region
@@ -40,7 +44,7 @@ upload()
 # Upload default AWS ParallelCluster config file
 upload_config()
 {
-	aws s3 cp --acl public-read scripts/config.ini s3://${s3_bucket}/config.ini
+	aws s3 cp --acl public-read scripts/config.ini s3://${s3_bucket}/${version}/config.ini
 }
 
 upload_cfn()
@@ -49,7 +53,7 @@ upload_cfn()
 	then
 	   aws s3 mb s3://${s3_bucket}
 	fi
- 	aws s3 cp --acl public-read cfn.yaml s3://${s3_bucket}/cfn.yaml
+ 	aws s3 cp --acl public-read cfn.yaml s3://${s3_bucket}/${version}/cfn.yaml
 }
 
 # Upload lambdas in every part of the world and make cfn.yaml aware of their locations
@@ -67,7 +71,7 @@ $(cat cfn.yaml)
 	then
 	   aws s3 mb s3://${s3_bucket}-${region} --region ${region}
 	fi
- 	aws s3 cp --acl public-read --recursive s3://${s3_bucket}/asset s3://${s3_bucket}-${region}/asset/
+ 	aws s3 cp --acl public-read --recursive s3://${s3_bucket}/${version}/asset s3://${s3_bucket}-${region}/${version}/asset/
 
 	echo "    ${region}:
       RegionBucket: ${s3_bucket}-${region}

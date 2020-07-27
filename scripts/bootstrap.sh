@@ -24,9 +24,11 @@ env >> /tmp/BOOTSTRAP.WHOAMI
 #export SSH_KEY_ID=${1:-default}
 #export PRIVATE_KEY_ARN=${2:-default}
 
-#TODO:
-sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster --upgrade
-#sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster --user
+# Default to 2.8.0 if no value is provided
+pcluster_version=${pcluster_version:-2.8.0}
+notearshpc_version=${notearshpc_version:-0.1.0}
+
+sudo pip-3.6 --disable-pip-version-check --no-cache-dir install aws-parallelcluster==${pcluster_version} --upgrade
 
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | rev | cut -c 2- | rev)
 
@@ -104,7 +106,11 @@ env >> /tmp/BOOTSTRAP.PCLUSTER
 pcluster list
 
 # Start the pcluster provisioning, but don't wait for it to complete.
-pcluster create -t hpc hpc-cluster -c ~/.parallelcluster/config --nowait -nr
+pcluster create -t hpc hpc-cluster -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
+if [ $? != 0 ]; then
+    cloud9_environment=${cloud9_environment:-$(uuidgen)}
+    pcluster create -t hpc hpc-cluster-${cloud9_environment} -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
+fi
 
 echo "Finished" >> /tmp/BOOTSTRAP.WHOAMI
 echo "Finished"

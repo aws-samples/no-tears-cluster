@@ -17,14 +17,29 @@ from aws_cdk import (
     region_info
 )
 import json
+from pcluster import __version__
+
+# Returns package version numbers available from pypi
+def get_version_list(package_name):
+    import json
+    import requests
+    from distutils.version import StrictVersion
+
+    url = "https://pypi.org/pypi/%s/json" % (package_name,)
+    data = requests.get(url).json()
+    versions = data["releases"].keys()
+    return list(versions)
 
 class PclusterStack(cdk.Stack):
 
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        # Version of ParallelCluster for Cloud9.
+        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.8.0', type='String', allowed_values=get_version_list('aws-parallelcluster'))
+
         # S3 URI for Config file
-        config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/config.ini')
+        config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
 
         # Password
         password = cdk.CfnParameter(self, 'UserPasswordParameter', description='Set a password for the hpc-quickstart user', no_echo=True)
@@ -71,13 +86,18 @@ class PclusterStack(cdk.Stack):
             path='scripts/post_install_script.sh'
         )
 
+        # Upload parallel cluster post_install_script to that bucket
+        pcluster_config_script = assets.Asset(self, 'PclusterConfigScript',
+            path='scripts/config.ini'
+        )
+
         # Setup CloudTrail
         cloudtrail.Trail(self, 'CloudTrail', bucket=cloudtrail_bucket)
 
         # Create a Cloud9 instance
         # Cloud9 doesn't have the ability to provide userdata
         # Because of this we need to use SSM run command
-        cloud9_instance = cloud9.Ec2Environment(self, 'Cloud9Env', ec2_environment_name='ResearchWorkspace', vpc=vpc, instance_type=ec2.InstanceType(instance_type_identifier='c5.large'))
+        cloud9_instance = cloud9.Ec2Environment(self, 'ResearchWorkspace', vpc=vpc, instance_type=ec2.InstanceType(instance_type_identifier='c5.large'))
         cdk.CfnOutput(self, 'Research Workspace URL',  value=cloud9_instance.ide_url)
 
 
@@ -159,6 +179,7 @@ class PclusterStack(cdk.Stack):
 
         bootstrap_script.grant_read(cloud9_role)
         pcluster_post_install_script.grant_read(cloud9_role)
+        pcluster_config_script.grant_read(cloud9_role)
 
         # Admin Group
         admin_group = iam.Group(self, 'AdminGroup')
@@ -277,7 +298,8 @@ class PclusterStack(cdk.Stack):
                 'S3ReadWriteUrl': 's3://%s' % ( data_bucket.bucket_name ),
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
-                'UserArn': user.user_arn
+                'UserArn': user.user_arn,
+                'PclusterVersion': pcluster_version.value_as_string
             }
         )
         c9_bootstrap_cr.node.add_dependency(instance_id)
@@ -285,6 +307,7 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
         c9_bootstrap_cr.node.add_dependency(data_bucket)
 
+        enable_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
         # Budgets
         budget_properties = {
             'budgetType': "COST",
@@ -330,3 +353,4 @@ class PclusterStack(cdk.Stack):
             budget=budget_properties,
             notifications_with_subscribers=[email],
         )
+        overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(enable_budget, "true"))

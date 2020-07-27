@@ -1,5 +1,5 @@
-boto3==1.9.230
-pyOpenSSL==19.0.0
+boto3==1.12.17
+pyOpenSSL==19.0.1
 brotli==1.0.7
 cryptography==2.8
 protobuf==3.10.0

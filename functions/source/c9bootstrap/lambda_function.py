@@ -35,16 +35,19 @@ def send_command(instance_id, commands):
         return
 
 def wait_instance_ready(cloud9_environment, context):
+    # Given a unique ID for a Cloud9 environment, this waits until
+    # the EC2 instance is instantiated (PingStatus 'Online'), and
+    # returns the InstanceId. Timeout of 20000 milliseconds.
+
     while True:
+        # Filters SSM Managed Instances to find only the matching cloud9 env
         instance_info = ssm_client.describe_instance_information(Filters=[{
-            'Key': 'Tag', 'Values': ['aws:cloud9:environment:%s' % cloud9_environment]
-        },
-        {
-            'Key': 'PingStatus', 'Values': ['Online']
-        }
-        ])
+            'Key': 'tag:aws:cloud9:environment', 'Values': [ "{}".format(cloud9_environment)]
+        }])
+        # if instance not found/not registered to SSM, instance_info is empty.
         if instance_info.get('InstanceInformationList'):
-            return instance_info.get('InstanceInformationList')[0].get('InstanceId')
+            if instance_info.get('InstanceInformationList')[0].get('PingStatus') == 'Online':
+                return instance_info.get('InstanceInformationList')[0].get('InstanceId')
         if context.get_remaining_time_in_millis() < 20000:
             raise Exception("Timed out waiting for instance to be ready")
         sleep(15)
@@ -66,6 +69,7 @@ def create(event, context):
     s3_read_write_url = event['ResourceProperties']['S3ReadWriteUrl']
     user_arn = event['ResourceProperties']['UserArn']
     config = event['ResourceProperties']['Config']
+    pcluster_version = event['ResourceProperties']['PclusterVersion']
 
     # grant s3 permissions
     grant_permissions_cloud9(cloud9_environment, user_arn)
@@ -84,6 +88,8 @@ def create(event, context):
                 + ' private_key_arn=' + keypair_secret_arn
                 + ' ssh_key_id=' + keypair_id
                 + ' config=' + config
+                + ' pcluster_version=' + pcluster_version
+                + ' cloud9_environment=' + cloud9_environment
                 + ' bash bootstrap.sh']
     send_response = send_command(instance_id, command)
     if send_response:
