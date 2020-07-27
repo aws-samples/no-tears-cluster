@@ -296,6 +296,7 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
         c9_bootstrap_cr.node.add_dependency(data_bucket)
 
+        enable_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
         # Budgets
         budget_properties = {
             'budgetType': "COST",
@@ -341,3 +342,4 @@ class PclusterStack(cdk.Stack):
             budget=budget_properties,
             notifications_with_subscribers=[email],
         )
+        overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(enable_budget, "true"))
