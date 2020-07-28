@@ -40,7 +40,7 @@ def github_version_list(owner, repo):
     data = requests.get(url).json()
     if type(data) is not list:
         return ['v0.15.2','v0.15.1','v0.15']
-    return [i['name'] for i in data if i['name'] ]
+    return [i['tag_name'] for i in data if i['name'] ]
 
 class PclusterStack(cdk.Stack):
 
