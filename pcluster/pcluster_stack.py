@@ -45,7 +45,7 @@ class PclusterStack(cdk.Stack):
         password = cdk.CfnParameter(self, 'UserPasswordParameter', description='Set a password for the hpc-quickstart user', no_echo=True)
 
         # create a VPC
-        vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/20',
+        vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/16',
                       gateway_endpoints={
                           "S3": ec2.GatewayVpcEndpointOptions(
                               service=ec2.GatewayVpcEndpointAwsService.S3
