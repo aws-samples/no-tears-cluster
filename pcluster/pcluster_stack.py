@@ -192,11 +192,23 @@ class PclusterStack(cdk.Stack):
         poweruser_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9Administrator'))
 
         # HPC User
-        user = iam.User(self, 'Researcher',
-                        password=cdk.SecretValue.cfn_parameter(password), password_reset_required=True)
-        user.add_to_group(group=admin_group)
-        cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]))
-        cdk.CfnOutput(self, 'UserName', value=user.user_name)
+        user = iam.CfnUser(self, 'Researcher',
+                           groups=[admin_group.node.default_child.ref],
+                           login_profile=iam.CfnUser.LoginProfileProperty(
+                                   password_reset_required=True,
+                                   password=cdk.SecretValue.cfn_parameter(password).to_string()
+                               )
+                           )
+
+        create_user = cdk.CfnParameter(self, "CreateUser", default="false", type="String", allowed_values=['true','false']).value_as_string
+        user.cfn_options.condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user, "true"))
+
+
+        output_user_loginurl = cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]))
+        output_user_loginurl.condition = cdk.CfnCondition(self, "OutputUserLoginUrlCondition", expression=cdk.Fn.condition_equals(create_user, "true"))
+        output_user = cdk.CfnOutput(self, 'UserName', value=user.ref, condition=cdk.CfnCondition(self, "OutputUserCondition", expression=cdk.Fn.condition_equals(create_user, "true")))
+
+
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
@@ -298,7 +310,7 @@ class PclusterStack(cdk.Stack):
                 'S3ReadWriteUrl': 's3://%s' % ( data_bucket.bucket_name ),
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
-                'UserArn': user.user_arn,
+                'UserArn': user.attr_arn,
                 'PclusterVersion': pcluster_version.value_as_string
             }
         )
@@ -354,3 +366,4 @@ class PclusterStack(cdk.Stack):
             notifications_with_subscribers=[email],
         )
         overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(enable_budget, "true"))
+
