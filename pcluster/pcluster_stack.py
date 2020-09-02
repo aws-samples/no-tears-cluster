@@ -204,8 +204,8 @@ class PclusterStack(cdk.Stack):
         user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user, "true"))
         user.cfn_options.condition = user_condition
 
-        output_user_loginurl = cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]), condition=user_condition)
-        output_user = cdk.CfnOutput(self, 'UserName', value=user.ref, condition=user_condition )
+        cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]), condition=user_condition)
+        cdk.CfnOutput(self, 'UserName', value=user.ref, condition=user_condition )
 
 
         # Cloud9 Setup IAM Role
