@@ -36,7 +36,7 @@ class PclusterStack(cdk.Stack):
         super().__init__(scope, id, **kwargs)
 
         # Version of ParallelCluster for Cloud9.
-        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.8.0', type='String', allowed_values=get_version_list('aws-parallelcluster'))
+        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.9.1', type='String', allowed_values=get_version_list('aws-parallelcluster'))
 
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
