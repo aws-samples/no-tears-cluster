@@ -331,7 +331,7 @@ AWS Parallel Cluster integrates the [SLURM](https://slurm.schedmd.com/documentat
 
 ## Customize Cluster
 
-When a cluster is bootstrapped, the config is pulled down from S3. To customize this cluster config, you can set the `ConfigS3URI` parameter. By default this is set to `s3://notearshpc-quickstart/config.ini`.
+When a cluster is bootstrapped, the config is pulled down from S3. To customize this cluster config, you can set the `ConfigS3URI` to your own config. By default this is set to `https://notearshpc-quickstart.s3.amazonaws.com/0.1.0/config.ini`.
 
 The cluster config takes the following parameters:
 
@@ -347,6 +347,8 @@ ${compute_subnet_id}
 ```
 
 These resources are created by the CloudFormation stack and can be used in the cluster config.
+
+The default one is: https://github.com/aws-samples/no-tears-cluster/blob/release/scripts/config.ini
 
 ## Cleanup
 
