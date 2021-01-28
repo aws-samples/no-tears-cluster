@@ -62,7 +62,7 @@ fi
 
 # Override with $2 if set, or use default paths
 spack_install_path=${2:-/shared/spack}
-spack_tag=${3:-releases/v0.13}
+spack_tag=${3:-releases/v0.16}
 accounting_log_path=${4:-/opt/slurm/log}
 accounting_log_file=${5:-sacct.log}
 

@@ -24,9 +24,9 @@ env >> /tmp/BOOTSTRAP.WHOAMI
 #export SSH_KEY_ID=${1:-default}
 #export PRIVATE_KEY_ARN=${2:-default}
 
-# Default to 2.8.0 if no value is provided
-pcluster_version=${pcluster_version:-2.8.0}
-notearshpc_version=${notearshpc_version:-0.1.0}
+# Default to 2.10.1 if no value is provided
+pcluster_version=${pcluster_version:-2.10.1}
+notearshpc_version=${notearshpc_version:-0.2.0}
 
 sudo pip-3.6 --disable-pip-version-check install aws-parallelcluster==${pcluster_version}
 
