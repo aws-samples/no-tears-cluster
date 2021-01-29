@@ -205,10 +205,15 @@ modules:
       - CMAKE_PREFIX_PATH
   tcl:
     verbose: True
-    hash_length: 0
-    naming_scheme: '{name}/{version}-{compiler.name}-{compiler.version}'
+    hash_length: 6
+    projections:
+      all: '{name}/{version}-{compiler.name}-{compiler.version}'
+      ^libfabric: '{name}/{version}-{^mpi.name}-{^mpi.version}-{^libfabric.name}-{^libfabric.version}-{compiler.name}-{compiler.version}'
+      ^mpi: '{name}/{version}-{^mpi.name}-{^mpi.version}-{compiler.name}-{compiler.version}'
     whitelist:
       - gcc
+    blacklist:
+      - slurm
     all:
       conflict:
         - '{name}'
@@ -220,6 +225,7 @@ modules:
       environment:
         set:
           '{name}_ROOT': '{prefix}'
+      autoload:  direct
     gcc:
       environment:
         set:
@@ -231,13 +237,13 @@ modules:
     openmpi:
       environment:
         set:
-          SLURM_MPI_TYPE: pmix
-    netlib-scalapack:
-      suffixes:
-        '^openmpi': openmpi
-        '^mpich': mpich
-    ^python:
-      autoload:  direct
+          SLURM_MPI_TYPE: "pmix"
+          OMPI_MCA_btl_tcp_if_exclude: "lo,docker0,virbr0"
+    miniconda3:
+      environment:
+        set:
+          CONDA_PKGS_DIRS: ~/.conda/pkgs
+          CONDA_ENVS_PATH: ~/.conda/envs
   lmod:
     hierarchy:
       - mpi
