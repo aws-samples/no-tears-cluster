@@ -103,54 +103,61 @@ case "${cfn_node_type}" in
         #NOTE: as of parallelcluster v2.8.0, SLURM is built with PMI3
         cat << EOF > ${spack_install_path}/etc/spack/packages.yaml
 packages:
-        openmpi:
-                modules:
-                        openmpi@${OPENMPI_VERSION} fabrics=auto +pmi schedulers=slurm: openmpi/${OPENMPI_VERSION}
-                buildable: True
-        intel-mpi:
-                modules:
-                        intel-mpi@${INTELMPI_VERSION}: intelmpi
-                buildable: True
-        slurm:
-                paths:
-                        slurm@${SLURM_VERSION} +pmix: /opt/slurm/
-                buildable: False
-        libfabric:
-                modules:
-                        libfabric@${LIBFABRIC_VERSION} fabrics=efa: ${LIBFABRIC_MODULE}
-                buildable: True
-        all:
-            compiler: [gcc, intel, pgi, clang, xl, nag, fj]
-            providers:
-                  D: [ldc]
-                  awk: [gawk]
-                  blas: [openblas]
-                  daal: [intel-daal]
-                  elf: [elfutils]
-                  fftw-api: [fftw]
-                  gl: [mesa+opengl, opengl]
-                  glx: [mesa+glx, opengl]
-                  glu: [mesa-glu, openglu]
-                  golang: [gcc]
-                  ipp: [intel-ipp]
-                  java: [openjdk, jdk, ibm-java]
-                  jpeg: [libjpeg-turbo, libjpeg]
-                  lapack: [openblas]
-                  mariadb-client: [mariadb-c-client, mariadb]
-                  mkl: [intel-mkl]
-                  mpe: [mpe2]
-                  mpi: [openmpi, intel-mpi, mpich]
-                  mysql-client: [mysql, mariadb-c-client]
-                  opencl: [pocl]
-                  pil: [py-pillow]
-                  pkgconfig: [pkgconf, pkg-config]
-                  scalapack: [netlib-scalapack]
-                  szip: [libszip, libaec]
-                  tbb: [intel-tbb]
-                  unwind: [libunwind]
-            permissions:
-                  read: world
-                  write: user
+  openmpi:
+    buildable: true
+    externals:
+    - spec: openmpi@${OPENMPI_VERSION}   fabrics=auto +pmi schedulers=slurm
+      modules:
+      - openmpi/${OPENMPI_VERSION}
+  intel-mpi:
+    buildable: true
+    externals:
+    - spec: intel-mpi@${INTELMPI_VERSION}
+      modules:
+      - intelmpi
+  slurm:
+    buildable: false
+    externals:
+    - spec: slurm@${SLURM_VERSION} +pmix
+      prefix: /opt/slurm/
+  libfabric:
+    buildable: true
+    externals:
+    - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa
+      modules:
+      - libfabric-aws/${LIBFABRIC_MODULE}
+  all:
+    compiler: [gcc, intel, pgi, clang, xl, nag, fj]
+    providers:
+      D: [ldc]
+      awk: [gawk]
+      blas: [openblas]
+      daal: [intel-daal]
+      elf: [elfutils]
+      fftw-api: [fftw]
+      gl: [mesa+opengl, opengl]
+      glx: [mesa+glx, opengl]
+      glu: [mesa-glu, openglu]
+      golang: [gcc]
+      ipp: [intel-ipp]
+      java: [openjdk, jdk, ibm-java]
+      jpeg: [libjpeg-turbo, libjpeg]
+      lapack: [openblas]
+      mariadb-client: [mariadb-c-client, mariadb]
+      mkl: [intel-mkl]
+      mpe: [mpe2]
+      mpi: [openmpi, intel-mpi, mpich]
+      mysql-client: [mysql, mariadb-c-client]
+      opencl: [pocl]
+      pil: [py-pillow]
+      pkgconfig: [pkgconf, pkg-config]
+      scalapack: [netlib-scalapack]
+      szip: [libszip, libaec]
+      tbb: [intel-tbb]
+      unwind: [libunwind]
+    permissions:
+      read: world
+      write: user
 EOF
 
     cat ${spack_install_path}/etc/spack/packages.yaml
