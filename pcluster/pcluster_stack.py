@@ -365,3 +365,5 @@ class PclusterStack(cdk.Stack):
         )
         overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(enable_budget, "true"))
 
+        # ParallelCluster requires users create this role to enable SpotFleet
+        iam.CfnServiceLinkedRole(self, 'SpotServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
