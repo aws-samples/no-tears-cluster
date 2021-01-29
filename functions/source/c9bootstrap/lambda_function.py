@@ -67,6 +67,7 @@ def create(event, context):
     post_install_script_bucket = event['ResourceProperties']['PostInstallScriptBucket']
     s3_read_write_resource = event['ResourceProperties']['S3ReadWriteResource']
     s3_read_write_url = event['ResourceProperties']['S3ReadWriteUrl']
+    fsx_id = event['ResourceProperties']['FsxID']
     user_arn = event['ResourceProperties']['UserArn']
     config = event['ResourceProperties']['Config']
     base_os_choice = event['ResourceProperties']['BaseOSChoice']
@@ -74,6 +75,10 @@ def create(event, context):
 
     # grant s3 permissions
     grant_permissions_cloud9(cloud9_environment, user_arn)
+
+    fsx_str = ''
+    if(fsx_id is not 'false'):
+        fsx_str = ' fsx_id=' + fsx_id
 
     command = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
                 'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
@@ -86,6 +91,7 @@ def create(event, context):
                 + ' post_install_script_bucket=' + post_install_script_bucket
                 + ' s3_read_write_resource=' + s3_read_write_resource
                 + ' s3_read_write_url=' + s3_read_write_url
+                + fsx_str
                 + ' private_key_arn=' + keypair_secret_arn
                 + ' ssh_key_id=' + keypair_id
                 + ' config=' + config

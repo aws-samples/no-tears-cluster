@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 
 from aws_cdk import (
+    aws_fsx as fsx,
     aws_s3 as s3,
     aws_s3_assets as assets,
     aws_cloud9 as cloud9,
@@ -75,6 +76,20 @@ class PclusterStack(cdk.Stack):
         cdk.CfnOutput(self, 'DataRespository',  value=data_bucket.bucket_name)
         cloudtrail_bucket = s3.Bucket(self, "CloudTrailLogs")
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
+
+        # throughput validation broken as of cdk v1.87.1
+        #lustre_performance = cdk.CfnParameter(self, 'FSxLustrePerformance', description='The amount of read and write throughput for each 1 tebibyte of storage, in MB/s/TiB.', default=100, min_value=50, max_value=200, type='Number')
+        fsx_lustre_filesystem = fsx.LustreFileSystem(self, 'FsxLustreFileSystem',
+                                                     lustre_configuration={
+                                                         'deployment_type': fsx.LustreDeploymentType.PERSISTENT_1,
+                                                         'import_path': 's3://%s' % ( data_bucket.bucket_name ),
+                                                         'export_path': 's3://%s' % ( data_bucket.bucket_name ),
+                                                         'per_unit_storage_throughput': 200
+                                                     },
+                                                     storage_capacity_gib=1200,
+                                                     vpc=vpc,
+                                                     vpc_subnet=vpc.private_subnets[0])
+
 
         # Upload Bootstrap Script to that bucket
         bootstrap_script = assets.Asset(self, 'BootstrapScript',
@@ -340,6 +355,7 @@ class PclusterStack(cdk.Stack):
                 'PostInstallScriptBucket': pcluster_post_install_script.s3_bucket_name,
                 'S3ReadWriteResource': data_bucket.bucket_arn,
                 'S3ReadWriteUrl': 's3://%s' % ( data_bucket.bucket_name ),
+                'FsxID': fsx_lustre_filesystem.ref,
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
                 'UserArn': user.attr_arn,
