@@ -138,35 +138,39 @@ class PclusterStack(cdk.Stack):
         # We do it programmatically so future versions of the synth'd stack
         # template include all regions.
         key_vals={
-            '<RESOURCES S3 BUCKET>': data_bucket.bucket_arn,
+            '<RESOURCES S3 BUCKET>': data_bucket.bucket_name,
             '<AWS ACCOUNT ID>': self.account,
             '<PARALLELCLUSTER EC2 ROLE NAME>': 'parallelcluster-*',
             '<REGION>': [r.name for r in region_info.RegionInfo.regions]
+            #'<REGION>': '*'
         }
+        parallelcluster_user_policy=[]
         with open('iam/ParallelClusterUserPolicy.json') as json_file:
             data = json.load(json_file)
-            for s in data['Statement']:
-                for key, val in key_vals.items():
+            for index, policy in enumerate(data):
+                for s in policy['PolicyDocument']['Statement']:
+                    #del s['Sid']
+                    for key, val in key_vals.items():
 
-                    def repl(mykey, myr, myval):
-                        if mykey in myr:
-                            if type(myval) is list:
-                                temp=[]
-                                for item in myval:
-                                    temp.append(myr.replace(mykey, item))
-                                return temp
+                        def repl(mykey, myr, myval):
+                            if mykey in myr:
+                                if type(myval) is list:
+                                    temp=[]
+                                    for item in myval:
+                                        temp.append(myr.replace(mykey, item))
+                                    return temp
+                                else:
+                                    return myr.replace(mykey, myval)
                             else:
-                                return myr.replace(mykey, myval)
+                                return myr
+
+                        if type(s['Resource']) is list:
+                            for r in s['Resource']:
+                                s['Resource'] = repl(key, r, val)
                         else:
-                            return myr
+                            s['Resource'] = repl(key, s['Resource'], val)
 
-                    if type(s['Resource']) is list:
-                        for r in s['Resource']:
-                            s['Resource'] = repl(key, r, val)
-                    else:
-                        s['Resource'] = repl(key, s['Resource'], val)
-
-            parallelcluster_user_policy = iam.CfnManagedPolicy(self, 'ParallelClusterUserPolicy', policy_document=iam.PolicyDocument.from_json(data))
+                parallelcluster_user_policy.append(iam.CfnManagedPolicy(self, policy['PolicyName'], policy_document=iam.PolicyDocument.from_json(policy['PolicyDocument'])))
 
         # ParallelCluster requires users create this role to enable SpotFleet
         spot_role = iam.CfnServiceLinkedRole(self, 'SpotFleetServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
@@ -176,7 +180,8 @@ class PclusterStack(cdk.Stack):
         cloud9_role = iam.Role(self, 'Cloud9Role', assumed_by=iam.ServicePrincipal('ec2.amazonaws.com'))
         cloud9_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AmazonSSMManagedInstanceCore'))
         cloud9_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9User'))
-        cloud9_role.add_managed_policy(iam.ManagedPolicy.from_managed_policy_arn(self, 'AttachParallelClusterUserPolicy', parallelcluster_user_policy.ref))
+        for i, p in enumerate(parallelcluster_user_policy):
+            cloud9_role.add_managed_policy(iam.ManagedPolicy.from_managed_policy_arn(self, 'AttachParallelClusterUserPolicy%d' % (i), p.ref))
         cloud9_role.add_to_policy(iam.PolicyStatement(
             resources=['*'],
             actions=[
@@ -237,7 +242,8 @@ class PclusterStack(cdk.Stack):
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
         cloud9_setup_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole'))
         # Allow pcluster to be run in bootstrap
-        cloud9_setup_role.add_managed_policy(iam.ManagedPolicy.from_managed_policy_arn(self, 'AttachParallelClusterUserPolicySetup', parallelcluster_user_policy.ref))
+        for i, p in enumerate(parallelcluster_user_policy):
+            cloud9_setup_role.add_managed_policy(iam.ManagedPolicy.from_managed_policy_arn(self, 'AttachParallelClusterUserPolicySetup%d' % (i), p.ref))
 
         # Add IAM permissions to the lambda role
         cloud9_setup_role.add_to_policy(iam.PolicyStatement(
