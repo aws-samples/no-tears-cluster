@@ -78,18 +78,19 @@ class PclusterStack(cdk.Stack):
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
 
         # throughput validation broken as of cdk v1.87.1
-        #lustre_performance = cdk.CfnParameter(self, 'FSxLustrePerformance', description='The amount of read and write throughput for each 1 tebibyte of storage, in MB/s/TiB.', default=100, min_value=50, max_value=200, type='Number')
-        fsx_lustre_filesystem = fsx.LustreFileSystem(self, 'FsxLustreFileSystem',
-                                                     lustre_configuration={
-                                                         'deployment_type': fsx.LustreDeploymentType.PERSISTENT_1,
-                                                         'import_path': 's3://%s' % ( data_bucket.bucket_name ),
-                                                         'export_path': 's3://%s' % ( data_bucket.bucket_name ),
-                                                         'per_unit_storage_throughput': 200
-                                                     },
-                                                     storage_capacity_gib=1200,
-                                                     vpc=vpc,
-                                                     vpc_subnet=vpc.private_subnets[0])
-        cdk.CfnOutput(self, 'FsxID',  value=fsx_lustre_filesystem.file_system_id)
+        lustre_performance = cdk.CfnParameter(self, 'FSxLustrePerformance', description='The amount of read and write throughput for each 1 tebibyte of storage, in MB/s/TiB.', default=100, allowed_values=['12','40','50','100','200'], type='Number')
+        lustre_storage_type = cdk.CfnParameter(self, 'FSxLustreStorageType', description='Sets the storage type for the file system you are creating. Valid values are SSD and HDD.', default='SSD', allowed_values=['SSD', 'HDD'])
+        lustre_drive_cache = cdk.CfnParameter(self, 'FSxLustreDriveCacheType', description='This parameter is required when storage type is HDD. Set to READ, improve the performance for frequently accessed files and allows 20% of the total storage capacity of the file system to be cached.', default='NONE', allowed_values=['NONE', 'READ'])
+        fsx_lustre_config = fsx.CfnFileSystem.LustreConfigurationProperty(
+            auto_import_policy = 'NEW_CHANGED',
+            deployment_type = 'PERSISTENT_1',
+            drive_cache_type = 'NONE',
+            export_path = 's3://%s' % ( data_bucket.bucket_name ),
+            import_path ='s3://%s' % ( data_bucket.bucket_name ),
+            per_unit_storage_throughput=lustre_performance.value_as_number,
+        )
+        fsx_lustre_filesystem = fsx.CfnFileSystem(self, 'FsxLustreFileSystem', file_system_type='LUSTRE', subnet_ids=[vpc.public_subnets[0].subnet_id], lustre_configuration=fsx_lustre_config, security_group_ids=None, storage_capacity=1200, storage_type=lustre_storage_type.value_as_string)
+        cdk.CfnOutput(self, 'FsxID',  value=fsx_lustre_filesystem.ref)
 
 
         # Upload Bootstrap Script to that bucket
@@ -156,7 +157,7 @@ class PclusterStack(cdk.Stack):
         key_vals={
             '<RESOURCES S3 BUCKET>': [data_bucket.bucket_name, 'parallelcluster-*'],
             '<AWS ACCOUNT ID>': self.account,
-            '<PARALLELCLUSTER EC2 ROLE NAME>': 'parallelcluster-*',
+            '<PARALLELCLUSTER EC2 ROLE NAME>': '*',
             '<REGION>': [r.name for r in region_info.RegionInfo.regions]
             #'<REGION>': '*'
         }
@@ -284,6 +285,8 @@ class PclusterStack(cdk.Stack):
                 'ssm:SendCommand',
                 'ssm:GetCommandInvocation',
                 's3:GetObject',
+                #'s3:CreateBucket',
+                #'iam:CreateRole',
                 'lambda:AddPermission',
                 'lambda:RemovePermission',
                 'events:PutRule',
@@ -296,7 +299,10 @@ class PclusterStack(cdk.Stack):
         ))
 
         cloud9_setup_role.add_to_policy(iam.PolicyStatement(
-            actions=['iam:PassRole'],
+            actions=[
+                'iam:PassRole',
+                'iam:CreateRole'
+            ],
             resources=[cloud9_role.role_arn]
         ))
 
@@ -356,7 +362,7 @@ class PclusterStack(cdk.Stack):
                 'PostInstallScriptBucket': pcluster_post_install_script.s3_bucket_name,
                 'S3ReadWriteResource': data_bucket.bucket_arn,
                 'S3ReadWriteUrl': 's3://%s' % ( data_bucket.bucket_name ),
-                'FsxID': fsx_lustre_filesystem.file_system_id,
+                'FsxID': fsx_lustre_filesystem.ref,
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
                 'UserArn': user.attr_arn,
@@ -369,6 +375,7 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(data_bucket)
         c9_bootstrap_cr.node.add_dependency(spot_role)
         c9_bootstrap_cr.node.add_dependency(spotfleet_role)
+        c9_bootstrap_cr.node.add_dependency(fsx_lustre_filesystem)
 
         enable_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
         # Budgets
