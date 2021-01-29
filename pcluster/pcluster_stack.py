@@ -42,7 +42,7 @@ class PclusterStack(cdk.Stack):
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
 
         # Password
-        password = cdk.CfnParameter(self, 'UserPasswordParameter', description='Set a password for the hpc-quickstart user', no_echo=True)
+        password = cdk.CfnParameter(self, 'UserPasswordParameter', default='Ch4ng3M3!', description='Set a password for the hpc-quickstart user (Default: \'Ch4ng3M3!\')', no_echo=True)
 
         # create a VPC
         vpc = ec2.Vpc(self, 'VPC', cidr='10.0.0.0/16',
