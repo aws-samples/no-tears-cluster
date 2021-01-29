@@ -154,7 +154,7 @@ class PclusterStack(cdk.Stack):
         # We do it programmatically so future versions of the synth'd stack
         # template include all regions.
         key_vals={
-            '<RESOURCES S3 BUCKET>': data_bucket.bucket_name,
+            '<RESOURCES S3 BUCKET>': [data_bucket.bucket_name, 'parallelcluster-*'],
             '<AWS ACCOUNT ID>': self.account,
             '<PARALLELCLUSTER EC2 ROLE NAME>': 'parallelcluster-*',
             '<REGION>': [r.name for r in region_info.RegionInfo.regions]
@@ -189,7 +189,7 @@ class PclusterStack(cdk.Stack):
                 parallelcluster_user_policy.append(iam.CfnManagedPolicy(self, policy['PolicyName'], policy_document=iam.PolicyDocument.from_json(policy['PolicyDocument'])))
 
         # ParallelCluster requires users create this role to enable SpotFleet
-        spot_role = iam.CfnServiceLinkedRole(self, 'SpotFleetServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
+        spotfleet_role = iam.CfnServiceLinkedRole(self, 'SpotFleetServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
         spot_role = iam.CfnServiceLinkedRole(self, 'SpotServiceLinkedRole', aws_service_name='spot.amazonaws.com')
 
         # Cloud9 IAM Role
@@ -368,6 +368,7 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
         c9_bootstrap_cr.node.add_dependency(data_bucket)
         c9_bootstrap_cr.node.add_dependency(spot_role)
+        c9_bootstrap_cr.node.add_dependency(spotfleet_role)
 
         enable_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
         # Budgets
