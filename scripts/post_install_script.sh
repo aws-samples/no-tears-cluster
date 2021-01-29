@@ -20,7 +20,7 @@ if [[ ! -z $YUM_CMD ]]; then
     wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -P /tmp
     yum install -y /tmp/epel-release-latest-7.noarch.rpm
 
-    yum install -y perl-Switch python3 links
+    yum install -y perl-Switch python3 pip3 links
     getent passwd ec2-user > /dev/null 2&>1
     if [ $? -eq 0 ]; then
         OSUSER=ec2-user
@@ -42,7 +42,7 @@ if [[ ! -z $YUM_CMD ]]; then
     fi
 elif [[ ! -z $APT_GET_CMD ]]; then
     apt-get update
-    apt-get install -y libswitch-perl python3 links
+    apt-get install -y libswitch-perl python3 python3-pip links
     OSUSER=ubuntu
     OSGROUP=ubuntu
 
@@ -59,6 +59,8 @@ else
     echo "error can't install package $PACKAGE"
     exit 1;
 fi
+
+pip3 install --upgrade aws-cli boto3
 
 # Override with $2 if set, or use default paths
 spack_install_path=${2:-/shared/spack}
@@ -175,7 +177,6 @@ EOF
 
     cat ${spack_install_path}/etc/spack/packages.yaml
 
-    # Modules.yaml from https://spack-tutorial.readthedocs.io/en/latest/tutorial_modules.html#modules-tutorial
 	cat << EOF > ${spack_install_path}/etc/spack/modules.yaml
 modules:
   enable:
@@ -250,13 +251,164 @@ modules:
 EOF
     cat ${spack_install_path}/etc/spack/modules.yaml
 
+	cat << EOF >> ${spack_install_path}/etc/spack/mirrors.yaml
+  mirrors: { "aws-optimized": "s3://spack-mirrors/amzn2-e4s" }
+EOF
+    cat ${spack_install_path}/etc/spack/mirrors.yaml
+
+    mkdir -p ${spack_install_path}/var/spack/environments/aws
+	cat << EOF > ${spack_install_path}/var/spack/environments/aws
+spack:
+  packages:
+    binutils:
+      variants: +gold+headers+libiberty~nls
+      version:
+        - 2.33.1
+    openfoam:
+      version:
+        - 2006
+    paraview:
+      variants: +qt+python3
+    qt:
+      variants: +opengl
+    ncurses:
+      variants: +termlib
+    sqlite:
+      variants: +column_metadata
+    hdf5:
+      variants: +hl
+    mesa:
+      # Will not work for graviton2; need a newer version of mesa for ARM
+      variants: swr=avx,avx2
+      version:
+        - 18.3.6
+    llvm:
+      version:
+        - 6.0.1
+    hwloc:
+      version:
+        - 1.11.11
+    munge:
+      # Refer to ParallelCluster global munge space
+      variants: localstatedir=/var
+    openmpi:
+      buildable: true
+      externals:
+      - spec: openmpi@${OPENMPI_VERSION}  fabrics=ofi +pmi +legacylaunchers schedulers=slurm
+        modules:
+        - openmpi/${OPENMPI_VERSION}
+    intel-mpi:
+      buildable: true
+      externals:
+      - spec: intel-mpi@${INTELMPI_VERSION}
+        modules:
+        - intelmpi
+    slurm:
+      buildable: false
+      externals:
+      - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
+        prefix: /opt/slurm/
+    libfabric:
+      buildable: true
+      externals:
+      - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
+        modules:
+        - libfabric-aws/${LIBFABRIC_MODULE}
+    mpich:
+      # For EFA (requires ch4)
+      variants: ~wrapperrpath pmi=pmi netmod=ofi device=ch4
+    all:
+      providers:
+        blas:
+        - openblas
+        mpi:
+        - openmpi
+        - mpich
+      variants: +mpi
+      permissions:
+        read: world
+        write: user
+
+  modules:
+    enable:
+      - tcl
+    prefix_inspections:
+      bin:
+        - PATH
+      man:
+        - MANPATH
+      share/man:
+        - MANPATH
+      share/aclocal:
+        - ACLOCAL_PATH
+      lib:
+        - LIBRARY_PATH
+      lib64:
+        - LIBRARY_PATH
+      include:
+        - CPATH
+      lib/pkgconfig:
+        - PKG_CONFIG_PATH
+      lib64/pkgconfig:
+        - PKG_CONFIG_PATH
+      share/pkgconfig:
+        - PKG_CONFIG_PATH
+      '':
+        - CMAKE_PREFIX_PATH
+    tcl:
+      verbose: True
+      hash_length: 6
+      projections:
+        all: '{name}/{version}-{compiler.name}-{compiler.version}'
+        ^libfabric: '{name}/{version}-{^mpi.name}-{^mpi.version}-{^libfabric.name}-{^libfabric.version}-{compiler.name}-{compiler.version}'
+        ^mpi: '{name}/{version}-{^mpi.name}-{^mpi.version}-{compiler.name}-{compiler.version}'
+      whitelist:
+        - gcc
+      blacklist:
+        - slurm
+      all:
+        conflict:
+          - '{name}'
+        suffixes:
+          '^openblas': openblas
+          '^netlib-lapack': netlib
+        filter:
+          environment_blacklist: ['CPATH', 'LIBRARY_PATH']
+        environment:
+          set:
+            '{name}_ROOT': '{prefix}'
+        autoload:  direct
+      gcc:
+        environment:
+          set:
+            CC: gcc
+            CXX: g++
+            FC: gfortran
+            F90: gfortran
+            F77: gfortran
+      openmpi:
+        environment:
+          set:
+            SLURM_MPI_TYPE: "pmix"
+            OMPI_MCA_btl_tcp_if_exclude: "lo,docker0,virbr0"
+      miniconda3:
+        environment:
+          set:
+            CONDA_PKGS_DIRS: ~/.conda/pkgs
+            CONDA_ENVS_PATH: ~/.conda/envs
+    lmod:
+      hierarchy:
+        - mpi
+
+  mirrors: { "mirror": "s3://spack-mirrors/amzn2-e4s" }
+EOF
+
     echo "OSUSER=${OSUSER}"
     echo "OSGROUP=${OSGROUP}"
 	chown -R ${OSUSER}:${OSGROUP} ${spack_install_path}
     chmod -R go+rwX ${spack_install_path}
 
     #. /etc/profile.d/spack.sh
-	su - ${OSUSER} -c ". /etc/profile && spack bootstrap"
     su - ${OSUSER} -c ". /etc/profile && spack install miniconda3"
     su - ${OSUSER} -c ". /etc/profile && module load miniconda3 && conda upgrade conda -y"
 
