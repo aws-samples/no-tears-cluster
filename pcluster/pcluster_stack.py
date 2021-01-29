@@ -169,7 +169,8 @@ class PclusterStack(cdk.Stack):
             parallelcluster_user_policy = iam.CfnManagedPolicy(self, 'ParallelClusterUserPolicy', policy_document=iam.PolicyDocument.from_json(data))
 
         # ParallelCluster requires users create this role to enable SpotFleet
-        spot_role = iam.CfnServiceLinkedRole(self, 'SpotServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
+        spot_role = iam.CfnServiceLinkedRole(self, 'SpotFleetServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
+        spot_role = iam.CfnServiceLinkedRole(self, 'SpotServiceLinkedRole', aws_service_name='spot.amazonaws.com')
 
         # Cloud9 IAM Role
         cloud9_role = iam.Role(self, 'Cloud9Role', assumed_by=iam.ServicePrincipal('ec2.amazonaws.com'))
