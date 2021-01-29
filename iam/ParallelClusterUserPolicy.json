@@ -2,7 +2,6 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "EC2Describe",
             "Action": [
                 "ec2:DescribeKeyPairs",
                 "ec2:DescribeRegions",
@@ -14,6 +13,7 @@
                 "ec2:DescribeInstances",
                 "ec2:DescribeInstanceStatus",
                 "ec2:DescribeInstanceTypes",
+                "ec2:DescribeInstanceTypeOfferings",
                 "ec2:DescribeSnapshots",
                 "ec2:DescribeVolumes",
                 "ec2:DescribeVpcAttribute",
@@ -22,11 +22,11 @@
                 "ec2:DescribeNetworkInterfaces",
                 "ec2:DescribeAvailabilityZones"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "EC2Describe"
         },
         {
-            "Sid": "NetworkingEasyConfig",
             "Action": [
                 "ec2:CreateVpc",
                 "ec2:ModifyVpcAttribute",
@@ -36,16 +36,17 @@
                 "ec2:CreateInternetGateway",
                 "ec2:AttachInternetGateway",
                 "ec2:DescribeRouteTables",
+                "ec2:CreateRoute",
                 "ec2:CreateRouteTable",
                 "ec2:AssociateRouteTable",
                 "ec2:CreateSubnet",
                 "ec2:ModifySubnetAttribute"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "NetworkingEasyConfig"
         },
         {
-            "Sid": "EC2Modify",
             "Action": [
                 "ec2:CreateVolume",
                 "ec2:RunInstances",
@@ -69,23 +70,24 @@
                 "ec2:CreatePlacementGroup",
                 "ec2:DeletePlacementGroup"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "EC2Modify"
         },
         {
-            "Sid": "AutoScalingDescribe",
             "Action": [
                 "autoscaling:DescribeAutoScalingGroups",
                 "autoscaling:DescribeAutoScalingInstances"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "AutoScalingDescribe"
         },
         {
-            "Sid": "AutoScalingModify",
             "Action": [
                 "autoscaling:CreateAutoScalingGroup",
                 "ec2:CreateLaunchTemplate",
+                "ec2:CreateLaunchTemplateVersion",
                 "ec2:ModifyLaunchTemplate",
                 "ec2:DeleteLaunchTemplate",
                 "ec2:DescribeLaunchTemplates",
@@ -99,67 +101,87 @@
                 "autoscaling:DisableMetricsCollection",
                 "autoscaling:EnableMetricsCollection"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "AutoScalingModify"
         },
         {
-            "Sid": "DynamoDBDescribe",
             "Action": [
-                "dynamodb:DescribeTable"
+                "dynamodb:DescribeTable",
+                "dynamodb:ListTagsOfResource"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "DynamoDBDescribe"
         },
         {
-            "Sid": "DynamoDBModify",
             "Action": [
-              "dynamodb:CreateTable",
-              "dynamodb:DeleteTable",
-              "dynamodb:TagResource"
+                "dynamodb:CreateTable",
+                "dynamodb:DeleteTable",
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:Query",
+                "dynamodb:TagResource"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "DynamoDBModify"
         },
         {
-            "Sid": "SQSDescribe",
+            "Action": [
+                "route53:ChangeResourceRecordSets",
+                "route53:ChangeTagsForResource",
+                "route53:CreateHostedZone",
+                "route53:DeleteHostedZone",
+                "route53:GetChange",
+                "route53:GetHostedZone",
+                "route53:ListResourceRecordSets",
+                "route53:ListQueryLoggingConfigs"
+            ],
+            "Resource": "*",
+            "Effect": "Allow",
+            "Sid": "Route53HostedZones"
+        },
+        {
             "Action": [
                 "sqs:GetQueueAttributes"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "SQSDescribe"
         },
         {
-            "Sid": "SQSModify",
             "Action": [
                 "sqs:CreateQueue",
                 "sqs:SetQueueAttributes",
                 "sqs:DeleteQueue",
                 "sqs:TagQueue"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "SQSModify"
         },
         {
-            "Sid": "SNSDescribe",
             "Action": [
-              "sns:ListTopics",
-              "sns:GetTopicAttributes"
+                "sns:ListTopics",
+                "sns:GetTopicAttributes"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "SNSDescribe"
         },
         {
-            "Sid": "SNSModify",
             "Action": [
                 "sns:CreateTopic",
                 "sns:Subscribe",
+                "sns:Unsubscribe",
                 "sns:DeleteTopic"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "SNSModify"
         },
         {
-            "Sid": "CloudFormationDescribe",
             "Action": [
                 "cloudformation:DescribeStackEvents",
                 "cloudformation:DescribeStackResource",
@@ -168,32 +190,54 @@
                 "cloudformation:ListStacks",
                 "cloudformation:GetTemplate"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "CloudFormationDescribe"
         },
         {
-            "Sid": "CloudFormationModify",
             "Action": [
                 "cloudformation:CreateStack",
                 "cloudformation:DeleteStack",
                 "cloudformation:UpdateStack"
             ],
             "Effect": "Allow",
-            "Resource": "*"
+            "Resource": "*",
+            "Sid": "CloudFormationModify"
         },
         {
-            "Sid": "S3ParallelClusterReadOnly",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<RESOURCES S3 BUCKET>"
+            ],
+            "Effect": "Allow",
+            "Sid": "S3ResourcesBucket"
+        },
+        {
             "Action": [
                 "s3:Get*",
                 "s3:List*"
             ],
-            "Effect": "Allow",
             "Resource": [
                 "arn:aws:s3:::<REGION>-aws-parallelcluster*"
-            ]
+            ],
+            "Effect": "Allow",
+            "Sid": "S3ParallelClusterReadOnly"
         },
         {
-            "Sid": "IAMModify",
+            "Action": [
+                "s3:DeleteBucket",
+                "s3:DeleteObject",
+                "s3:DeleteObjectVersion"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<RESOURCES S3 BUCKET>"
+            ],
+            "Effect": "Allow",
+            "Sid": "S3Delete"
+        },
+        {
             "Action": [
                 "iam:PassRole",
                 "iam:CreateRole",
@@ -203,23 +247,24 @@
                 "iam:TagRole",
                 "iam:SimulatePrincipalPolicy"
             ],
-            "Effect": "Allow",
             "Resource": [
-                "arn:aws:iam::*:role/*",
-                "arn:aws:iam::*:role/aws-service-role/*"
-            ]
+                "arn:aws:iam::<AWS ACCOUNT ID>:role/<PARALLELCLUSTER EC2 ROLE NAME>",
+                "arn:aws:iam::<AWS ACCOUNT ID>:role/parallelcluster-*",
+                "arn:aws:iam::<AWS ACCOUNT ID>:role/aws-service-role/*"
+            ],
+            "Effect": "Allow",
+            "Sid": "IAMModify"
         },
         {
-            "Sid": "IAMCreateInstanceProfile",
             "Action": [
                 "iam:CreateInstanceProfile",
                 "iam:DeleteInstanceProfile"
             ],
+            "Resource": "arn:aws:iam::<AWS ACCOUNT ID>:instance-profile/*",
             "Effect": "Allow",
-            "Resource": "arn:aws:iam::*:instance-profile/*"
+            "Sid": "IAMCreateInstanceProfile"
         },
         {
-            "Sid": "IAMInstanceProfile",
             "Action": [
                 "iam:AddRoleToInstanceProfile",
                 "iam:RemoveRoleFromInstanceProfile",
@@ -230,51 +275,80 @@
                 "iam:PutRolePolicy",
                 "iam:DeleteRolePolicy"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "IAMInstanceProfile"
         },
         {
-            "Sid": "EFSDescribe",
             "Action": [
                 "elasticfilesystem:DescribeMountTargets",
                 "elasticfilesystem:DescribeMountTargetSecurityGroups",
                 "ec2:DescribeNetworkInterfaceAttribute"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "EFSDescribe"
         },
         {
-            "Sid": "SSMDescribe",
             "Action": [
                 "ssm:GetParametersByPath"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "SSMDescribe"
         },
         {
-            "Sid": "FSx",
-            "Effect": "Allow",
             "Action": [
                 "fsx:*"
             ],
-            "Resource": "*"
+            "Resource": "*",
+            "Effect": "Allow",
+            "Sid": "FSx"
         },
         {
-            "Sid": "EFS",
-            "Effect": "Allow",
             "Action": [
                 "elasticfilesystem:*"
             ],
-            "Resource": "*"
+            "Resource": "*",
+            "Effect": "Allow",
+            "Sid": "EFS"
         },
         {
-            "Sid": "CloudWatchLogs",
-            "Effect": "Allow",
             "Action": [
                 "logs:DeleteLogGroup",
                 "logs:PutRetentionPolicy",
                 "logs:DescribeLogGroups",
                 "logs:CreateLogGroup"
+            ],
+            "Resource": "*",
+            "Effect": "Allow",
+            "Sid": "CloudWatchLogs"
+        },
+        {
+            "Action": [
+                "lambda:CreateFunction",
+                "lambda:DeleteFunction",
+                "lambda:GetFunctionConfiguration",
+                "lambda:GetFunction",
+                "lambda:InvokeFunction",
+                "lambda:AddPermission",
+                "lambda:RemovePermission"
+            ],
+            "Resource": [
+                "arn:aws:lambda:<REGION>:<AWS ACCOUNT ID>:function:parallelcluster-*",
+                "arn:aws:lambda:<REGION>:<AWS ACCOUNT ID>:function:pcluster-*"
+            ],
+            "Effect": "Allow",
+            "Sid": "Lambda"
+        },
+        {
+            "Sid": "CloudWatch",
+            "Effect": "Allow",
+            "Action": [
+              "cloudwatch:PutDashboard",
+              "cloudwatch:ListDashboards",
+              "cloudwatch:DeleteDashboards",
+              "cloudwatch:GetDashboard"
             ],
             "Resource": "*"
         }

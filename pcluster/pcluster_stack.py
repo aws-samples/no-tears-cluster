@@ -134,16 +134,37 @@ class PclusterStack(cdk.Stack):
              secret_string=c9_createkeypair_cr.get_att_string('PrivateKey')
         )
 
-        # The iam policy has a <REGION> parameter that needs to be replaced.
+        # The iam policy has parameters like <REGION> that need to be replaced.
         # We do it programmatically so future versions of the synth'd stack
         # template include all regions.
+        key_vals={
+            '<RESOURCES S3 BUCKET>': data_bucket.bucket_arn,
+            '<AWS ACCOUNT ID>': self.account,
+            '<PARALLELCLUSTER EC2 ROLE NAME>': 'parallelcluster-*',
+            '<REGION>': [r.name for r in region_info.RegionInfo.regions]
+        }
         with open('iam/ParallelClusterUserPolicy.json') as json_file:
             data = json.load(json_file)
             for s in data['Statement']:
-                if s['Sid'] == 'S3ParallelClusterReadOnly':
-                    s['Resource'] = []
-                    for r in region_info.RegionInfo.regions:
-                        s['Resource'].append('arn:aws:s3:::{0}-aws-parallelcluster*'.format(r.name))
+                for key, val in key_vals.items():
+
+                    def repl(mykey, myr, myval):
+                        if mykey in myr:
+                            if type(myval) is list:
+                                temp=[]
+                                for item in myval:
+                                    temp.append(myr.replace(mykey, item))
+                                return temp
+                            else:
+                                return myr.replace(mykey, myval)
+                        else:
+                            return myr
+
+                    if type(s['Resource']) is list:
+                        for r in s['Resource']:
+                            s['Resource'] = repl(key, r, val)
+                    else:
+                        s['Resource'] = repl(key, s['Resource'], val)
 
             parallelcluster_user_policy = iam.CfnManagedPolicy(self, 'ParallelClusterUserPolicy', policy_document=iam.PolicyDocument.from_json(data))
 
