@@ -103,10 +103,41 @@ case "${cfn_node_type}" in
         #NOTE: as of parallelcluster v2.8.0, SLURM is built with PMI3
         cat << EOF > ${spack_install_path}/etc/spack/packages.yaml
 packages:
+  binutils:
+    variants: +gold+headers+libiberty~nls
+    version:
+      - 2.33.1
+  openfoam:
+    version:
+      - 2006
+  paraview:
+    variants: +qt+python3
+  qt:
+    variants: +opengl
+  ncurses:
+    variants: +termlib
+  sqlite:
+    variants: +column_metadata
+  hdf5:
+    variants: +hl
+  mesa:
+    # Will not work for graviton2; need a newer version of mesa for ARM
+    variants: swr=avx,avx2
+    version:
+      - 18.3.6
+  llvm:
+    version:
+      - 6.0.1
+  hwloc:
+    version:
+      - 1.11.11
+  munge:
+    # Refer to ParallelCluster global munge space
+    variants: localstatedir=/var
   openmpi:
     buildable: true
     externals:
-    - spec: openmpi@${OPENMPI_VERSION}   fabrics=auto +pmi schedulers=slurm
+    - spec: openmpi@${OPENMPI_VERSION}  fabrics=ofi +pmi +legacylaunchers schedulers=slurm
       modules:
       - openmpi/${OPENMPI_VERSION}
   intel-mpi:
@@ -118,43 +149,25 @@ packages:
   slurm:
     buildable: false
     externals:
-    - spec: slurm@${SLURM_VERSION} +pmix
+    - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
       prefix: /opt/slurm/
   libfabric:
     buildable: true
     externals:
-    - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa
+    - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
       modules:
       - libfabric-aws/${LIBFABRIC_MODULE}
+  mpich:
+    # For EFA (requires ch4)
+    variants: ~wrapperrpath pmi=pmi netmod=ofi device=ch4
   all:
-    compiler: [gcc, intel, pgi, clang, xl, nag, fj]
     providers:
-      D: [ldc]
-      awk: [gawk]
-      blas: [openblas]
-      daal: [intel-daal]
-      elf: [elfutils]
-      fftw-api: [fftw]
-      gl: [mesa+opengl, opengl]
-      glx: [mesa+glx, opengl]
-      glu: [mesa-glu, openglu]
-      golang: [gcc]
-      ipp: [intel-ipp]
-      java: [openjdk, jdk, ibm-java]
-      jpeg: [libjpeg-turbo, libjpeg]
-      lapack: [openblas]
-      mariadb-client: [mariadb-c-client, mariadb]
-      mkl: [intel-mkl]
-      mpe: [mpe2]
-      mpi: [openmpi, intel-mpi, mpich]
-      mysql-client: [mysql, mariadb-c-client]
-      opencl: [pocl]
-      pil: [py-pillow]
-      pkgconfig: [pkgconf, pkg-config]
-      scalapack: [netlib-scalapack]
-      szip: [libszip, libaec]
-      tbb: [intel-tbb]
-      unwind: [libunwind]
+      blas:
+      - openblas
+      mpi:
+      - openmpi
+      - mpich
+    variants: +mpi
     permissions:
       read: world
       write: user

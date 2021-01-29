@@ -147,6 +147,9 @@ class PclusterStack(cdk.Stack):
 
             parallelcluster_user_policy = iam.CfnManagedPolicy(self, 'ParallelClusterUserPolicy', policy_document=iam.PolicyDocument.from_json(data))
 
+        # ParallelCluster requires users create this role to enable SpotFleet
+        spot_role = iam.CfnServiceLinkedRole(self, 'SpotServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
+
         # Cloud9 IAM Role
         cloud9_role = iam.Role(self, 'Cloud9Role', assumed_by=iam.ServicePrincipal('ec2.amazonaws.com'))
         cloud9_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AmazonSSMManagedInstanceCore'))
@@ -316,6 +319,7 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(c9_createkeypair_cr)
         c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
         c9_bootstrap_cr.node.add_dependency(data_bucket)
+        c9_bootstrap_cr.node.add_dependency(spot_role)
 
         enable_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
         # Budgets
@@ -364,6 +368,3 @@ class PclusterStack(cdk.Stack):
             notifications_with_subscribers=[email],
         )
         overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(enable_budget, "true"))
-
-        # ParallelCluster requires users create this role to enable SpotFleet
-        iam.CfnServiceLinkedRole(self, 'SpotServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
