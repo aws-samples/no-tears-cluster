@@ -69,6 +69,7 @@ def create(event, context):
     s3_read_write_url = event['ResourceProperties']['S3ReadWriteUrl']
     user_arn = event['ResourceProperties']['UserArn']
     config = event['ResourceProperties']['Config']
+    base_os_choice = event['ResourceProperties']['BaseOSChoice']
     pcluster_version = event['ResourceProperties']['PclusterVersion']
 
     # grant s3 permissions
@@ -88,6 +89,7 @@ def create(event, context):
                 + ' private_key_arn=' + keypair_secret_arn
                 + ' ssh_key_id=' + keypair_id
                 + ' config=' + config
+                + ' base_os_choice=' + base_os_choice
                 + ' pcluster_version=' + pcluster_version
                 + ' cloud9_environment=' + cloud9_environment
                 + ' bash bootstrap.sh']

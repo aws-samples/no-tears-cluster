@@ -237,6 +237,8 @@ class PclusterStack(cdk.Stack):
         cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]), condition=user_condition)
         cdk.CfnOutput(self, 'UserName', value=user.ref, condition=user_condition )
 
+        base_os_choice = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['ubuntu1804','alinux2']).value_as_string
+        cdk.CfnOutput(self, 'OS', value=base_os_choice)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
@@ -330,6 +332,7 @@ class PclusterStack(cdk.Stack):
                 'Cloud9Environment': cloud9_instance.environment_id,
                 'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
                 'Config': config,
+                'BaseOSChoice': base_os_choice,
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
