@@ -89,6 +89,7 @@ class PclusterStack(cdk.Stack):
                                                      storage_capacity_gib=1200,
                                                      vpc=vpc,
                                                      vpc_subnet=vpc.private_subnets[0])
+        cdk.CfnOutput(self, 'FsxID',  value=fsx_lustre_filesystem.file_system_id)
 
 
         # Upload Bootstrap Script to that bucket
@@ -355,7 +356,7 @@ class PclusterStack(cdk.Stack):
                 'PostInstallScriptBucket': pcluster_post_install_script.s3_bucket_name,
                 'S3ReadWriteResource': data_bucket.bucket_arn,
                 'S3ReadWriteUrl': 's3://%s' % ( data_bucket.bucket_name ),
-                'FsxID': fsx_lustre_filesystem.ref,
+                'FsxID': fsx_lustre_filesystem.file_system_id,
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
                 'UserArn': user.attr_arn,
