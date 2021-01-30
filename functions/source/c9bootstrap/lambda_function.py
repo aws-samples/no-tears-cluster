@@ -71,6 +71,7 @@ def create(event, context):
     user_arn = event['ResourceProperties']['UserArn']
     config = event['ResourceProperties']['Config']
     base_os_choice = event['ResourceProperties']['BaseOSChoice']
+    additional_sg = event['ResourceProperties']['AdditionalSG']
     pcluster_version = event['ResourceProperties']['PclusterVersion']
 
     # grant s3 permissions
@@ -91,6 +92,7 @@ def create(event, context):
                 + ' post_install_script_bucket=' + post_install_script_bucket
                 + ' s3_read_write_resource=' + s3_read_write_resource
                 + ' s3_read_write_url=' + s3_read_write_url
+                + ' additional_sg=' + additional_sg
                 + fsx_str
                 + ' private_key_arn=' + keypair_secret_arn
                 + ' ssh_key_id=' + keypair_id

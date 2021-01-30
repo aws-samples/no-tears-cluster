@@ -20,7 +20,7 @@ if [[ ! -z $YUM_CMD ]]; then
     wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -P /tmp
     yum install -y /tmp/epel-release-latest-7.noarch.rpm
 
-    yum install -y perl-Switch python3 pip3 links
+    yum install -y perl-Switch python3 python3-pip links
     getent passwd ec2-user > /dev/null 2&>1
     if [ $? -eq 0 ]; then
         OSUSER=ec2-user
@@ -60,7 +60,7 @@ else
     exit 1;
 fi
 
-pip3 install --upgrade aws-cli boto3
+pip3 install --upgrade awscli boto3
 
 # Override with $2 if set, or use default paths
 spack_install_path=${2:-/shared/spack}
@@ -257,7 +257,7 @@ EOF
     cat ${spack_install_path}/etc/spack/mirrors.yaml
 
     mkdir -p ${spack_install_path}/var/spack/environments/aws
-	cat << EOF > ${spack_install_path}/var/spack/environments/aws
+	cat << EOF > ${spack_install_path}/var/spack/environments/aws/spack.yaml
 spack:
   packages:
     binutils:
@@ -402,6 +402,7 @@ spack:
 
   mirrors: { "mirror": "s3://spack-mirrors/amzn2-e4s" }
 EOF
+	cat ${spack_install_path}/var/spack/environments/aws/spack.yaml
 
     echo "OSUSER=${OSUSER}"
     echo "OSGROUP=${OSGROUP}"
