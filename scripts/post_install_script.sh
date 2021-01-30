@@ -138,6 +138,7 @@ packages:
     variants: localstatedir=/var
   openmpi:
     buildable: true
+    variants: fabrics=ofi +pmi +legacylaunchers schedulers=slurm
     externals:
     - spec: openmpi@${OPENMPI_VERSION}  fabrics=ofi +pmi +legacylaunchers schedulers=slurm
       modules:
@@ -150,11 +151,13 @@ packages:
       - intelmpi
   slurm:
     buildable: false
+    variants: +pmix sysconfdir=/opt/slurm/etc
     externals:
     - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
       prefix: /opt/slurm/
   libfabric:
     buildable: true
+    variants: fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
     externals:
     - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
       modules:
@@ -293,6 +296,7 @@ spack:
       variants: localstatedir=/var
     openmpi:
       buildable: true
+      variants: fabrics=ofi +pmi +legacylaunchers schedulers=slurm
       externals:
       - spec: openmpi@${OPENMPI_VERSION}  fabrics=ofi +pmi +legacylaunchers schedulers=slurm
         modules:
@@ -305,11 +309,13 @@ spack:
         - intelmpi
     slurm:
       buildable: false
+      variants: +pmix sysconfdir=/opt/slurm/etc
       externals:
       - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
         prefix: /opt/slurm/
     libfabric:
       buildable: true
+      variants: fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
       externals:
       - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
         modules:
