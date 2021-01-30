@@ -103,7 +103,7 @@ class PclusterStack(cdk.Stack):
             per_unit_storage_throughput=lustre_performance.value_as_number,
         )
         fsx_lustre_filesystem = fsx.CfnFileSystem(self, 'FsxLustreFileSystem',
-                                                  file_system_type='LUSTRE', subnet_ids=[vpc.public_subnets[0].subnet_id],
+                                                  file_system_type='LUSTRE', subnet_ids=[vpc.private_subnets[0].subnet_id],
                                                   lustre_configuration=fsx_lustre_config, security_group_ids=[fsxlustre_sg.security_group_id, pcluster_sg.security_group_id],
                                                   storage_capacity=1200, storage_type=lustre_storage_type.value_as_string)
         cdk.CfnOutput(self, 'FsxID',  value=fsx_lustre_filesystem.ref)
