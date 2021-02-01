@@ -171,39 +171,64 @@ class PclusterStack(cdk.Stack):
         # We do it programmatically so future versions of the synth'd stack
         # template include all regions.
         key_vals={
-            '<RESOURCES S3 BUCKET>': [data_bucket.bucket_name, 'parallelcluster-*'],
             '<AWS ACCOUNT ID>': self.account,
-            '<PARALLELCLUSTER EC2 ROLE NAME>': '*',
-            '<REGION>': [r.name for r in region_info.RegionInfo.regions]
+            '<PARALLELCLUSTER EC2 ROLE NAME>': 'EVAN',
+            '<REGION>': [r.name for r in region_info.RegionInfo.regions],
+            '<RESOURCES S3 BUCKET>': [data_bucket.bucket_name, 'parallelcluster-*']
             #'<REGION>': '*'
         }
         parallelcluster_user_policy=[]
         with open('iam/ParallelClusterUserPolicy.json') as json_file:
             data = json.load(json_file)
+
+            # Inner def replaces strings and expands lists
+            # Inputs:
+            #   - mykey (str): key to search for
+            #   - myr (str): string to search within
+            #   - myval (str or list): replacement value to substitute for mykey
+            # Output:
+            #   - (list): a list containing either [string] (i.e., a list containing the string)
+            #           or [string1, string2, ...] (i.e., expanded list of strings)
+            def repl(mykey, myr, myval):
+                if mykey in myr:
+                    if type(myval) is list:
+                        # Replace with an expansion list
+                        #print('~~~~~~~in> %s' % (myr))
+                        temp=[]
+                        for item in myval:
+                            temp.append(myr.replace(mykey, item))
+                        #print('~~~~~~out> %s' % (temp))
+                        return temp
+                    else:
+                        # Replace with a str
+                        #print('-------in> %s' % (myr))
+                        myr = myr.replace(mykey, myval)
+                        #print('------out> %s' % (myr))
+                        return [myr]
+                else:
+                    # No replace
+                    return [myr]
+            # End def
+
             for index, policy in enumerate(data):
+                print(index)
                 for s in policy['PolicyDocument']['Statement']:
-                    #del s['Sid']
+                    # Force all resources to be lists
+                    if type(s['Resource']) is not list:
+                        s['Resource'] = [s['Resource']]
+                    # buffer resource to make multiple passes
+                    buf = s['Resource']
                     for key, val in key_vals.items():
-
-                        def repl(mykey, myr, myval):
-                            if mykey in myr:
-                                if type(myval) is list:
-                                    temp=[]
-                                    for item in myval:
-                                        temp.append(myr.replace(mykey, item))
-                                    return temp
-                                else:
-                                    return myr.replace(mykey, myval)
-                            else:
-                                return myr
-
-                        if type(s['Resource']) is list:
-                            for r in s['Resource']:
-                                s['Resource'] = repl(key, r, val)
-                        else:
-                            s['Resource'] = repl(key, s['Resource'], val)
+                        tbuf = []
+                        for r in buf:
+                            # extend flattens lists of expansion lists (e.g., if multiple keys appear in same resource)
+                            tbuf.extend(repl(key, r, val))
+                        buf = tbuf
+                    s['Resource'] = buf
 
                 parallelcluster_user_policy.append(iam.CfnManagedPolicy(self, policy['PolicyName'], policy_document=iam.PolicyDocument.from_json(policy['PolicyDocument'])))
+                with open('iam/out_%s.json' % (index), 'w') as json_out:
+                    json_out.write(json.dumps(policy['PolicyDocument'], indent=4))
 
         # ParallelCluster requires users create this role to enable SpotFleet
         spotfleet_role = iam.CfnServiceLinkedRole(self, 'SpotFleetServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
@@ -221,12 +246,6 @@ class PclusterStack(cdk.Stack):
                 'ec2:DescribeInstances',
                 'ec2:DescribeVolumes',
                 'ec2:ModifyVolume'
-            ]
-        ))
-        cloud9_role.add_to_policy(iam.PolicyStatement(
-            resources=['arn:aws:iam:::role/parallelcluster-*'],
-            actions=[
-                'iam:CreateRole'
             ]
         ))
         cloud9_role.add_to_policy(iam.PolicyStatement(
