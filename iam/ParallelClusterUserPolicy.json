@@ -334,7 +334,15 @@
                     "Resource": "*",
                     "Effect": "Allow",
                     "Sid": "CloudWatchLogs"
-                },
+                }
+            ]
+        }
+    },
+    {
+        "PolicyName": "ParallelClusterUserPolicy_3",
+        "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
                 {
                     "Action": [
                         "lambda:CreateFunction",
