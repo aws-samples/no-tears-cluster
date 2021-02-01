@@ -211,7 +211,6 @@ class PclusterStack(cdk.Stack):
             # End def
 
             for index, policy in enumerate(data):
-                print(index)
                 for s in policy['PolicyDocument']['Statement']:
                     # Force all resources to be lists
                     if type(s['Resource']) is not list:
