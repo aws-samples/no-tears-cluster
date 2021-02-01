@@ -175,7 +175,6 @@ class PclusterStack(cdk.Stack):
             '<PARALLELCLUSTER EC2 ROLE NAME>': 'EVAN',
             '<REGION>': [r.name for r in region_info.RegionInfo.regions],
             '<RESOURCES S3 BUCKET>': [data_bucket.bucket_name, 'parallelcluster-*']
-            #'<REGION>': '*'
         }
         parallelcluster_user_policy=[]
         with open('iam/ParallelClusterUserPolicy.json') as json_file:
@@ -465,3 +464,43 @@ class PclusterStack(cdk.Stack):
             notifications_with_subscribers=[email],
         )
         overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(enable_budget, "true"))
+
+
+        #  Connection related outputs. These outputs need to have prefix "MetaConnection"
+        #  The "connections" are derived based on the CFN outputs as follows.
+        #
+        #  CFN outputs with the OutputKey having format "MetaConnection<ConnectionAttrib>" or "MetaConnection<N><ConnectionAttrib>"
+        #  are used for extracting connection information.
+        #  - If the environment has only one connection then it can have outputs with "MetaConnection<ConnectionAttrib>" format.
+        #  - If it has multiple connections then it can have outputs with "MetaConnection<N><ConnectionAttrib>" format.
+        #  For example, MetaConnection1Name, MetaConnection2Name, etc.
+        #
+        #  The expected CFN output variables used for capturing connections related information are as follows:
+        #
+        #  - MetaConnectionName (or MetaConnection<N>Name) - Provides name for connection
+        #
+        #  - MetaConnectionUrl (or MetaConnection<N>Url) - Provides connection url, if available
+        #
+        #  - MetaConnectionScheme (or MetaConnection<N>Scheme) - Provides connection protocol information such as http, https, ssh, jdbc, odbc etc
+        #
+        #  - MetaConnectionType (or MetaConnection<N>Type) - Provides type of the connection such as "SageMaker", "EMR", "FOO", "BAR" etc
+        #
+        #  - MetaConnectionInfo (or MetaConnection<N>Info) - Provides extra information required to form connection url.
+        #  For example, in case of MetaConnectionType = SageMaker, the MetaConnectionInfo should provide SageMaker notebook
+        #  instance name that can be used to form pre-signed SageMaker URL.
+        #
+        #  - MetaConnectionInstanceId (or MetaConnection<N>InstanceId) - Provides AWS EC2 instanceId of the instance to connect to when applicable.
+        #  Currently this is applicable only when ConnectionScheme = 'ssh'.
+        #  This instanceId will be used for sending user's SSH public key using AWS EC2 Instance Connect when user wants to SSH to the instance.
+        #
+        cdk.CfnOutput(self, 'MetaConnection1Name',  description='Name for connection', value='Open Research Workspace (AWS Cloud9 IDE)')
+        cdk.CfnOutput(self, 'MetaConnection1Type',  description='Type of workspace', value='AWS Cloud9 IDE + AWS ParallelCluster')
+        cdk.CfnOutput(self, 'MetaConnection1InstanceId',  description='EC2 Linux Instance Id', value=cloud9_instance.environment_id)
+        cdk.CfnOutput(self, 'MetaConnection1Url',  description='URL for Cloud9 Workspace', value=cloud9_instance.ide_url )
+        cdk.CfnOutput(self, 'MetaConnection1Scheme',  description='Protocol for connection', value='https')
+
+        #cdk.CfnOutput(self, 'MetaConnection2Name',  description='Name for connection', value='SSH to Main EC2 instance')
+        #cdk.CfnOutput(self, 'MetaConnection2InstanceId',  description='EC2 Linux Instance Id', value=pcluster_node.ref )
+        #cdk.CfnOutput(self, 'MetaConnection2Scheme',  description='Protocol for connection', value='ssh')
+
+        #### END SWB #####

@@ -254,15 +254,25 @@ modules:
 EOF
     cat ${spack_install_path}/etc/spack/modules.yaml
 
-	cat << EOF >> ${spack_install_path}/etc/spack/mirrors.yaml
-  mirrors: { "aws-optimized": "s3://spack-mirrors/amzn2-e4s" }
-EOF
-    cat ${spack_install_path}/etc/spack/mirrors.yaml
+#	cat << EOF >> ${spack_install_path}/etc/spack/mirrors.yaml
+#  mirrors: { "aws-optimized": "s3://spack-mirrors/amzn2-e4s" }
+#EOF
+#    cat ${spack_install_path}/etc/spack/mirrors.yaml
 
     mkdir -p ${spack_install_path}/var/spack/environments/aws
 	cat << EOF > ${spack_install_path}/var/spack/environments/aws/spack.yaml
 spack:
+  mirrors: { "mirror": "s3://spack-mirrors/amzn2-e4s" }
+
   packages:
+    all:
+      providers:
+        blas:
+        - openblas
+        mpi:
+        - openmpi
+        - mpich
+      variants: +mpi
     binutils:
       variants: +gold+headers+libiberty~nls
       version:
@@ -289,51 +299,26 @@ spack:
       version:
         - 6.0.1
     hwloc:
-      version:
-        - 1.11.11
+      version: [2.4.0]
     munge:
       # Refer to ParallelCluster global munge space
       variants: localstatedir=/var
     openmpi:
-      buildable: true
       variants: fabrics=ofi +pmi +legacylaunchers schedulers=slurm
-      externals:
-      - spec: openmpi@${OPENMPI_VERSION}  fabrics=ofi +pmi +legacylaunchers schedulers=slurm
-        modules:
-        - openmpi/${OPENMPI_VERSION}
+      version: [4.1.0,4.0.3]
     intel-mpi:
-      buildable: true
-      externals:
-      - spec: intel-mpi@${INTELMPI_VERSION}
-        modules:
-        - intelmpi
+      version: [2020.2.254]
     slurm:
-      buildable: false
       variants: +pmix sysconfdir=/opt/slurm/etc
-      externals:
-      - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
-        prefix: /opt/slurm/
+      version: [20-02-4-1,19-05-5-1]
     libfabric:
-      buildable: true
       variants: fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
-      externals:
-      - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
-        modules:
-        - libfabric-aws/${LIBFABRIC_MODULE}
+      version: [1.11.1,1.9.1]
     mpich:
       # For EFA (requires ch4)
       variants: ~wrapperrpath pmi=pmi netmod=ofi device=ch4
-    all:
-      providers:
-        blas:
-        - openblas
-        mpi:
-        - openmpi
-        - mpich
-      variants: +mpi
-      permissions:
-        read: world
-        write: user
+    libevent:
+        version: [2.1.8]
 
   modules:
     enable:
@@ -405,8 +390,6 @@ spack:
     lmod:
       hierarchy:
         - mpi
-
-  mirrors: { "mirror": "s3://spack-mirrors/amzn2-e4s" }
 EOF
 	cat ${spack_install_path}/var/spack/environments/aws/spack.yaml
 
