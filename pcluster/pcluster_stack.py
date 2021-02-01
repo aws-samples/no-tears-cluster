@@ -224,6 +224,12 @@ class PclusterStack(cdk.Stack):
             ]
         ))
         cloud9_role.add_to_policy(iam.PolicyStatement(
+            resources=['arn:aws:iam:::role/parallelcluster-*'],
+            actions=[
+                'iam:CreateRole'
+            ]
+        ))
+        cloud9_role.add_to_policy(iam.PolicyStatement(
             resources=[c9_ssh_private_key_secret.ref],
             actions=[
                 'secretsmanager:GetSecretValue'
