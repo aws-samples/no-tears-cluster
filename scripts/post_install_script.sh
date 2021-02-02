@@ -139,12 +139,14 @@ packages:
   openmpi:
     buildable: true
     variants: fabrics=ofi +pmi +legacylaunchers schedulers=slurm
+    version: [4.1.0,4.0.3]
     externals:
     - spec: openmpi@${OPENMPI_VERSION}  fabrics=ofi +pmi +legacylaunchers schedulers=slurm
       modules:
       - openmpi/${OPENMPI_VERSION}
   intel-mpi:
     buildable: true
+    version: [2020.2.254]
     externals:
     - spec: intel-mpi@${INTELMPI_VERSION}
       modules:
@@ -152,12 +154,14 @@ packages:
   slurm:
     buildable: false
     variants: +pmix sysconfdir=/opt/slurm/etc
+    version: [20-02-4-1,19-05-5-1]
     externals:
     - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
       prefix: /opt/slurm/
   libfabric:
     buildable: true
     variants: fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
+    version: [1.11.1,1.9.1]
     externals:
     - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
       modules:
@@ -262,6 +266,9 @@ EOF
     mkdir -p ${spack_install_path}/var/spack/environments/aws
 	cat << EOF > ${spack_install_path}/var/spack/environments/aws/spack.yaml
 spack:
+  view: false
+  concretization: separately
+
   mirrors: { "mirror": "s3://spack-mirrors/amzn2-e4s" }
 
   packages:
