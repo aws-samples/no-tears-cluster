@@ -258,10 +258,10 @@ modules:
 EOF
     cat ${spack_install_path}/etc/spack/modules.yaml
 
-#	cat << EOF >> ${spack_install_path}/etc/spack/mirrors.yaml
-#  mirrors: { "aws-optimized": "s3://spack-mirrors/amzn2-e4s" }
-#EOF
-#    cat ${spack_install_path}/etc/spack/mirrors.yaml
+	cat << EOF >> ${spack_install_path}/etc/spack/mirrors.yaml
+mirrors: { "aws-optimized": "s3://spack-mirrors/amzn2-e4s" }
+EOF
+    cat ${spack_install_path}/etc/spack/mirrors.yaml
 
     mkdir -p ${spack_install_path}/var/spack/environments/aws
 	cat << EOF > ${spack_install_path}/var/spack/environments/aws/spack.yaml

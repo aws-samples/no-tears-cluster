@@ -286,7 +286,8 @@ class PclusterStack(cdk.Stack):
                                )
                            )
 
-        create_user = cdk.CfnParameter(self, "CreateUser", default="true", type="String", allowed_values=['true','false']).value_as_string
+        #create_user = cdk.CfnParameter(self, "CreateUser", default="true", type="String", allowed_values=['true','false']).value_as_string
+        create_user = "true"
         user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user, "true"))
         user.cfn_options.condition = user_condition
 
