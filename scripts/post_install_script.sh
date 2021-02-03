@@ -105,12 +105,24 @@ case "${cfn_node_type}" in
         #NOTE: as of parallelcluster v2.8.0, SLURM is built with PMI3
         cat << EOF > ${spack_install_path}/etc/spack/packages.yaml
 packages:
+  all:
+    providers:
+      blas:
+      - openblas
+      mpi:
+      - openmpi
+      - mpich
+    variants: +mpi
+    permissions:
+      read: world
+      write: user
   binutils:
     variants: +gold+headers+libiberty~nls
     version:
       - 2.33.1
   openfoam:
     version:
+      - 2012
       - 2006
   paraview:
     variants: +qt+python3
@@ -127,9 +139,9 @@ packages:
     variants: swr=avx,avx2
     version:
       - 18.3.6
-  llvm:
-    version:
-      - 6.0.1
+  #llvm:
+  #  version:
+  #    - 6.0.1
   hwloc:
     version:
       - 1.11.11
@@ -154,7 +166,7 @@ packages:
   slurm:
     buildable: true
     variants: +pmix sysconfdir=/opt/slurm/etc
-    version: [20-02-4-1,19-05-5-1]
+    version: [20-02-4-1]
     externals:
     - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
       prefix: /opt/slurm/
@@ -169,17 +181,10 @@ packages:
   mpich:
     # For EFA (requires ch4)
     variants: ~wrapperrpath pmi=pmi netmod=ofi device=ch4
-  all:
-    providers:
-      blas:
-      - openblas
-      mpi:
-      - openmpi
-      - mpich
-    variants: +mpi
-    permissions:
-      read: world
-      write: user
+  libevent:
+    version: [2.1.8]
+  openblas:
+    version: [0.3.10]
 EOF
 
     cat ${spack_install_path}/etc/spack/packages.yaml
@@ -302,9 +307,9 @@ spack:
       variants: swr=avx,avx2
       version:
         - 18.3.6
-    llvm:
-      version:
-        - 6.0.1
+    #llvm:
+    #  version:
+    #    - 6.0.1
     hwloc:
       version: [2.4.0]
     munge:
@@ -317,7 +322,7 @@ spack:
       version: [2020.2.254]
     slurm:
       variants: +pmix sysconfdir=/opt/slurm/etc
-      version: [20-02-4-1,19-05-5-1]
+      version: [20-02-4-1]
     libfabric:
       variants: fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
       version: [1.11.1,1.9.1]
@@ -325,7 +330,9 @@ spack:
       # For EFA (requires ch4)
       variants: ~wrapperrpath pmi=pmi netmod=ofi device=ch4
     libevent:
-        version: [2.1.8]
+      version: [2.1.8]
+    openblas:
+      version: [0.3.10]
 
   modules:
     enable:

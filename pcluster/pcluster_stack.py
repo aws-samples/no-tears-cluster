@@ -172,7 +172,7 @@ class PclusterStack(cdk.Stack):
         # template include all regions.
         key_vals={
             '<AWS ACCOUNT ID>': self.account,
-            '<PARALLELCLUSTER EC2 ROLE NAME>': 'EVAN',
+            '<PARALLELCLUSTER EC2 ROLE NAME>': 'parallecluster-*',
             '<REGION>': [r.name for r in region_info.RegionInfo.regions],
             '<RESOURCES S3 BUCKET>': [data_bucket.bucket_name, 'parallelcluster-*']
         }
