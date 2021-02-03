@@ -144,7 +144,7 @@ packages:
   #    - 6.0.1
   hwloc:
     version:
-      - 1.11.11
+      - 2.4.0
   munge:
     # Refer to ParallelCluster global munge space
     variants: localstatedir=/var
