@@ -152,32 +152,32 @@ packages:
     buildable: true
     variants: fabrics=ofi +pmi +legacylaunchers schedulers=slurm
     version: [4.1.0,4.0.3]
-    externals:
-    - spec: openmpi@${OPENMPI_VERSION}  fabrics=ofi +pmi +legacylaunchers schedulers=slurm
-      modules:
-      - openmpi/${OPENMPI_VERSION}
+#    externals:
+#    - spec: openmpi@${OPENMPI_VERSION}  fabrics=ofi +pmi +legacylaunchers schedulers=slurm
+#      modules:
+#      - openmpi/${OPENMPI_VERSION}
   intel-mpi:
     buildable: true
     version: [2020.2.254]
-    externals:
-    - spec: intel-mpi@${INTELMPI_VERSION}
-      modules:
-      - intelmpi
+#    externals:
+#    - spec: intel-mpi@${INTELMPI_VERSION}
+#      modules:
+#      - intelmpi
   slurm:
     buildable: true
     variants: +pmix sysconfdir=/opt/slurm/etc
     version: [20-02-4-1]
-    externals:
-    - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
-      prefix: /opt/slurm/
+#    externals:
+#    - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
+#      prefix: /opt/slurm/
   libfabric:
     buildable: true
     variants: fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
     version: [1.11.1,1.9.1]
-    externals:
-    - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
-      modules:
-      - libfabric-aws/${LIBFABRIC_MODULE}
+#    externals:
+#    - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
+#      modules:
+#      - libfabric-aws/${LIBFABRIC_MODULE}
   mpich:
     # For EFA (requires ch4)
     variants: ~wrapperrpath pmi=pmi netmod=ofi device=ch4
