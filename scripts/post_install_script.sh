@@ -152,7 +152,7 @@ packages:
       modules:
       - intelmpi
   slurm:
-    buildable: false
+    buildable: true
     variants: +pmix sysconfdir=/opt/slurm/etc
     version: [20-02-4-1,19-05-5-1]
     externals:
