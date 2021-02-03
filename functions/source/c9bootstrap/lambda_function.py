@@ -37,7 +37,7 @@ def send_command(instance_id, commands):
 def wait_instance_ready(cloud9_environment, context):
     # Given a unique ID for a Cloud9 environment, this waits until
     # the EC2 instance is instantiated (PingStatus 'Online'), and
-    # returns the InstanceId. Timeout of 20000 milliseconds.
+    # returns the InstanceId. Timeout of 880 milliseconds.
 
     while True:
         # Filters SSM Managed Instances to find only the matching cloud9 env
@@ -48,6 +48,7 @@ def wait_instance_ready(cloud9_environment, context):
         if instance_info.get('InstanceInformationList'):
             if instance_info.get('InstanceInformationList')[0].get('PingStatus') == 'Online':
                 return instance_info.get('InstanceInformationList')[0].get('InstanceId')
+        # Default context timeout: 900s. Timeout with 20s remaining
         if context.get_remaining_time_in_millis() < 20000:
             raise Exception("Timed out waiting for instance to be ready")
         sleep(15)
