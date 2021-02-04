@@ -413,6 +413,7 @@ EOF
     chmod -R go+rwX ${spack_install_path}
 
     #. /etc/profile.d/spack.sh
+    su - ${OSUSER} -c ". /etc/profile && curl -o /tmp/amzn2-e4s.pub https://s3.amazonaws.com/spack-mirrors/amzn2-e4s/build_cache/_pgp/7D344E2992071B0AAAE1EDB0E68DE2A80314303D.pub && spack gpg trust /tmp/amzn2-e4s.pub"
     su - ${OSUSER} -c ". /etc/profile && spack install miniconda3"
     su - ${OSUSER} -c ". /etc/profile && module load miniconda3 && conda upgrade conda -y"
 
