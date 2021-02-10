@@ -1,6 +1,6 @@
 boto3==1.9.230
 pyOpenSSL==19.0.0
 brotli==1.0.7
-cryptography==3.2
+cryptography==3.3.2
 protobuf==3.10.0
 simplejson==3.16.0
