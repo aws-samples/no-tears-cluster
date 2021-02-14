@@ -91,6 +91,7 @@ class PclusterStack(cdk.Stack):
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
 
         # throughput validation broken as of cdk v1.87.1
+        enable_lustre = cdk.CfnParameter(self, 'EnableFSxLustre', type="String", description='Enable/Disable FSx Lustre creation.', default='true', allowed_values=['true', 'false'])
         lustre_performance = cdk.CfnParameter(self, 'FSxLustrePerformance', description='The amount of read and write throughput for each 1 tebibyte of storage, in MB/s/TiB.', default=100, allowed_values=['12','40','50','100','200'], type='Number')
         lustre_storage_type = cdk.CfnParameter(self, 'FSxLustreStorageType', description='Sets the storage type for the file system you are creating. Valid values are SSD and HDD.', default='SSD', allowed_values=['SSD', 'HDD'])
         #lustre_drive_cache = cdk.CfnParameter(self, 'FSxLustreDriveCacheType', description='This parameter is required when storage type is HDD. Set to READ to enable SSD Drive Cache Tier and improve the performance for frequently accessed files and allows 20% of the total storage capacity of the file system to be cached. Leave field empty to disable, set to \'READ\' to enable.', allowed_values=[None,'READ'], default=None)
@@ -102,11 +103,11 @@ class PclusterStack(cdk.Stack):
             import_path ='s3://%s' % ( data_bucket.bucket_name ),
             per_unit_storage_throughput=lustre_performance.value_as_number,
         )
-        fsx_lustre_filesystem = fsx.CfnFileSystem(self, 'FsxLustreFileSystem',
+        fsx_lustre_filesystem = fsx.CfnFileSystem(self, 'FSxLustreFileSystem',
                                                   file_system_type='LUSTRE', subnet_ids=[vpc.private_subnets[0].subnet_id],
                                                   lustre_configuration=fsx_lustre_config, security_group_ids=[fsxlustre_sg.security_group_id, pcluster_sg.security_group_id],
                                                   storage_capacity=1200, storage_type=lustre_storage_type.value_as_string)
-        cdk.CfnOutput(self, 'FsxID',  value=fsx_lustre_filesystem.ref)
+        cdk.CfnOutput(self, 'FSxID',  value=fsx_lustre_filesystem.ref)
 
 
         # Upload Bootstrap Script to that bucket
@@ -286,16 +287,15 @@ class PclusterStack(cdk.Stack):
                                )
                            )
 
-        #create_user = cdk.CfnParameter(self, "CreateUser", default="true", type="String", allowed_values=['true','false']).value_as_string
-        create_user = "true"
-        user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user, "true"))
+        create_user = cdk.CfnParameter(self, "CreateUser", default="true", type="String", allowed_values=['true','false'])
+        user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user.value_as_string, "true"))
         user.cfn_options.condition = user_condition
 
         cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]), condition=user_condition)
         cdk.CfnOutput(self, 'UserName', value=user.ref, condition=user_condition )
 
-        base_os_choice = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['ubuntu1804','alinux2']).value_as_string
-        cdk.CfnOutput(self, 'OS', value=base_os_choice)
+        base_os = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['ubuntu1804','alinux2']).value_as_string
+        cdk.CfnOutput(self, 'OS', value=base_os)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
@@ -389,12 +389,15 @@ class PclusterStack(cdk.Stack):
 
         c9_bootstrap_provider = cr.Provider(self, "C9BootstrapProvider", on_event_handler=c9_bootstrap_lambda)
 
+        fsx_condition = cdk.CfnCondition(self, "FSxLustreCondition",
+                                         expression=cdk.Fn.condition_equals(enable_lustre, 'true'))
+
         c9_bootstrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider,
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
                 'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
                 'Config': config,
-                'BaseOSChoice': base_os_choice,
+                'BaseOS': base_os,
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
@@ -403,10 +406,10 @@ class PclusterStack(cdk.Stack):
                 'PostInstallScriptBucket': pcluster_post_install_script.s3_bucket_name,
                 'S3ReadWriteResource': data_bucket.bucket_arn,
                 'S3ReadWriteUrl': 's3://%s' % ( data_bucket.bucket_name ),
-                'FsxID': fsx_lustre_filesystem.ref,
+                'FSxID': cdk.Fn.condition_if(fsx_condition.logical_id, fsx_lustre_filesystem.ref, cdk.Aws.NO_VALUE),
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
-                'UserArn': user.attr_arn,
+                'UserArn': cdk.Fn.condition_if(user_condition.logical_id, user.ref, cdk.Aws.NO_VALUE),
                 'PclusterVersion': pcluster_version.value_as_string
             }
         )

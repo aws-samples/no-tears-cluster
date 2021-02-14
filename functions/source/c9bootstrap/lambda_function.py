@@ -37,7 +37,7 @@ def send_command(instance_id, commands):
 def wait_instance_ready(cloud9_environment, context):
     # Given a unique ID for a Cloud9 environment, this waits until
     # the EC2 instance is instantiated (PingStatus 'Online'), and
-    # returns the InstanceId. Timeout of 880 milliseconds.
+    # returns the InstanceId. Timeout of 880-900 seconds.
 
     while True:
         # Filters SSM Managed Instances to find only the matching cloud9 env
@@ -68,19 +68,17 @@ def create(event, context):
     post_install_script_bucket = event['ResourceProperties']['PostInstallScriptBucket']
     s3_read_write_resource = event['ResourceProperties']['S3ReadWriteResource']
     s3_read_write_url = event['ResourceProperties']['S3ReadWriteUrl']
-    fsx_id = event['ResourceProperties']['FsxID']
-    user_arn = event['ResourceProperties']['UserArn']
+    #fsx_id = event['ResourceProperties']['FSxID']
+    #user_arn = event['ResourceProperties']['UserArn']
     config = event['ResourceProperties']['Config']
-    base_os_choice = event['ResourceProperties']['BaseOSChoice']
+    base_os = event['ResourceProperties']['BaseOS']
     additional_sg = event['ResourceProperties']['AdditionalSG']
     pcluster_version = event['ResourceProperties']['PclusterVersion']
 
     # grant s3 permissions
-    grant_permissions_cloud9(cloud9_environment, user_arn)
+    grant_permissions_cloud9(cloud9_environment, user_arn) if 'UserArn' in event['ResourceProperties']
 
-    fsx_str = ''
-    if(fsx_id is not 'false'):
-        fsx_str = ' fsx_id=' + fsx_id
+    fsx_str = f" fsx_id={fsx_id}" if 'FSxID' in event['ResourceProperties'] else ''
 
     command = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
                 'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
@@ -98,7 +96,7 @@ def create(event, context):
                 + ' private_key_arn=' + keypair_secret_arn
                 + ' ssh_key_id=' + keypair_id
                 + ' config=' + config
-                + ' base_os_choice=' + base_os_choice
+                + ' base_os=' + base_os
                 + ' pcluster_version=' + pcluster_version
                 + ' cloud9_environment=' + cloud9_environment
                 + ' bash bootstrap.sh']
