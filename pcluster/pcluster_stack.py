@@ -49,10 +49,12 @@ class PclusterStack(cdk.Stack):
         # Version of ParallelCluster for Cloud9.
         pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.10.1', type='String', allowed_values=get_version_list('aws-parallelcluster'))
 
-        spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=get_git_version_list('spack','spack'))
-
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
+
+        spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=get_git_version_list('spack','spack'))
+
+        spack_packages = cdk.CfnParameter(self, 'SpackPackagesS3URI', description='Set a custom Spack packages YAML file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/spack/packages.yaml'.format(__version__))
 
         # Password
         password = cdk.CfnParameter(self, 'UserPasswordParameter', default='Ch4ng3M3!', description='Set a password for the hpc-quickstart user (Default: \'Ch4ng3M3!\')', no_echo=True)
@@ -137,6 +139,10 @@ class PclusterStack(cdk.Stack):
         # Upload parallel cluster post_install_script to that bucket
         pcluster_config_script = assets.Asset(self, 'PclusterConfigScript',
             path='scripts/config.ini'
+        )
+
+        spack_packages_yaml = assets.Asset(self, 'SpackPackageYAML',
+            path='scripts/spack/packages.yaml'
         )
 
         # Setup CloudTrail
@@ -281,6 +287,7 @@ class PclusterStack(cdk.Stack):
         bootstrap_script.grant_read(cloud9_role)
         pcluster_post_install_script.grant_read(cloud9_role)
         pcluster_config_script.grant_read(cloud9_role)
+        spack_packages_yaml.grant_read(cloud9_role)
 
         create_user = cdk.CfnParameter(self, "CreateUserAndGroups", default="false", type="String", allowed_values=['true','false'])
         user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user.value_as_string, "true"))
@@ -423,7 +430,8 @@ class PclusterStack(cdk.Stack):
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
                 'UserArn': cdk.Fn.condition_if(user_condition.logical_id, user.ref, cdk.Aws.NO_VALUE),
                 'PclusterVersion': pcluster_version.value_as_string,
-                'SpackVersion': spack_version.value_as_string
+                'SpackVersion': spack_version.value_as_string,
+                'SpackPackagesYAML': spack_packages
             }
         )
         c9_bootstrap_cr.node.add_dependency(instance_id)

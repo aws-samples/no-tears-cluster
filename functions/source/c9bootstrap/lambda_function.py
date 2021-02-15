@@ -75,6 +75,9 @@ def create(event, context):
     additional_sg = event['ResourceProperties']['AdditionalSG']
     pcluster_version = event['ResourceProperties']['PclusterVersion']
     spack_version = event['ResourceProperties']['SpackVersion']
+    spack_packages_yaml = event['ResourceProperties']['SpackPackagesYAML'] if 'SpackPackagesYAML' in event['ResourceProperties'] else ''
+    #spack_modules_yaml = event['ResourceProperties']['SpackModulesYAML'] if 'SpackModulesYAML' in event['ResourceProperties'] else ''
+    #spack_mirrors_yaml = event['ResourceProperties']['SpackMirrorsYAML'] if 'SpackMirrorsYAML' in event['ResourceProperties'] else ''
 
     # grant s3 permissions
     if 'UserArn' in event['ResourceProperties']:

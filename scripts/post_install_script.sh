@@ -103,91 +103,19 @@ case "${cfn_node_type}" in
         GCC_VERSION=$( gcc -v 2>&1 |tail -n 1| awk '{print $3}' )
 
         #NOTE: as of parallelcluster v2.8.0, SLURM is built with PMI3
-        cat << EOF > ${spack_install_path}/etc/spack/packages.yaml
-packages:
-  all:
-    providers:
-      blas:
-      - openblas
-      mpi:
-      - openmpi
-      - mpich
-    variants: +mpi
-    permissions:
-      read: world
-      write: user
-  binutils:
-    variants: +gold+headers+libiberty~nls
-    version:
-      - 2.33.1
-  openfoam:
-    version:
-      - 2012
-      - 2006
-  paraview:
-    variants: +qt+python3
-  qt:
-    variants: +opengl
-  ncurses:
-    variants: +termlib
-  sqlite:
-    variants: +column_metadata
-  hdf5:
-    variants: +hl
-  mesa:
-    # Will not work for graviton2; need a newer version of mesa for ARM
-    variants: swr=avx,avx2
-    version:
-      - 18.3.6
-  #llvm:
-  #  version:
-  #    - 6.0.1
-  hwloc:
-    version:
-      - 2.4.0
-  munge:
-    # Refer to ParallelCluster global munge space
-    variants: localstatedir=/var
-  openmpi:
-    buildable: true
-    variants: fabrics=ofi +pmi +legacylaunchers schedulers=slurm
-    version: [4.1.0,4.0.3]
-#    externals:
-#    - spec: openmpi@${OPENMPI_VERSION}  fabrics=ofi +pmi +legacylaunchers schedulers=slurm
-#      modules:
-#      - openmpi/${OPENMPI_VERSION}
-  intel-mpi:
-    buildable: true
-    version: [2020.2.254]
-#    externals:
-#    - spec: intel-mpi@${INTELMPI_VERSION}
-#      modules:
-#      - intelmpi
-  slurm:
-    buildable: true
-    variants: +pmix sysconfdir=/opt/slurm/etc
-    version: [20-02-4-1]
-#    externals:
-#    - spec: slurm@${SLURM_VERSION} +pmix sysconfdir=/opt/slurm/etc
-#      prefix: /opt/slurm/
-  libfabric:
-    buildable: true
-    variants: fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
-    version: [1.11.1,1.9.1]
-#    externals:
-#    - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
-#      modules:
-#      - libfabric-aws/${LIBFABRIC_MODULE}
-  mpich:
-    # For EFA (requires ch4)
-    variants: ~wrapperrpath pmi=pmi netmod=ofi device=ch4
-  libevent:
-    version: [2.1.8]
-  openblas:
-    version: [0.3.10]
-EOF
 
-    cat ${spack_install_path}/etc/spack/packages.yaml
+        echo "Pulling Config: ${spack_packages_yaml}"
+        case "${spack_packages_yaml}" in
+            s3://*)
+                aws s3 cp ${spack_packages_yaml} /tmp/packages.yaml --quiet;;
+            http://*|https://*)
+                wget ${config} -O /tmp/packages.yaml -o /tmp/debug_spack.wget;;
+            *)
+                echo "Unknown/Unsupported spack packages URI"
+                ;;
+        esac
+        envsubst < /tmp/packages.yaml > ${spack_install_path}/etc/spack/packages.yaml
+        cat ${spack_install_path}/etc/spack/packages.yaml
 
 	cat << EOF > ${spack_install_path}/etc/spack/modules.yaml
 modules:
