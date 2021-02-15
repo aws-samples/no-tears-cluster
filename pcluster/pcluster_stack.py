@@ -31,6 +31,16 @@ def get_version_list(package_name):
     versions = data["releases"].keys()
     return list(versions)
 
+def get_git_version_list(git_owner, package_name):
+    import json
+    import requests
+    from distutils.version import StrictVersion
+
+    url = "https://api.github.com/repos/%s/%s/tags" % (git_owner, package_name,)
+    data = requests.get(url).json()
+    versions = [v['name'] for v in data]
+    return list(versions)
+
 class PclusterStack(cdk.Stack):
 
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
@@ -38,6 +48,8 @@ class PclusterStack(cdk.Stack):
 
         # Version of ParallelCluster for Cloud9.
         pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.10.1', type='String', allowed_values=get_version_list('aws-parallelcluster'))
+
+        spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=get_git_version_list('spack','spack'))
 
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
@@ -330,8 +342,6 @@ class PclusterStack(cdk.Stack):
                 'ssm:SendCommand',
                 'ssm:GetCommandInvocation',
                 's3:GetObject',
-                #'s3:CreateBucket',
-                #'iam:CreateRole',
                 'lambda:AddPermission',
                 'lambda:RemovePermission',
                 'events:PutRule',
@@ -412,7 +422,8 @@ class PclusterStack(cdk.Stack):
                 'KeyPairId':  c9_createkeypair_cr.ref,
                 'KeyPairSecretArn': c9_ssh_private_key_secret.ref,
                 'UserArn': cdk.Fn.condition_if(user_condition.logical_id, user.ref, cdk.Aws.NO_VALUE),
-                'PclusterVersion': pcluster_version.value_as_string
+                'PclusterVersion': pcluster_version.value_as_string,
+                'SpackVersion': spack_version.value_as_string
             }
         )
         c9_bootstrap_cr.node.add_dependency(instance_id)

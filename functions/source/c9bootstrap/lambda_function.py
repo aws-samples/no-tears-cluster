@@ -74,6 +74,7 @@ def create(event, context):
     base_os = event['ResourceProperties']['BaseOS']
     additional_sg = event['ResourceProperties']['AdditionalSG']
     pcluster_version = event['ResourceProperties']['PclusterVersion']
+    spack_version = event['ResourceProperties']['SpackVersion']
 
     # grant s3 permissions
     if 'UserArn' in event['ResourceProperties']:
@@ -99,6 +100,7 @@ def create(event, context):
                 + ' config=' + config
                 + ' base_os=' + base_os
                 + ' pcluster_version=' + pcluster_version
+                + ' spack_version=' + spack_version
                 + ' cloud9_environment=' + cloud9_environment
                 + ' bash bootstrap.sh']
     send_response = send_command(instance_id, command)
