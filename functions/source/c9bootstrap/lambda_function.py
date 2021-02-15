@@ -79,7 +79,7 @@ def create(event, context):
     if 'UserArn' in event['ResourceProperties']:
         grant_permissions_cloud9(cloud9_environment, event['ResourceProperties']['UserArn'])
 
-    fsx_str = f" fsx_id={event['ResourceProperties']['FSxID']} enable_fsx_block=\'fsx_settings=fsx-mount\'" if 'FSxID' in event['ResourceProperties'] else 'fsx_id=NONE'
+    fsx_str = f" fsx_id={event['ResourceProperties']['FSxID']} enable_fsx_block=\'fsx_settings=fsx-mount\'" if 'FSxID' in event['ResourceProperties'] else ' fsx_id=NONE'
 
     command = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
                 'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
