@@ -65,8 +65,9 @@ pip3 install --upgrade awscli boto3
 # Override with $2 if set, or use default paths
 spack_install_path=${2:-/shared/spack}
 spack_tag=${3:-releases/v0.16}
-accounting_log_path=${4:-/opt/slurm/log}
-accounting_log_file=${5:-sacct.log}
+spack_config_uri=${4:-https://notearshpc-quickstart.s3.amazonaws.com/0.2.0/spack}
+accounting_log_path=${5:-/opt/slurm/log}
+accounting_log_file=${6:-sacct.log}
 
 env > /opt/user_data_env.txt
 
