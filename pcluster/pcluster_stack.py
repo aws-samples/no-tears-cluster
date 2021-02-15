@@ -75,11 +75,8 @@ class PclusterStack(cdk.Stack):
         fsx_condition = cdk.CfnCondition(self, "FSxLustreCondition", expression=cdk.Fn.condition_equals(create_lustre, 'true'))
 
         fsxlustre_sg = ec2.SecurityGroup(self, 'FSxLustreSecurityGroup', vpc=vpc, allow_all_outbound=True, description='Allow Cross Traffic from VPC to Lustre')
-        fsxlustre_sg.node.default_child.cfn_options.condition = fsx_condition
 
         pcluster_sg = ec2.SecurityGroup(self, 'PClusterSecurityGroupForLustre', vpc=vpc, allow_all_outbound=False, description='Allow Cross Traffic from VPC to Lustre')
-        pcluster_sg.node.default_child.cfn_options.condition = fsx_condition
-
         pcluster_sg.add_ingress_rule(pcluster_sg, ec2.Port.tcp(988), description='Allows Lustre traffic between Lustre clients')
         pcluster_sg.add_ingress_rule(fsxlustre_sg, ec2.Port.tcp(988), description='Allows Lustre traffic between Amazon FSx for Lustre file servers and Lustre clients')
         pcluster_sg.add_ingress_rule(pcluster_sg, ec2.Port.tcp_range(1021, 1023), description='Allows Lustre traffic between Amazon FSx for Lustre file servers')
