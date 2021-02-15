@@ -85,7 +85,7 @@ class PclusterStack(cdk.Stack):
 
         cdk.CfnOutput(self, 'VPCId',  value=vpc.vpc_id)
 
-        create_lustre = cdk.CfnParameter(self, 'EnableFSxLustre', type="String", description='Enable/Disable FSx Lustre creation.', default='false', allowed_values=['true', 'false'])
+        create_lustre = cdk.CfnParameter(self, 'EnableFSxLustre', type="String", description='Enable/Disable FSx Lustre creation.', default='true', allowed_values=['true', 'false'])
         fsx_condition = cdk.CfnCondition(self, "FSxLustreCondition", expression=cdk.Fn.condition_equals(create_lustre, 'true'))
 
         fsxlustre_sg = ec2.SecurityGroup(self, 'FSxLustreSecurityGroup', vpc=vpc, allow_all_outbound=True, description='Allow Cross Traffic from VPC to Lustre')
@@ -436,7 +436,7 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(spot_role)
         c9_bootstrap_cr.node.add_dependency(spotfleet_role)
 
-        enable_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
+        create_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
         # Budgets
         budget_properties = {
             'budgetType': "COST",
@@ -482,7 +482,7 @@ class PclusterStack(cdk.Stack):
             budget=budget_properties,
             notifications_with_subscribers=[email],
         )
-        overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(enable_budget, "true"))
+        overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(create_budget, "true"))
 
 
         #  Connection related outputs. These outputs need to have prefix "MetaConnection"
