@@ -90,18 +90,18 @@ case "${cfn_node_type}" in
 
         # Autodetect OPENMPI, INTELMPI, SLURM, LIBFABRIC and GCC versions to inform Spack of available packages.
         # e.g., OPENMPI_VERSION=4.0.3
-        OPENMPI_VERSION=$(. /etc/profile && module avail openmpi 2>&1 | grep openmpi | head -n 1 | cut -d / -f 2)
+        export OPENMPI_VERSION=$(. /etc/profile && module avail openmpi 2>&1 | grep openmpi | head -n 1 | cut -d / -f 2)
         # e.g., INTELMPI_VERSION=2019.7.166
-        INTELMPI_VERSION=$(. /etc/profile && module show intelmpi 2>&1 | grep I_MPI_ROOT | sed 's/[[:alpha:]|_|:|\/|(|[:space:]]//g' | awk -F- '{print $1}' )
+        export INTELMPI_VERSION=$(. /etc/profile && module show intelmpi 2>&1 | grep I_MPI_ROOT | sed 's/[[:alpha:]|_|:|\/|(|[:space:]]//g' | awk -F- '{print $1}' )
         # e.g., SLURM_VERSION=19.05.5
-        SLURM_VERSION=$(. /etc/profile && sinfo --version | cut -d' ' -f 2)
+        export SLURM_VERSION=$(. /etc/profile && sinfo --version | cut -d' ' -f 2)
         # e.g., LIBFABRIC_VERSION=1.10.0
         # e.g., LIBFABRIC_MODULE=1.10.0amzn1.1
-        LIBFABRIC_MODULE=$(. /etc/profile && module avail libfabric 2>&1 | grep libfabric | head -n 1 )
-        LIBFABRIC_MODULE_VERSION=$(. /etc/profile && module avail libfabric 2>&1 | grep libfabric | head -n 1 |  cut -d / -f 2 )
-        LIBFABRIC_VERSION=${LIBFABRIC_MODULE_VERSION//amzn*}
+        export LIBFABRIC_MODULE=$(. /etc/profile && module avail libfabric 2>&1 | grep libfabric | head -n 1 )
+        export LIBFABRIC_MODULE_VERSION=$(. /etc/profile && module avail libfabric 2>&1 | grep libfabric | head -n 1 |  cut -d / -f 2 )
+        export LIBFABRIC_VERSION=${LIBFABRIC_MODULE_VERSION//amzn*}
         # e.g., GCC_VERSION=7.3.5
-        GCC_VERSION=$( gcc -v 2>&1 |tail -n 1| awk '{print $3}' )
+        export GCC_VERSION=$( gcc -v 2>&1 |tail -n 1| awk '{print $3}' )
 
         #NOTE: as of parallelcluster v2.8.0, SLURM is built with PMI3
 
