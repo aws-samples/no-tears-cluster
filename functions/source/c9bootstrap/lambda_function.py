@@ -75,9 +75,7 @@ def create(event, context):
     additional_sg = event['ResourceProperties']['AdditionalSG']
     pcluster_version = event['ResourceProperties']['PclusterVersion']
     spack_version = event['ResourceProperties']['SpackVersion']
-    spack_packages_yaml = event['ResourceProperties']['SpackPackagesYAML'] if 'SpackPackagesYAML' in event['ResourceProperties'] else ''
-    #spack_modules_yaml = event['ResourceProperties']['SpackModulesYAML'] if 'SpackModulesYAML' in event['ResourceProperties'] else ''
-    #spack_mirrors_yaml = event['ResourceProperties']['SpackMirrorsYAML'] if 'SpackMirrorsYAML' in event['ResourceProperties'] else ''
+    spack_config_uri = event['ResourceProperties']['SpackConfigURI'] if 'SpackConfigURI' in event['ResourceProperties'] else ''
 
     # grant s3 permissions
     if 'UserArn' in event['ResourceProperties']:
@@ -104,6 +102,7 @@ def create(event, context):
                 + ' base_os=' + base_os
                 + ' pcluster_version=' + pcluster_version
                 + ' spack_version=' + spack_version
+                + ' spack_config_uri=' + spack_version
                 + ' cloud9_environment=' + cloud9_environment
                 + ' bash bootstrap.sh']
     send_response = send_command(instance_id, command)

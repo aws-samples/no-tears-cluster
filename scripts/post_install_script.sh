@@ -104,12 +104,16 @@ case "${cfn_node_type}" in
 
         #NOTE: as of parallelcluster v2.8.0, SLURM is built with PMI3
 
-        echo "Pulling Config: ${spack_packages_yaml}"
-        case "${spack_packages_yaml}" in
+        echo "Pulling Config: ${spack_config_uri}"
+        case "${spack_config_uri}" in
             s3://*)
-                aws s3 cp ${spack_packages_yaml} /tmp/packages.yaml --quiet;;
+                aws s3 cp ${spack_config_uri}/packages.yaml /tmp/packages.yaml --quiet;
+                aws s3 cp ${spack_config_uri}/modules.yaml /tmp/modules.yaml --quiet;
+                aws s3 cp ${spack_config_uri}/mirrors.yaml /tmp/mirrors.yaml --quiet;;
             http://*|https://*)
-                wget ${config} -O /tmp/packages.yaml -o /tmp/debug_spack.wget;;
+                wget ${spack_config_uri} -O /tmp/packages.yaml -o /tmp/debug_spack.wget;
+                wget ${spack_config_uri} -O /tmp/modules.yaml -a /tmp/debug_spack.wget;
+                wget ${spack_config_uri} -O /tmp/mirrors.yaml -a /tmp/debug_spack.wget;;
             *)
                 echo "Unknown/Unsupported spack packages URI"
                 ;;
@@ -117,85 +121,11 @@ case "${cfn_node_type}" in
         envsubst < /tmp/packages.yaml > ${spack_install_path}/etc/spack/packages.yaml
         cat ${spack_install_path}/etc/spack/packages.yaml
 
-	cat << EOF > ${spack_install_path}/etc/spack/modules.yaml
-modules:
-  enable:
-    - tcl
-  prefix_inspections:
-    bin:
-      - PATH
-    man:
-      - MANPATH
-    share/man:
-      - MANPATH
-    share/aclocal:
-      - ACLOCAL_PATH
-    lib:
-      - LIBRARY_PATH
-    lib64:
-      - LIBRARY_PATH
-    include:
-      - CPATH
-    lib/pkgconfig:
-      - PKG_CONFIG_PATH
-    lib64/pkgconfig:
-      - PKG_CONFIG_PATH
-    share/pkgconfig:
-      - PKG_CONFIG_PATH
-    '':
-      - CMAKE_PREFIX_PATH
-  tcl:
-    verbose: True
-    hash_length: 6
-    projections:
-      all: '{name}/{version}-{compiler.name}-{compiler.version}'
-      ^libfabric: '{name}/{version}-{^mpi.name}-{^mpi.version}-{^libfabric.name}-{^libfabric.version}-{compiler.name}-{compiler.version}'
-      ^mpi: '{name}/{version}-{^mpi.name}-{^mpi.version}-{compiler.name}-{compiler.version}'
-    whitelist:
-      - gcc
-    blacklist:
-      - slurm
-    all:
-      conflict:
-        - '{name}'
-      suffixes:
-        '^openblas': openblas
-        '^netlib-lapack': netlib
-      filter:
-        environment_blacklist: ['CPATH', 'LIBRARY_PATH']
-      environment:
-        set:
-          '{name}_ROOT': '{prefix}'
-      autoload:  direct
-    gcc:
-      environment:
-        set:
-          CC: gcc
-          CXX: g++
-          FC: gfortran
-          F90: gfortran
-          F77: gfortran
-    openmpi:
-      environment:
-        set:
-          SLURM_MPI_TYPE: "pmix"
-          OMPI_MCA_btl_tcp_if_exclude: "lo,docker0,virbr0"
-    miniconda3:
-      environment:
-        set:
-          CONDA_PKGS_DIRS: ~/.conda/pkgs
-          CONDA_ENVS_PATH: ~/.conda/envs
-  lmod:
-    hierarchy:
-      - mpi
-EOF
-    cat ${spack_install_path}/etc/spack/modules.yaml
+        envsubst < /tmp/modules.yaml > ${spack_install_path}/etc/spack/modules.yaml
+        cat ${spack_install_path}/etc/spack/modules.yaml
 
-    # Activates the Binary Cache
-	cat << EOF >> ${spack_install_path}/etc/spack/mirrors.yaml
-mirrors: { "aws-optimized": "s3://spack-mirrors/amzn2-e4s" }
-EOF
-    cat ${spack_install_path}/etc/spack/mirrors.yaml
+        envsubst < /tmp/mirrors.yaml > ${spack_install_path}/etc/spack/mirrors.yaml
+        cat ${spack_install_path}/etc/spack/mirrors.yaml
 
     echo "OSUSER=${OSUSER}"
     echo "OSGROUP=${OSGROUP}"

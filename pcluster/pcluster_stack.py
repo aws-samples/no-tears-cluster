@@ -54,7 +54,7 @@ class PclusterStack(cdk.Stack):
 
         spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=get_git_version_list('spack','spack'))
 
-        spack_packages = cdk.CfnParameter(self, 'SpackPackagesS3URI', description='Set a custom Spack packages YAML file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/spack/packages.yaml'.format(__version__))
+        spack_config_uri = cdk.CfnParameter(self, 'SpackConfigS3URI', description='Set a custom Spack Config (i.e. S3URI or HTTPSURL to prefix containing packages.yaml, modules.yaml, mirrors.yaml, etc.). Do not include trailing \'/\' on URI.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/spack'.format(__version__))
 
         # Password
         password = cdk.CfnParameter(self, 'UserPasswordParameter', default='Ch4ng3M3!', description='Set a password for the hpc-quickstart user (Default: \'Ch4ng3M3!\')', no_echo=True)
@@ -139,10 +139,6 @@ class PclusterStack(cdk.Stack):
         # Upload parallel cluster post_install_script to that bucket
         pcluster_config_script = assets.Asset(self, 'PclusterConfigScript',
             path='scripts/config.ini'
-        )
-
-        spack_packages_yaml = assets.Asset(self, 'SpackPackageYAML',
-            path='scripts/spack/packages.yaml'
         )
 
         # Setup CloudTrail
@@ -287,7 +283,6 @@ class PclusterStack(cdk.Stack):
         bootstrap_script.grant_read(cloud9_role)
         pcluster_post_install_script.grant_read(cloud9_role)
         pcluster_config_script.grant_read(cloud9_role)
-        spack_packages_yaml.grant_read(cloud9_role)
 
         create_user = cdk.CfnParameter(self, "CreateUserAndGroups", default="false", type="String", allowed_values=['true','false'])
         user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user.value_as_string, "true"))
@@ -431,7 +426,7 @@ class PclusterStack(cdk.Stack):
                 'UserArn': cdk.Fn.condition_if(user_condition.logical_id, user.ref, cdk.Aws.NO_VALUE),
                 'PclusterVersion': pcluster_version.value_as_string,
                 'SpackVersion': spack_version.value_as_string,
-                'SpackPackagesYAML': spack_packages
+                'SpackConfigURI': spack_config_uri,
             }
         )
         c9_bootstrap_cr.node.add_dependency(instance_id)
