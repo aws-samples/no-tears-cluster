@@ -102,7 +102,7 @@ def create(event, context):
                 + ' base_os=' + base_os
                 + ' pcluster_version=' + pcluster_version
                 + ' spack_version=' + spack_version
-                + ' spack_config_uri=' + spack_version
+                + ' spack_config_uri=' + spack_config_uri
                 + ' cloud9_environment=' + cloud9_environment
                 + ' bash bootstrap.sh']
     send_response = send_command(instance_id, command)
