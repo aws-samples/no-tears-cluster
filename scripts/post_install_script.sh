@@ -112,9 +112,9 @@ case "${cfn_node_type}" in
                 aws s3 cp ${spack_config_uri}/modules.yaml /tmp/modules.yaml --quiet;
                 aws s3 cp ${spack_config_uri}/mirrors.yaml /tmp/mirrors.yaml --quiet;;
             http://*|https://*)
-                wget ${spack_config_uri} -O /tmp/packages.yaml -o /tmp/debug_spack.wget;
-                wget ${spack_config_uri} -O /tmp/modules.yaml -a /tmp/debug_spack.wget;
-                wget ${spack_config_uri} -O /tmp/mirrors.yaml -a /tmp/debug_spack.wget;;
+                wget ${spack_config_uri}/packages.yaml -O /tmp/packages.yaml -o /tmp/debug_spack.wget;
+                wget ${spack_config_uri}/modules.yaml -O /tmp/modules.yaml -a /tmp/debug_spack.wget;
+                wget ${spack_config_uri}/mirrors.yaml -O /tmp/mirrors.yaml -a /tmp/debug_spack.wget;;
             *)
                 echo "Unknown/Unsupported spack packages URI"
                 ;;
