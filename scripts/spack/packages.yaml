@@ -71,7 +71,7 @@ packages:
 #    externals:
 #    - spec: libfabric@${LIBFABRIC_VERSION} fabrics=efa,tcp,udp,sockets,verbs,shm,mrail,rxd,rxm
 #      modules:
-#      - libfabric-aws/${LIBFABRIC_MODULE}
+#      - ${LIBFABRIC_MODULE}
   mpich:
     # For EFA (requires ch4)
     variants: ~wrapperrpath pmi=pmi netmod=ofi device=ch4
