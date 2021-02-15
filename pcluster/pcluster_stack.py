@@ -71,9 +71,15 @@ class PclusterStack(cdk.Stack):
 
         cdk.CfnOutput(self, 'VPCId',  value=vpc.vpc_id)
 
+        create_lustre = cdk.CfnParameter(self, 'EnableFSxLustre', type="String", description='Enable/Disable FSx Lustre creation.', default='false', allowed_values=['true', 'false'])
+        fsx_condition = cdk.CfnCondition(self, "FSxLustreCondition", expression=cdk.Fn.condition_equals(create_lustre, 'true'))
+
         fsxlustre_sg = ec2.SecurityGroup(self, 'FSxLustreSecurityGroup', vpc=vpc, allow_all_outbound=True, description='Allow Cross Traffic from VPC to Lustre')
+        fsxlustre_sg.node.default_child.cfn_options.condition = fsx_condition
 
         pcluster_sg = ec2.SecurityGroup(self, 'PClusterSecurityGroupForLustre', vpc=vpc, allow_all_outbound=False, description='Allow Cross Traffic from VPC to Lustre')
+        pcluster_sg.node.default_child.cfn_options.condition = fsx_condition
+
         pcluster_sg.add_ingress_rule(pcluster_sg, ec2.Port.tcp(988), description='Allows Lustre traffic between Lustre clients')
         pcluster_sg.add_ingress_rule(fsxlustre_sg, ec2.Port.tcp(988), description='Allows Lustre traffic between Amazon FSx for Lustre file servers and Lustre clients')
         pcluster_sg.add_ingress_rule(pcluster_sg, ec2.Port.tcp_range(1021, 1023), description='Allows Lustre traffic between Amazon FSx for Lustre file servers')
@@ -90,8 +96,6 @@ class PclusterStack(cdk.Stack):
         cloudtrail_bucket = s3.Bucket(self, "CloudTrailLogs")
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
 
-        # throughput validation broken as of cdk v1.87.1
-        enable_lustre = cdk.CfnParameter(self, 'EnableFSxLustre', type="String", description='Enable/Disable FSx Lustre creation.', default='true', allowed_values=['true', 'false'])
         lustre_performance = cdk.CfnParameter(self, 'FSxLustrePerformance', description='The amount of read and write throughput for each 1 tebibyte of storage, in MB/s/TiB.', default=100, allowed_values=['12','40','50','100','200'], type='Number')
         lustre_storage_type = cdk.CfnParameter(self, 'FSxLustreStorageType', description='Sets the storage type for the file system you are creating. Valid values are SSD and HDD.', default='SSD', allowed_values=['SSD', 'HDD'])
         #lustre_drive_cache = cdk.CfnParameter(self, 'FSxLustreDriveCacheType', description='This parameter is required when storage type is HDD. Set to READ to enable SSD Drive Cache Tier and improve the performance for frequently accessed files and allows 20% of the total storage capacity of the file system to be cached. Leave field empty to disable, set to \'READ\' to enable.', allowed_values=[None,'READ'], default=None)
@@ -107,7 +111,8 @@ class PclusterStack(cdk.Stack):
                                                   file_system_type='LUSTRE', subnet_ids=[vpc.private_subnets[0].subnet_id],
                                                   lustre_configuration=fsx_lustre_config, security_group_ids=[fsxlustre_sg.security_group_id, pcluster_sg.security_group_id],
                                                   storage_capacity=1200, storage_type=lustre_storage_type.value_as_string)
-        cdk.CfnOutput(self, 'FSxID',  value=fsx_lustre_filesystem.ref)
+        fsx_lustre_filesystem.cfn_options.condition=fsx_condition
+        cdk.CfnOutput(self, 'FSxID',  value=fsx_lustre_filesystem.ref, condition=fsx_condition)
 
 
         # Upload Bootstrap Script to that bucket
@@ -268,27 +273,30 @@ class PclusterStack(cdk.Stack):
         pcluster_post_install_script.grant_read(cloud9_role)
         pcluster_config_script.grant_read(cloud9_role)
 
+        create_user = cdk.CfnParameter(self, "CreateUserAndGroups", default="false", type="String", allowed_values=['true','false'])
+        user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user.value_as_string, "true"))
+
         # Admin Group
-        admin_group = iam.Group(self, 'AdminGroup')
-        admin_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AdministratorAccess'))
-        admin_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9Administrator'))
+        admin_group = iam.CfnGroup(self, 'AdminGroup',
+                                   managed_policy_arns=[iam.ManagedPolicy.from_aws_managed_policy_name('AdministratorAccess').managed_policy_arn,
+                                                        iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9Administrator').managed_policy_arn])
+        admin_group.cfn_options.condition=user_condition
 
         # PowerUser Group
-        poweruser_group = iam.Group(self, 'PowerUserGroup')
-        poweruser_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('PowerUserAccess'))
-        poweruser_group.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9Administrator'))
+        poweruser_group = iam.CfnGroup(self, 'PowerUserGroup',
+                                    managed_policy_arns=[iam.ManagedPolicy.from_aws_managed_policy_name('PowerUserAccess').managed_policy_arn,
+                                                        iam.ManagedPolicy.from_aws_managed_policy_name('AWSCloud9Administrator').managed_policy_arn])
+        poweruser_group.cfn_options.condition=user_condition
 
         # HPC User
         user = iam.CfnUser(self, 'Researcher',
-                           groups=[admin_group.node.default_child.ref],
+                           groups=[admin_group.ref],
                            login_profile=iam.CfnUser.LoginProfileProperty(
                                    password_reset_required=True,
                                    password=cdk.SecretValue.cfn_parameter(password).to_string()
                                )
                            )
 
-        create_user = cdk.CfnParameter(self, "CreateUser", default="true", type="String", allowed_values=['true','false'])
-        user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user.value_as_string, "true"))
         user.cfn_options.condition = user_condition
 
         cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]), condition=user_condition)
@@ -389,9 +397,6 @@ class PclusterStack(cdk.Stack):
 
         c9_bootstrap_provider = cr.Provider(self, "C9BootstrapProvider", on_event_handler=c9_bootstrap_lambda)
 
-        fsx_condition = cdk.CfnCondition(self, "FSxLustreCondition",
-                                         expression=cdk.Fn.condition_equals(enable_lustre, 'true'))
-
         c9_bootstrap_cr = cfn.CustomResource(self, "C9Bootstrap", provider=c9_bootstrap_provider,
             properties={
                 'Cloud9Environment': cloud9_instance.environment_id,
@@ -419,7 +424,6 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(data_bucket)
         c9_bootstrap_cr.node.add_dependency(spot_role)
         c9_bootstrap_cr.node.add_dependency(spotfleet_role)
-        c9_bootstrap_cr.node.add_dependency(fsx_lustre_filesystem)
 
         enable_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
         # Budgets
