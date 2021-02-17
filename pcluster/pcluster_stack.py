@@ -317,8 +317,8 @@ class PclusterStack(cdk.Stack):
         cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]), condition=user_condition)
         cdk.CfnOutput(self, 'UserName', value=user.ref, condition=user_condition )
 
-        base_os = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['ubuntu1804','alinux2']).value_as_string
-        cdk.CfnOutput(self, 'OS', value=base_os)
+        base_os = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['ubuntu1804','alinux2'])
+        cdk.CfnOutput(self, 'OS', value=base_os.value_as_string)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
@@ -415,7 +415,7 @@ class PclusterStack(cdk.Stack):
                 'Cloud9Environment': cloud9_instance.environment_id,
                 'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
                 'Config': config,
-                'BaseOS': base_os,
+                'BaseOS': base_os.value_as_string,
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
@@ -440,13 +440,14 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(spot_role)
         c9_bootstrap_cr.node.add_dependency(spotfleet_role)
 
-        create_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
+        create_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false'])
+        budget_limit = cdk.CfnParameter(self, 'BudgetLimit', description='The initial budget for this project in USD ($).', default=2000, type='Number')
         # Budgets
         budget_properties = {
             'budgetType': "COST",
             'timeUnit': "ANNUALLY",
             'budgetLimit': {
-                'amount': cdk.CfnParameter(self, 'BudgetLimit', description='The initial budget for this project in USD ($).', default=2000, type='Number').value_as_number,
+                'amount': budget_limit.value_as_number,
                 'unit': "USD",
             },
             'costFilters': None,
@@ -466,7 +467,7 @@ class PclusterStack(cdk.Stack):
             'plannedBudgetLimits': None,
             'timePeriod': None,
         }
-
+        email_address = cdk.CfnParameter(self, 'NotificationEmail', description='This email address will receive billing alarm notifications when 80% of the budget limit is reached.', default='email@amazon.com')
         email = {
             'notification': {
                 'comparisonOperator': "GREATER_THAN",
@@ -475,7 +476,7 @@ class PclusterStack(cdk.Stack):
                 'thresholdType': "PERCENTAGE",
                 },
             'subscribers': [{
-                'address': cdk.CfnParameter(self, 'NotificationEmail', description='This email address will receive billing alarm notifications when 80% of the budget limit is reached.', default='email@amazon.com').value_as_string,
+                'address': email_address.value_as_string,
                 'subscriptionType': "EMAIL",
             }]
         }
@@ -486,7 +487,55 @@ class PclusterStack(cdk.Stack):
             budget=budget_properties,
             notifications_with_subscribers=[email],
         )
-        overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(create_budget, "true"))
+        overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(create_budget.value_as_string, "true"))
+
+
+
+        self.template_options.metadata = {
+            'AWS::CloudFormation::Interface': {
+                'ParameterGroups': [
+                    {
+                        'Label': { 'default': 'ParallelCluster Configuration' },
+                        'Parameters': [
+                            pcluster_version.logical_id,
+                            config.logical_id,
+                            base_os.logical_id
+                        ]
+                    },
+                    {
+                        'Label': { 'default': 'Lustre Configuration' },
+                        'Parameters': [
+                            create_lustre.logical_id,
+                            lustre_performance.logical_id,
+                            lustre_storage_type.logical_id,
+                            #lustre_drive_cache.logical_id
+                        ]
+                    },
+                    {
+                        'Label': { 'default': 'Spack Configuration' },
+                        'Parameters': [
+                            spack_version.logical_id,
+                            spack_config_uri.logical_id
+                        ]
+                    },
+                    {
+                        'Label': { 'default': 'Budget Configuration' },
+                        'Parameters': [
+                            create_budget.logical_id,
+                            budget_limit.logical_id,
+                            email_address.logical_id
+                        ]
+                    },
+                    {
+                        'Label': { 'default': 'User Configuration' },
+                        'Parameters': [
+                            create_user.logical_id,
+                            password.logical_id
+                        ]
+                    }
+                ]
+            }
+        }
 
 
         #  Connection related outputs. These outputs need to have prefix "MetaConnection"
