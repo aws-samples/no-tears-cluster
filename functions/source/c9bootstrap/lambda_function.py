@@ -37,7 +37,7 @@ def send_command(instance_id, commands):
 def wait_instance_ready(cloud9_environment, context):
     # Given a unique ID for a Cloud9 environment, this waits until
     # the EC2 instance is instantiated (PingStatus 'Online'), and
-    # returns the InstanceId. Timeout of 20000 milliseconds.
+    # returns the InstanceId. Timeout of 880-900 seconds.
 
     while True:
         # Filters SSM Managed Instances to find only the matching cloud9 env
@@ -48,6 +48,7 @@ def wait_instance_ready(cloud9_environment, context):
         if instance_info.get('InstanceInformationList'):
             if instance_info.get('InstanceInformationList')[0].get('PingStatus') == 'Online':
                 return instance_info.get('InstanceInformationList')[0].get('InstanceId')
+        # Default context timeout: 900s. Timeout with 20s remaining
         if context.get_remaining_time_in_millis() < 20000:
             raise Exception("Timed out waiting for instance to be ready")
         sleep(15)
@@ -67,12 +68,20 @@ def create(event, context):
     post_install_script_bucket = event['ResourceProperties']['PostInstallScriptBucket']
     s3_read_write_resource = event['ResourceProperties']['S3ReadWriteResource']
     s3_read_write_url = event['ResourceProperties']['S3ReadWriteUrl']
-    user_arn = event['ResourceProperties']['UserArn']
+    #fsx_id = event['ResourceProperties']['FSxID']
+    #user_arn = event['ResourceProperties']['UserArn']
     config = event['ResourceProperties']['Config']
+    base_os = event['ResourceProperties']['BaseOS']
+    additional_sg = event['ResourceProperties']['AdditionalSG']
     pcluster_version = event['ResourceProperties']['PclusterVersion']
+    spack_version = event['ResourceProperties']['SpackVersion']
+    spack_config_uri = event['ResourceProperties']['SpackConfigURI'] if 'SpackConfigURI' in event['ResourceProperties'] else ''
 
     # grant s3 permissions
-    grant_permissions_cloud9(cloud9_environment, user_arn)
+    if 'UserArn' in event['ResourceProperties']:
+        grant_permissions_cloud9(cloud9_environment, event['ResourceProperties']['UserArn'])
+
+    fsx_str = f" fsx_id={event['ResourceProperties']['FSxID']} enable_fsx_block=\'fsx_settings=fsx-mount\'" if 'FSxID' in event['ResourceProperties'] else ' fsx_id=NONE'
 
     command = ['mkdir -p /tmp/setup', 'cd /tmp/setup',
                 'aws s3 cp ' + bootstrap_path + ' bootstrap.sh --quiet',
@@ -85,10 +94,15 @@ def create(event, context):
                 + ' post_install_script_bucket=' + post_install_script_bucket
                 + ' s3_read_write_resource=' + s3_read_write_resource
                 + ' s3_read_write_url=' + s3_read_write_url
+                + ' additional_sg=' + additional_sg
+                + fsx_str
                 + ' private_key_arn=' + keypair_secret_arn
                 + ' ssh_key_id=' + keypair_id
                 + ' config=' + config
+                + ' base_os=' + base_os
                 + ' pcluster_version=' + pcluster_version
+                + ' spack_version=' + spack_version
+                + ' spack_config_uri=' + spack_config_uri
                 + ' cloud9_environment=' + cloud9_environment
                 + ' bash bootstrap.sh']
     send_response = send_command(instance_id, command)

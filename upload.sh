@@ -45,6 +45,7 @@ upload()
 upload_config()
 {
 	aws s3 cp --acl public-read scripts/config.ini s3://${s3_bucket}/${version}/config.ini
+	aws s3 cp --recursive --acl public-read scripts/spack s3://${s3_bucket}/${version}/spack
 }
 
 upload_cfn()
