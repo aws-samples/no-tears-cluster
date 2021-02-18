@@ -461,8 +461,6 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(c9_createkeypair_cr)
         c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
         c9_bootstrap_cr.node.add_dependency(data_bucket)
-        c9_bootstrap_cr.node.add_dependency(spot_role)
-        c9_bootstrap_cr.node.add_dependency(spotfleet_role)
 
         create_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false'])
         budget_limit = cdk.CfnParameter(self, 'BudgetLimit', description='The initial budget for this project in USD ($).', default=2000, type='Number')
