@@ -53,7 +53,6 @@ class PclusterStack(cdk.Stack):
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
 
-        #spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=get_git_version_list('spack','spack'))
         spack_versions = ['develop']
         spack_versions.extend(get_git_version_list('spack','spack'))
         spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=spack_versions)
@@ -126,7 +125,6 @@ class PclusterStack(cdk.Stack):
             "exportPath": 's3://%s' % ( data_bucket.bucket_name ),
             "importPath": 's3://%s' % ( data_bucket.bucket_name ),
             "perUnitStorageThroughput": lustre_performance.value_as_number,
-            #"driveCacheType": cdk.Fn.condition_if(drive_cache_is_none.logical_id, cdk.Aws.NO_VALUE, lustre_drive_cache.value_as_string),
         }
         fsx_lustre_filesystem = fsx.CfnFileSystem(self, 'FSxLustreFileSystem',
                                                   file_system_type='LUSTRE', subnet_ids=[vpc.private_subnets[0].subnet_id],
