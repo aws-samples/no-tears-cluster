@@ -23,6 +23,14 @@ edit_cfn()
     mv cfn-changed.yaml cfn.yaml
 }
 
+edit_cfn_params()
+{
+    # Adds a default param value to each of the ArtifactHash parameters.
+    # This ensures that we can call template as nested stack without passing parameters for Assets
+    sed -e '/ArtifactHash/a\'$'\n''\ \ \ \ Default: AWS::NoValue' cfn.yaml > cfn-changed.yaml
+    mv cfn-changed.yaml cfn.yaml
+}
+
 upload()
 {
     # Report id, local path and s3_key for each asset
@@ -90,6 +98,7 @@ $(cat cfn.yaml)
 
 cdk synthesize > cfn.yaml
 edit_cfn
+edit_cfn_params
 upload
 upload_lambda_worldwide
 upload_cfn

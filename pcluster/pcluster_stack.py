@@ -31,14 +31,15 @@ def get_version_list(package_name):
     versions = data["releases"].keys()
     return list(versions)
 
+# Requires that you export GIT_AUTH_TOKEN before running CDK.
 def get_git_version_list(git_owner, package_name):
     import json
-    import requests
-    from distutils.version import StrictVersion
+    import os
+    from github import Github
 
-    url = "https://api.github.com/repos/%s/%s/tags" % (git_owner, package_name,)
-    data = requests.get(url).json()
-    versions = [v['name'] for v in data]
+    g = Github(os.environ.get('GIT_AUTH_TOKEN'))
+
+    versions = [v.tag_name for v in g.get_repo(f"{git_owner}/{package_name}").get_releases()]
     return list(versions)
 
 class PclusterStack(cdk.Stack):
@@ -52,7 +53,9 @@ class PclusterStack(cdk.Stack):
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
 
-        spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=get_git_version_list('spack','spack'))
+        spack_versions = ['develop']
+        spack_versions.extend(get_git_version_list('spack','spack'))
+        spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=spack_versions)
 
         spack_config_uri = cdk.CfnParameter(self, 'SpackConfigS3URI', description='Set a custom Spack Config (i.e. S3URI or HTTPSURL to prefix containing packages.yaml, modules.yaml, mirrors.yaml, etc.). Do not include trailing \'/\' on URI.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/spack'.format(__version__))
 
@@ -108,20 +111,35 @@ class PclusterStack(cdk.Stack):
         quickstart_bucket = s3.Bucket.from_bucket_name(self, 'QuickStartBucket', 'aws-quickstart')
 
         lustre_performance = cdk.CfnParameter(self, 'FSxLustrePerformance', description='The amount of read and write throughput for each 1 tebibyte of storage, in MB/s/TiB.', default=100, allowed_values=['12','40','50','100','200'], type='Number')
+        lustre_type = cdk.CfnParameter(self, 'FSxLustreType', description='Sets the storage deployment type. Persistent file systems are designed for longer-term storage and workloads. The file servers are highly available and data is automatically replicated within the same Availability Zone (AZ) that is associated with the file system. Scratch file systems are designed for temporary storage and shorter-term processing of data. Data is not replicated and doesn\'t persist if a file server fails.', default='PERSISTENT_1', allowed_values=['PERSISTENT_1', 'SCRATCH_2'], type='String')
+        lustre_import_policy = cdk.CfnParameter(self, 'FSxLustreImportPolicy', description='NONE - AutoImport is off. NEW - AutoImport is on, but only new objects in S3 will be imported. NEW_CHANGED - AutoImport is on, and any new objects and changes to existing objects will be imported.', default='NEW_CHANGED', allowed_values=['NEW_CHANGED', 'NEW', 'NONE'], type='String')
         lustre_storage_type = cdk.CfnParameter(self, 'FSxLustreStorageType', description='Sets the storage type for the file system you are creating. Valid values are SSD and HDD.', default='SSD', allowed_values=['SSD', 'HDD'])
-        #lustre_drive_cache = cdk.CfnParameter(self, 'FSxLustreDriveCacheType', description='This parameter is required when storage type is HDD. Set to READ to enable SSD Drive Cache Tier and improve the performance for frequently accessed files and allows 20% of the total storage capacity of the file system to be cached. Leave field empty to disable, set to \'READ\' to enable.', allowed_values=[None,'READ'], default=None)
-        fsx_lustre_config = fsx.CfnFileSystem.LustreConfigurationProperty(
-            auto_import_policy = 'NEW_CHANGED',
-            deployment_type = 'PERSISTENT_1',
-            #drive_cache_type = lustre_drive_cache.value_as_string,
-            export_path = 's3://%s' % ( data_bucket.bucket_name ),
-            import_path ='s3://%s' % ( data_bucket.bucket_name ),
-            per_unit_storage_throughput=lustre_performance.value_as_number,
-        )
+        lustre_drive_cache = cdk.CfnParameter(self, 'FSxLustreDriveCacheType', description='This parameter is required when storage type is HDD. Set to READ to enable SSD Drive Cache Tier and improve the performance for frequently accessed files and allows 20% of the total storage capacity of the file system to be cached. Disabled whenever storage type is SSD. \'READ\' enables on HDD type.', allowed_values=['NONE','READ'], default='NONE')
+        lustre_type_is_ssd = cdk.CfnCondition(self, "LustreTypeIsSSD", expression=cdk.Fn.condition_equals(lustre_storage_type.value_as_string, "SSD"))
+        lustre_storage_capacity = cdk.CfnParameter(self, 'FSxLustreStorageCapacity', description='FSx Lustre filesystem capacity (in GiB). Scratch and persistent SSD-based file systems can be created in sizes of 1200 GiB or in increments of 2400 GiB. Persistent HDD-based file systems with 12 MB/s and 40 MB/s of throughput per TiB can be created in increments of 6000 GiB and 1800 GiB, respectively.', default=1200, type='Number')
+
+
+        fsx_lustre_config = {
+            "autoImportPolicy": lustre_import_policy.value_as_string,
+            "deploymentType": lustre_type.value_as_string,
+            "exportPath": 's3://%s' % ( data_bucket.bucket_name ),
+            "importPath": 's3://%s' % ( data_bucket.bucket_name ),
+            "perUnitStorageThroughput": lustre_performance.value_as_number,
+        }
         fsx_lustre_filesystem = fsx.CfnFileSystem(self, 'FSxLustreFileSystem',
                                                   file_system_type='LUSTRE', subnet_ids=[vpc.private_subnets[0].subnet_id],
                                                   lustre_configuration=fsx_lustre_config, security_group_ids=[fsxlustre_sg.security_group_id, pcluster_sg.security_group_id],
-                                                  storage_capacity=1200, storage_type=lustre_storage_type.value_as_string)
+                                                  storage_capacity=lustre_storage_capacity.value_as_number, storage_type=lustre_storage_type.value_as_string)
+        fsx_lustre_filesystem.add_override(
+            "Properties.LustreConfiguration.DriveCacheType",
+            {
+                "Fn::If": [
+                    lustre_type_is_ssd.logical_id,
+                    cdk.Aws.NO_VALUE,
+                    lustre_drive_cache.value_as_string
+                ]
+            }
+        )
         fsx_lustre_filesystem.cfn_options.condition=fsx_condition
         cdk.CfnOutput(self, 'FSxID',  value=fsx_lustre_filesystem.ref, condition=fsx_condition)
 
@@ -288,7 +306,7 @@ class PclusterStack(cdk.Stack):
         pcluster_post_install_script.grant_read(cloud9_role)
         pcluster_config_script.grant_read(cloud9_role)
 
-        create_user = cdk.CfnParameter(self, "CreateUserAndGroups", default="false", type="String", allowed_values=['true','false'])
+        create_user = cdk.CfnParameter(self, "CreateUserAndGroups", default="false", type="String", allowed_values=['true','false'], description='Provision an additional IAM user (Researcher) account and Admin/PowerUser groups to simplify onboarding multiple users in one account. Note: this requires IAM permissions to create a user and group.')
         user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user.value_as_string, "true"))
 
         # Admin Group
@@ -317,8 +335,8 @@ class PclusterStack(cdk.Stack):
         cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]), condition=user_condition)
         cdk.CfnOutput(self, 'UserName', value=user.ref, condition=user_condition )
 
-        base_os = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['ubuntu1804','alinux2']).value_as_string
-        cdk.CfnOutput(self, 'OS', value=base_os)
+        base_os = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['alinux', 'alinux2', 'centos7', 'centos8', 'ubuntu1604', 'ubuntu1804'])
+        cdk.CfnOutput(self, 'OS. Warning: noTears post_install is designed for ubuntu1804 and alinux2. Use other OS options at your own risk.', value=base_os.value_as_string)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
@@ -415,7 +433,7 @@ class PclusterStack(cdk.Stack):
                 'Cloud9Environment': cloud9_instance.environment_id,
                 'BootstrapPath': 's3://%s/%s' % (bootstrap_script.s3_bucket_name, bootstrap_script.s3_object_key),
                 'Config': config,
-                'BaseOS': base_os,
+                'BaseOS': base_os.value_as_string,
                 'VPCID': vpc.vpc_id,
                 'MasterSubnetID': vpc.public_subnets[0].subnet_id,
                 'ComputeSubnetID': vpc.private_subnets[0].subnet_id,
@@ -440,13 +458,14 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(spot_role)
         c9_bootstrap_cr.node.add_dependency(spotfleet_role)
 
-        create_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false']).value_as_string
+        create_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false'])
+        budget_limit = cdk.CfnParameter(self, 'BudgetLimit', description='The initial budget for this project in USD ($).', default=2000, type='Number')
         # Budgets
         budget_properties = {
             'budgetType': "COST",
             'timeUnit': "ANNUALLY",
             'budgetLimit': {
-                'amount': cdk.CfnParameter(self, 'BudgetLimit', description='The initial budget for this project in USD ($).', default=2000, type='Number').value_as_number,
+                'amount': budget_limit.value_as_number,
                 'unit': "USD",
             },
             'costFilters': None,
@@ -466,7 +485,7 @@ class PclusterStack(cdk.Stack):
             'plannedBudgetLimits': None,
             'timePeriod': None,
         }
-
+        email_address = cdk.CfnParameter(self, 'NotificationEmail', description='This email address will receive billing alarm notifications when 80% of the budget limit is reached.', default='email@amazon.com')
         email = {
             'notification': {
                 'comparisonOperator': "GREATER_THAN",
@@ -475,7 +494,7 @@ class PclusterStack(cdk.Stack):
                 'thresholdType': "PERCENTAGE",
                 },
             'subscribers': [{
-                'address': cdk.CfnParameter(self, 'NotificationEmail', description='This email address will receive billing alarm notifications when 80% of the budget limit is reached.', default='email@amazon.com').value_as_string,
+                'address': email_address.value_as_string,
                 'subscriptionType': "EMAIL",
             }]
         }
@@ -486,7 +505,58 @@ class PclusterStack(cdk.Stack):
             budget=budget_properties,
             notifications_with_subscribers=[email],
         )
-        overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(create_budget, "true"))
+        overall_budget.cfn_options.condition = cdk.CfnCondition(self, "BudgetCondition", expression=cdk.Fn.condition_equals(create_budget.value_as_string, "true"))
+
+
+
+        self.template_options.metadata = {
+            'AWS::CloudFormation::Interface': {
+                'ParameterGroups': [
+                    {
+                        'Label': { 'default': 'ParallelCluster Configuration' },
+                        'Parameters': [
+                            pcluster_version.logical_id,
+                            config.logical_id,
+                            base_os.logical_id
+                        ]
+                    },
+                    {
+                        'Label': { 'default': 'Lustre Configuration' },
+                        'Parameters': [
+                            create_lustre.logical_id,
+                            lustre_storage_capacity.logical_id,
+                            lustre_type.logical_id,
+                            lustre_import_policy.logical_id,
+                            lustre_storage_type.logical_id,
+                            lustre_performance.logical_id,
+                            lustre_drive_cache.logical_id
+                        ]
+                    },
+                    {
+                        'Label': { 'default': 'Spack Configuration' },
+                        'Parameters': [
+                            spack_version.logical_id,
+                            spack_config_uri.logical_id
+                        ]
+                    },
+                    {
+                        'Label': { 'default': 'Budget Configuration' },
+                        'Parameters': [
+                            create_budget.logical_id,
+                            budget_limit.logical_id,
+                            email_address.logical_id
+                        ]
+                    },
+                    {
+                        'Label': { 'default': 'User Configuration' },
+                        'Parameters': [
+                            create_user.logical_id,
+                            password.logical_id
+                        ]
+                    }
+                ]
+            }
+        }
 
 
         #  Connection related outputs. These outputs need to have prefix "MetaConnection"
