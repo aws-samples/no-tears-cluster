@@ -165,6 +165,15 @@ Make sure your region and aws credentials are setup by running:
 $ aws configure
 ```
 
+Acquire a Github AuthToken: 
+   1. sign into your account
+   2. Settings -> Developer Settings -> Personal Access Tokens
+   3. Create token without checking any boxes
+   4. Copy the provided token and add to your $HOME/.bashrc:
+```
+export GIT_AUTH_TOKEN=XXXXXXX
+```
+
 At this point, it's time to setup CDK, the following needs to be done once in each account:
 
 ```

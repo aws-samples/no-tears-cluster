@@ -31,17 +31,7 @@ def get_version_list(package_name):
     versions = data["releases"].keys()
     return list(versions)
 
-#def get_git_version_list(git_owner, package_name):
-#    import json
-#    import requests
-#    from distutils.version import StrictVersion
-#
-#    url = "https://api.github.com/repos/%s/%s/tags" % (git_owner, package_name,)
-#    data = requests.get(url).json()
-#    versions = [v['name'] for v in data]
-#    return list(versions)
-
-
+# Requires that you export GIT_AUTH_TOKEN before running CDK.
 def get_git_version_list(git_owner, package_name):
     import json
     import os
