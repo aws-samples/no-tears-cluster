@@ -47,7 +47,7 @@ def get_git_version_list(git_owner, package_name):
     import os
     from github import Github
 
-    g = Github(os.eniron.get('GIT_AUTH_TOKEN'))
+    g = Github(os.environ.get('GIT_AUTH_TOKEN'))
 
     versions = [v.tag_name for v in g.get_repo(f"{git_owner}/{package_name}").get_releases()]
     return list(versions)
@@ -313,7 +313,7 @@ class PclusterStack(cdk.Stack):
         pcluster_post_install_script.grant_read(cloud9_role)
         pcluster_config_script.grant_read(cloud9_role)
 
-        create_user = cdk.CfnParameter(self, "CreateUserAndGroups", default="false", type="String", allowed_values=['true','false'])
+        create_user = cdk.CfnParameter(self, "CreateUserAndGroups", default="false", type="String", allowed_values=['true','false'], description='Provision an additional IAM user (Researcher) account and Admin/PowerUser groups to simplify onboarding multiple users in one account.')
         user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user.value_as_string, "true"))
 
         # Admin Group
