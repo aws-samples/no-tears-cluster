@@ -91,6 +91,33 @@ When all stacks show *CREATE_COMPLETE*, click on the `Outputs` tab of the `AWS-H
 
 <img width="849" alt="Outputs" src="https://user-images.githubusercontent.com/187202/79085211-3cfcec00-7cfd-11ea-94f9-8a8cf88e535b.png">
 
+--- 
+
+## Embedding this Solution in Your Own CloudFormation Template
+
+<details>
+<summary>Click to expand</summary>
+<br>
+
+NoTears is provided as a standalone CloudFormation template with a large number of parameters. Use-cases where configuration options need to be limited, or NoTears embedded as one component of a broader architecture are also supported. To do this, nest the stack as follows:
+```
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+    NoTearsHPC:
+      Type: 'AWS::CloudFormation::Stack'
+      Properties: 
+          TemplateURL: 'https://notearshpc-quickstart.s3.amazonaws.com/0.2.1/cfn.yaml'
+          Parameters: 
+            OperatingSystem: alinux2
+            EnableBudget: false
+            CreateUserAndGroups: true
+            EnableFSxLustre: false
+            SpackVersion: v0.15.0
+```
+An illustrating example is provided in inherit.yaml.
+</details>
+
+
 ---
 ## FAQ 🧐
 
@@ -105,6 +132,7 @@ When all stacks show *CREATE_COMPLETE*, click on the `Outputs` tab of the `AWS-H
     Identity added: /home/ec2-user/.ssh/AWS-HPC-Quickstart-NJCH9esX (/home/ec2-user/.ssh/AWS-HPC-Quickstart-NJCH9esX)
     ```
     Ignore these messages. They indicate that your SSH key for Parallel Cluster was located.
+
 
 ## Developer Setup
 
