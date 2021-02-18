@@ -265,9 +265,12 @@ class PclusterStack(cdk.Stack):
 
         # ParallelCluster requires users create this role to enable SpotFleet
         spotfleet_role = iam.CfnServiceLinkedRole(self, 'SpotFleetServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
+        # Assume success if this fails (because SLR is already present on account); custom_suffix is not allowed for spot/fleet
+        spotfleet_role.cfn_options.creation_policy = cdk.CfnCreationPolicy(resource_signal={ 'count': 0 })
         spotfleet_role.cfn_options.deletion_policy = cdk.CfnDeletionPolicy.RETAIN
         spotfleet_role.cfn_options.update_replace_policy = cdk.CfnDeletionPolicy.RETAIN
         spot_role = iam.CfnServiceLinkedRole(self, 'SpotServiceLinkedRole', aws_service_name='spot.amazonaws.com')
+        spot_role.cfn_options.creation_policy = cdk.CfnCreationPolicy(resource_signal={ 'count': 0 })
         spot_role.cfn_options.deletion_policy = cdk.CfnDeletionPolicy.RETAIN
         spot_role.cfn_options.update_replace_policy = cdk.CfnDeletionPolicy.RETAIN
 
