@@ -557,7 +557,8 @@ class PclusterStack(cdk.Stack):
                         'Label': { 'default': 'User Configuration' },
                         'Parameters': [
                             create_user.logical_id,
-                            password.logical_id
+                            password.logical_id,
+                            create_slr.logical_id
                         ]
                     }
                 ]
