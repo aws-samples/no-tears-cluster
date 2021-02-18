@@ -122,18 +122,10 @@ class PclusterStack(cdk.Stack):
         lustre_type = cdk.CfnParameter(self, 'FSxLustreType', description='Sets the storage deployment type. Persistent file systems are designed for longer-term storage and workloads. The file servers are highly available and data is automatically replicated within the same Availability Zone (AZ) that is associated with the file system. Scratch file systems are designed for temporary storage and shorter-term processing of data. Data is not replicated and doesn\'t persist if a file server fails.', default='PERSISTENT_1', allowed_values=['PERSISTENT_1', 'SCRATCH_2'], type='String')
         lustre_import_policy = cdk.CfnParameter(self, 'FSxLustreImportPolicy', description='NONE - AutoImport is off. NEW - AutoImport is on, but only new objects in S3 will be imported. NEW_CHANGED - AutoImport is on, and any new objects and changes to existing objects will be imported.', default='NEW_CHANGED', allowed_values=['NEW_CHANGED', 'NEW', 'NONE'], type='String')
         lustre_storage_type = cdk.CfnParameter(self, 'FSxLustreStorageType', description='Sets the storage type for the file system you are creating. Valid values are SSD and HDD.', default='SSD', allowed_values=['SSD', 'HDD'])
-        #lustre_drive_cache = cdk.CfnParameter(self, 'FSxLustreDriveCacheType', description='This parameter is required when storage type is HDD. Set to READ to enable SSD Drive Cache Tier and improve the performance for frequently accessed files and allows 20% of the total storage capacity of the file system to be cached. Leave field empty to disable, set to \'READ\' to enable.', allowed_values=['NONE','READ'], default='NONE')
-        #drive_cache_is_none = cdk.CfnCondition(self, "DriveCacheCondition", expression=cdk.Fn.condition_equals(lustre_drive_cache.value_as_string, "NONE"))
+        lustre_drive_cache = cdk.CfnParameter(self, 'FSxLustreDriveCacheType', description='This parameter is required when storage type is HDD. Set to READ to enable SSD Drive Cache Tier and improve the performance for frequently accessed files and allows 20% of the total storage capacity of the file system to be cached. Disabled whenever storage type is SSD. \'READ\' enables on HDD type.', allowed_values=['NONE','READ'], default='NONE')
+        lustre_type_is_ssd = cdk.CfnCondition(self, "LustreTypeIsSSD", expression=cdk.Fn.condition_equals(lustre_storage_type.value_as_string, "SSD"))
         lustre_storage_capacity = cdk.CfnParameter(self, 'FSxLustreStorageCapacity', description='FSx Lustre filesystem capacity (in GiB). Scratch and persistent SSD-based file systems can be created in sizes of 1200 GiB or in increments of 2400 GiB. Persistent HDD-based file systems with 12 MB/s and 40 MB/s of throughput per TiB can be created in increments of 6000 GiB and 1800 GiB, respectively.', default=1200, type='Number')
 
-#        fsx_lustre_cache_config = fsx.CfnFileSystem.LustreConfigurationProperty(
-#            auto_import_policy = lustre_import_policy.value_as_string,
-#            deployment_type = lustre_type.value_as_string,
-#            #drive_cache_type = lustre_drive_cache.value_as_string,
-#            export_path = 's3://%s' % ( data_bucket.bucket_name ),
-#            import_path ='s3://%s' % ( data_bucket.bucket_name ),
-#            per_unit_storage_throughput=lustre_performance.value_as_number,
-#        )
 
         fsx_lustre_config = {
             "autoImportPolicy": lustre_import_policy.value_as_string,
@@ -147,6 +139,16 @@ class PclusterStack(cdk.Stack):
                                                   file_system_type='LUSTRE', subnet_ids=[vpc.private_subnets[0].subnet_id],
                                                   lustre_configuration=fsx_lustre_config, security_group_ids=[fsxlustre_sg.security_group_id, pcluster_sg.security_group_id],
                                                   storage_capacity=lustre_storage_capacity.value_as_number, storage_type=lustre_storage_type.value_as_string)
+        fsx_lustre_filesystem.add_override(
+            "Properties.LustreConfiguration.DriveCacheType",
+            {
+                "Fn::If": [
+                    lustre_type_is_ssd.logical_id,
+                    cdk.Aws.NO_VALUE,
+                    lustre_drive_cache.value_as_string
+                ]
+            }
+        )
         fsx_lustre_filesystem.cfn_options.condition=fsx_condition
         cdk.CfnOutput(self, 'FSxID',  value=fsx_lustre_filesystem.ref, condition=fsx_condition)
 
@@ -536,7 +538,7 @@ class PclusterStack(cdk.Stack):
                             lustre_import_policy.logical_id,
                             lustre_storage_type.logical_id,
                             lustre_performance.logical_id,
-                            #lustre_drive_cache.logical_id
+                            lustre_drive_cache.logical_id
                         ]
                     },
                     {

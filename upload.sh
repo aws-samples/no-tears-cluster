@@ -27,7 +27,6 @@ edit_cfn_params()
 {
     # Adds a default param value to each of the ArtifactHash parameters.
     # This ensures that we can call template as nested stack without passing parameters for Assets
-    #sed -e '/ArtifactHash/a\'$'\n''\'$'\t''Default: AWS::NoValue' cfn.yaml > cfn-changed.yaml
     sed -e '/ArtifactHash/a\'$'\n''\ \ \ \ Default: AWS::NoValue' cfn.yaml > cfn-changed.yaml
     mv cfn-changed.yaml cfn.yaml
 }
