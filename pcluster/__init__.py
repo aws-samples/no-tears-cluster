@@ -5,5 +5,5 @@
 #   NOTE: synthesized CDK assets are published to s3://BUCKET/__version__/ prefix
 #
 # Semantic Versioning: MAJOR.MINOR.PATCH
-__version__ = '0.3.0'
+__version__ = '0.2.1'
 
