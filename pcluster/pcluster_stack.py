@@ -63,7 +63,10 @@ class PclusterStack(cdk.Stack):
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
 
-        spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=get_git_version_list('spack','spack'))
+        #spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=get_git_version_list('spack','spack'))
+        spack_versions = ['develop']
+        spack_versions.extend(get_git_version_list('spack','spack'))
+        spack_version = cdk.CfnParameter(self, 'SpackVersion', description='Specify a custom Spack version. See https://github.com/spack/spack/releases for options.', default='v0.16.0', type='String', allowed_values=spack_versions)
 
         spack_config_uri = cdk.CfnParameter(self, 'SpackConfigS3URI', description='Set a custom Spack Config (i.e. S3URI or HTTPSURL to prefix containing packages.yaml, modules.yaml, mirrors.yaml, etc.). Do not include trailing \'/\' on URI.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/spack'.format(__version__))
 
