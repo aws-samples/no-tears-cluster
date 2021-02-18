@@ -308,7 +308,7 @@ class PclusterStack(cdk.Stack):
         pcluster_post_install_script.grant_read(cloud9_role)
         pcluster_config_script.grant_read(cloud9_role)
 
-        create_user = cdk.CfnParameter(self, "CreateUserAndGroups", default="false", type="String", allowed_values=['true','false'], description='Provision an additional IAM user (Researcher) account and Admin/PowerUser groups to simplify onboarding multiple users in one account.')
+        create_user = cdk.CfnParameter(self, "CreateUserAndGroups", default="false", type="String", allowed_values=['true','false'], description='Provision an additional IAM user (Researcher) account and Admin/PowerUser groups to simplify onboarding multiple users in one account. Note: this requires IAM permissions to create a user and group.')
         user_condition = cdk.CfnCondition(self, "UserCondition", expression=cdk.Fn.condition_equals(create_user.value_as_string, "true"))
 
         # Admin Group
