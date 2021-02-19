@@ -263,11 +263,17 @@ class PclusterStack(cdk.Stack):
                 with open('iam/out_%s.json' % (index), 'w') as json_out:
                     json_out.write(json.dumps(policy['PolicyDocument'], indent=4))
 
+        create_slr = cdk.CfnParameter(self, "CreateServiceLinkedRoles", default="true", type="String", allowed_values=['true','false'], description='Enable/Disable the creation of ServiceLinkedRoles. If the account already has AWSServiceRoleForEC2Spot and AWSServiceRoleForEC2SpotFleet, set this to false.')
+        slr_condition = cdk.CfnCondition(self, "ServiceLinkedRoleCondition", expression=cdk.Fn.condition_equals(create_slr.value_as_string, "true"))
+
         # ParallelCluster requires users create this role to enable SpotFleet
         spotfleet_role = iam.CfnServiceLinkedRole(self, 'SpotFleetServiceLinkedRole', aws_service_name='spotfleet.amazonaws.com')
+        spotfleet_role.cfn_options.condition = slr_condition
         spotfleet_role.cfn_options.deletion_policy = cdk.CfnDeletionPolicy.RETAIN
         spotfleet_role.cfn_options.update_replace_policy = cdk.CfnDeletionPolicy.RETAIN
+
         spot_role = iam.CfnServiceLinkedRole(self, 'SpotServiceLinkedRole', aws_service_name='spot.amazonaws.com')
+        spot_role.cfn_options.condition = slr_condition
         spot_role.cfn_options.deletion_policy = cdk.CfnDeletionPolicy.RETAIN
         spot_role.cfn_options.update_replace_policy = cdk.CfnDeletionPolicy.RETAIN
 
@@ -455,8 +461,6 @@ class PclusterStack(cdk.Stack):
         c9_bootstrap_cr.node.add_dependency(c9_createkeypair_cr)
         c9_bootstrap_cr.node.add_dependency(c9_ssh_private_key_secret)
         c9_bootstrap_cr.node.add_dependency(data_bucket)
-        c9_bootstrap_cr.node.add_dependency(spot_role)
-        c9_bootstrap_cr.node.add_dependency(spotfleet_role)
 
         create_budget = cdk.CfnParameter(self, "EnableBudget", default="true", type="String", allowed_values=['true','false'])
         budget_limit = cdk.CfnParameter(self, 'BudgetLimit', description='The initial budget for this project in USD ($).', default=2000, type='Number')
@@ -551,7 +555,8 @@ class PclusterStack(cdk.Stack):
                         'Label': { 'default': 'User Configuration' },
                         'Parameters': [
                             create_user.logical_id,
-                            password.logical_id
+                            password.logical_id,
+                            create_slr.logical_id
                         ]
                     }
                 ]
