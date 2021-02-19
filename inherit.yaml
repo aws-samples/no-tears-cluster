@@ -3,7 +3,8 @@ Resources:
     NestedStack:
       Type: 'AWS::CloudFormation::Stack'
       Properties: 
-          TemplateURL: 'https://notearshpc-quickstart.s3.amazonaws.com/0.2.1/cfn.yaml'
+          TemplateURL: 'https://notearshpc-quickstart.s3.amazonaws.com/0.2.2/cfn.yaml'
           Parameters: 
             OperatingSystem: alinux2
             EnableBudget: false
+            CreateServiceLinkedRoles: false
