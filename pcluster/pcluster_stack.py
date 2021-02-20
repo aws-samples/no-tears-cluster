@@ -165,7 +165,21 @@ class PclusterStack(cdk.Stack):
         # Create a Cloud9 instance
         # Cloud9 doesn't have the ability to provide userdata
         # Because of this we need to use SSM run command
+        c9_owner = cdk.CfnParameter(self, "Cloud9Owner", type="String", default="NONE", description="Default Cloud9 owner. Disabled if NONE.")
+        c9owner_condition = cdk.CfnCondition(self, "Cloud9OwnerCondition", expression=cdk.Fn.condition_equals(c9_owner.value_as_string, "NONE"))
         cloud9_instance = cloud9.Ec2Environment(self, 'ResearchWorkspace', vpc=vpc, instance_type=ec2.InstanceType(instance_type_identifier='c5.large'))
+        cloud9_instance.node.default_child.add_override(
+            "Properties.OwnerArn",
+            {
+                "Fn::If": [
+                    c9owner_condition.logical_id,
+                    cdk.Aws.NO_VALUE,
+                    c9_owner.value_as_string
+                ]
+            }
+        )
+
+
         cdk.CfnOutput(self, 'Research Workspace URL',  value=cloud9_instance.ide_url)
 
 
@@ -341,8 +355,9 @@ class PclusterStack(cdk.Stack):
         cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]), condition=user_condition)
         cdk.CfnOutput(self, 'UserName', value=user.ref, condition=user_condition )
 
+
         base_os = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['alinux', 'alinux2', 'centos7', 'centos8', 'ubuntu1604', 'ubuntu1804'])
-        cdk.CfnOutput(self, 'OS. Warning: noTears post_install is designed for ubuntu1804 and alinux2. Use other OS options at your own risk.', value=base_os.value_as_string)
+        cdk.CfnOutput(self, 'OS', description='Warning: noTears post_install is designed for ubuntu1804 and alinux2. Use other OS options at your own risk.', value=base_os.value_as_string)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
