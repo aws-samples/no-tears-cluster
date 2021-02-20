@@ -342,7 +342,7 @@ class PclusterStack(cdk.Stack):
         cdk.CfnOutput(self, 'UserName', value=user.ref, condition=user_condition )
 
         base_os = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['alinux', 'alinux2', 'centos7', 'centos8', 'ubuntu1604', 'ubuntu1804'])
-        cdk.CfnOutput(self, 'OS. Warning: noTears post_install is designed for ubuntu1804 and alinux2. Use other OS options at your own risk.', value=base_os.value_as_string)
+        cdk.CfnOutput(self, 'OS', description='Warning: noTears post_install is designed for ubuntu1804 and alinux2. Use other OS options at your own risk.', value=base_os.value_as_string)
 
         # Cloud9 Setup IAM Role
         cloud9_setup_role = iam.Role(self, 'Cloud9SetupRole', assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'))
