@@ -9,3 +9,9 @@ Resources:
             EnableBudget: false
             CreateServiceLinkedRoles: false
             Cloud9Owner: !Sub 'arn:aws:sts::${AWS::AccountId}:assumed-role/TeamRole/MasterKey'
+Outputs:
+  NoTearsCloud9:
+    Value:
+      Fn::GetAtt:
+          - NoTearsHPC
+          - Outputs.ResearchWorkspaceURL
