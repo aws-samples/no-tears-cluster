@@ -277,7 +277,7 @@ class PclusterStack(cdk.Stack):
                 with open('iam/out_%s.json' % (index), 'w') as json_out:
                     json_out.write(json.dumps(policy['PolicyDocument'], indent=4))
 
-        create_slr = cdk.CfnParameter(self, "CreateServiceLinkedRoles", default="true", type="String", allowed_values=['true','false'], description='Enable/Disable the creation of ServiceLinkedRoles. If the account already has AWSServiceRoleForEC2Spot and AWSServiceRoleForEC2SpotFleet, set this to false.')
+        create_slr = cdk.CfnParameter(self, "CreateServiceLinkedRoles", default="false", type="String", allowed_values=['true','false'], description='Enable/Disable the creation of ServiceLinkedRoles. If the account already has AWSServiceRoleForEC2Spot and AWSServiceRoleForEC2SpotFleet, set this to false.')
         slr_condition = cdk.CfnCondition(self, "ServiceLinkedRoleCondition", expression=cdk.Fn.condition_equals(create_slr.value_as_string, "true"))
 
         # ParallelCluster requires users create this role to enable SpotFleet
