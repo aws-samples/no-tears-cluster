@@ -182,7 +182,9 @@ class PclusterStack(cdk.Stack):
                 ]
             }
         )
-
+        cloud9_instance.node.default_child.add_override(
+            "Properties.AutomaticStopTimeMinutes", 90
+        )
 
         cdk.CfnOutput(self, 'Research Workspace URL',  value=cloud9_instance.ide_url)
 
