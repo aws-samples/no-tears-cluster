@@ -17,6 +17,7 @@ from aws_cdk import (
     core as cdk,
     region_info
 )
+from distutils.version import LooseVersion
 import json
 from pcluster import __version__
 
@@ -42,13 +43,16 @@ def get_git_version_list(git_owner, package_name):
     versions = [v.tag_name for v in g.get_repo(f"{git_owner}/{package_name}").get_releases()]
     return list(versions)
 
+
 class PclusterStack(cdk.Stack):
 
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         # Version of ParallelCluster for Cloud9.
-        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.10.1', type='String', allowed_values=get_version_list('aws-parallelcluster'))
+        pcluster_version_list = get_version_list('aws-parallelcluster')
+        pcluster_version_list.sort(reverse=True,key=LooseVersion)
+        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default=max(pcluster_version_list, key=LooseVersion), type='String', allowed_values=pcluster_version_list)
 
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
