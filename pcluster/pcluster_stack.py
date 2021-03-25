@@ -17,6 +17,7 @@ from aws_cdk import (
     core as cdk,
     region_info
 )
+from distutils.version import LooseVersion
 import json
 from pcluster import __version__
 
@@ -42,13 +43,16 @@ def get_git_version_list(git_owner, package_name):
     versions = [v.tag_name for v in g.get_repo(f"{git_owner}/{package_name}").get_releases()]
     return list(versions)
 
+
 class PclusterStack(cdk.Stack):
 
     def __init__(self, scope: cdk.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         # Version of ParallelCluster for Cloud9.
-        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default='2.10.1', type='String', allowed_values=get_version_list('aws-parallelcluster'))
+        pcluster_version_list = get_version_list('aws-parallelcluster')
+        pcluster_version_list.sort(reverse=True,key=LooseVersion)
+        pcluster_version = cdk.CfnParameter(self, 'ParallelClusterVersion', description='Specify a custom parallelcluster version. See https://pypi.org/project/aws-parallelcluster/#history for options.', default=max(pcluster_version_list, key=LooseVersion), type='String', allowed_values=pcluster_version_list)
 
         # S3 URI for Config file
         config = cdk.CfnParameter(self, 'ConfigS3URI', description='Set a custom parallelcluster config file.', default='https://notearshpc-quickstart.s3.amazonaws.com/{0}/config.ini'.format(__version__))
@@ -165,7 +169,23 @@ class PclusterStack(cdk.Stack):
         # Create a Cloud9 instance
         # Cloud9 doesn't have the ability to provide userdata
         # Because of this we need to use SSM run command
+        c9_owner = cdk.CfnParameter(self, "Cloud9Owner", type="String", default="NONE", description="Default Cloud9 owner. Disabled if NONE.")
+        c9owner_condition = cdk.CfnCondition(self, "Cloud9OwnerCondition", expression=cdk.Fn.condition_equals(c9_owner.value_as_string, "NONE"))
         cloud9_instance = cloud9.Ec2Environment(self, 'ResearchWorkspace', vpc=vpc, instance_type=ec2.InstanceType(instance_type_identifier='c5.large'))
+        cloud9_instance.node.default_child.add_override(
+            "Properties.OwnerArn",
+            {
+                "Fn::If": [
+                    c9owner_condition.logical_id,
+                    cdk.Aws.NO_VALUE,
+                    c9_owner.value_as_string
+                ]
+            }
+        )
+        cloud9_instance.node.default_child.add_override(
+            "Properties.AutomaticStopTimeMinutes", 90
+        )
+
         cdk.CfnOutput(self, 'Research Workspace URL',  value=cloud9_instance.ide_url)
 
 
@@ -263,7 +283,7 @@ class PclusterStack(cdk.Stack):
                 with open('iam/out_%s.json' % (index), 'w') as json_out:
                     json_out.write(json.dumps(policy['PolicyDocument'], indent=4))
 
-        create_slr = cdk.CfnParameter(self, "CreateServiceLinkedRoles", default="true", type="String", allowed_values=['true','false'], description='Enable/Disable the creation of ServiceLinkedRoles. If the account already has AWSServiceRoleForEC2Spot and AWSServiceRoleForEC2SpotFleet, set this to false.')
+        create_slr = cdk.CfnParameter(self, "CreateServiceLinkedRoles", default="false", type="String", allowed_values=['true','false'], description='Enable/Disable the creation of ServiceLinkedRoles. If the account already has AWSServiceRoleForEC2Spot and AWSServiceRoleForEC2SpotFleet, set this to false.')
         slr_condition = cdk.CfnCondition(self, "ServiceLinkedRoleCondition", expression=cdk.Fn.condition_equals(create_slr.value_as_string, "true"))
 
         # ParallelCluster requires users create this role to enable SpotFleet
@@ -340,6 +360,7 @@ class PclusterStack(cdk.Stack):
 
         cdk.CfnOutput(self, 'UserLoginUrl', value="".join(["https://", self.account,".signin.aws.amazon.com/console"]), condition=user_condition)
         cdk.CfnOutput(self, 'UserName', value=user.ref, condition=user_condition )
+
 
         base_os = cdk.CfnParameter(self, "Operating System", default="alinux2", type="String", allowed_values=['alinux', 'alinux2', 'centos7', 'centos8', 'ubuntu1604', 'ubuntu1804'])
         cdk.CfnOutput(self, 'OS', description='Warning: noTears post_install is designed for ubuntu1804 and alinux2. Use other OS options at your own risk.', value=base_os.value_as_string)

@@ -109,7 +109,7 @@ pcluster list
 pcluster create -t hpc hpc-cluster -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
 if [ $? != 0 ]; then
     cloud9_environment=${cloud9_environment:-$(uuidgen)}
-    pcluster create -t hpc hpc-cluster-${cloud9_environment} -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
+    pcluster create hpc-cluster-${cloud9_environment} -c ~/environment/config.ini --nowait -nr -g "{\"NoTearsHPC\": \"${notearshpc_version}\"}"
 fi
 
 echo "Finished" >> /tmp/BOOTSTRAP.WHOAMI

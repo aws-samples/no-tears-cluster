@@ -1,10 +1,18 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-    NestedStack:
+    NoTearsHPC:
       Type: 'AWS::CloudFormation::Stack'
       Properties: 
-          TemplateURL: 'https://notearshpc-quickstart.s3.amazonaws.com/0.2.2/cfn.yaml'
+          TemplateURL: 'https://notearshpc-quickstart.s3.amazonaws.com/0.2.3/cfn.yaml'
           Parameters: 
             OperatingSystem: alinux2
             EnableBudget: false
             CreateServiceLinkedRoles: false
+            Cloud9Owner: !Sub 'arn:aws:sts::${AWS::AccountId}:assumed-role/TeamRole/MasterKey'
+            ConfigS3URI: 'https://raw.githubusercontent.com/aws-samples/no-tears-cluster/v0.2.3/scripts/sc20workshop.ini'
+Outputs:
+  NoTearsCloud9:
+    Value:
+      Fn::GetAtt:
+          - NoTearsHPC
+          - Outputs.ResearchWorkspaceURL
