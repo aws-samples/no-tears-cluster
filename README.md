@@ -1,7 +1,6 @@
 <p align="center">
     <h1 align="center">AWS HPC Cluster Deployment Guide 🚀</h1>
     <img alt="No Tears Cluster Architecture" src="https://user-images.githubusercontent.com/187202/112858210-42bb2100-9077-11eb-9123-b22e2dc32693.png">
-    <h1 align="center">AWS HPC Cluster Deployment Guide 🚀</h1>
 </p>
 
 <br>
