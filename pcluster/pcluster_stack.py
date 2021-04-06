@@ -120,6 +120,7 @@ class PclusterStack(cdk.Stack):
         lustre_storage_type = cdk.CfnParameter(self, 'FSxLustreStorageType', description='Sets the storage type for the file system you are creating. Valid values are SSD and HDD.', default='SSD', allowed_values=['SSD', 'HDD'])
         lustre_drive_cache = cdk.CfnParameter(self, 'FSxLustreDriveCacheType', description='This parameter is required when storage type is HDD. Set to READ to enable SSD Drive Cache Tier and improve the performance for frequently accessed files and allows 20% of the total storage capacity of the file system to be cached. Disabled whenever storage type is SSD. \'READ\' enables on HDD type.', allowed_values=['NONE','READ'], default='NONE')
         lustre_type_is_ssd = cdk.CfnCondition(self, "LustreTypeIsSSD", expression=cdk.Fn.condition_equals(lustre_storage_type.value_as_string, "SSD"))
+        lustre_type_is_scratch2 = cdk.CfnCondition(self, "LustreTypeIsSCRATCH2", expression=cdk.Fn.condition_equals(lustre_type.value_as_string, "SCRATCH_2"))
         lustre_storage_capacity = cdk.CfnParameter(self, 'FSxLustreStorageCapacity', description='FSx Lustre filesystem capacity (in GiB). Scratch and persistent SSD-based file systems can be created in sizes of 1200 GiB or in increments of 2400 GiB. Persistent HDD-based file systems with 12 MB/s and 40 MB/s of throughput per TiB can be created in increments of 6000 GiB and 1800 GiB, respectively.', default=1200, type='Number')
 
 
@@ -128,7 +129,6 @@ class PclusterStack(cdk.Stack):
             "deploymentType": lustre_type.value_as_string,
             "exportPath": 's3://%s' % ( data_bucket.bucket_name ),
             "importPath": 's3://%s' % ( data_bucket.bucket_name ),
-            "perUnitStorageThroughput": lustre_performance.value_as_number,
         }
         fsx_lustre_filesystem = fsx.CfnFileSystem(self, 'FSxLustreFileSystem',
                                                   file_system_type='LUSTRE', subnet_ids=[vpc.private_subnets[0].subnet_id],
@@ -141,6 +141,16 @@ class PclusterStack(cdk.Stack):
                     lustre_type_is_ssd.logical_id,
                     cdk.Aws.NO_VALUE,
                     lustre_drive_cache.value_as_string
+                ]
+            }
+        )
+        fsx_lustre_filesystem.add_override(
+            "Properties.LustreConfiguration.PerUnitStorageThroughput",
+            {
+                "Fn::If": [
+                    lustre_type_is_scratch2.logical_id,
+                    cdk.Aws.NO_VALUE,
+                    lustre_performance.value_as_number
                 ]
             }
         )
